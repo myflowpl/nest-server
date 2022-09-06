@@ -1,5 +1,6 @@
 import { Body, Controller, Delete, Get, HttpCode, HttpStatus, NotFoundException, Param, ParseIntPipe, Patch, Post, Query, UsePipes, ValidationPipe } from '@nestjs/common';
 import { ApiParam, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { StorageService } from '../storage/storage.service';
 import { ContactExceptionDto, ContactsCreateDto, ContactsFindAllDto, ContactsUpdateDto } from './contacts.dto';
 import { Contact } from './contacts.entity';
 
@@ -12,6 +13,10 @@ let data = [
 @Controller('contacts')
 @ApiTags('Contacts')
 export class ContactsController {
+
+  constructor(
+    private storage: StorageService,
+  ) {}
 
   @Get()
   async findAll(@Query(new ValidationPipe({transform: true})) query: ContactsFindAllDto): Promise<Contact[]> {
