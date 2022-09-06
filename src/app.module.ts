@@ -1,12 +1,13 @@
 import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { ContactsController } from './contacts/contacts.controller';
 import { StorageModule } from './storage/storage.module';
+import { ContactsModule } from './contacts/contacts.module';
+import { LoggerModule } from './logger/logger.module';
 
 @Module({
-  imports: [StorageModule],
-  controllers: [AppController, ContactsController],
+  imports: [StorageModule, ContactsModule, LoggerModule],
+  controllers: [AppController],
   providers: [AppService],
   exports: [],
 })

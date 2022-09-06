@@ -1,5 +1,6 @@
 import { Body, Controller, Delete, Get, HttpCode, HttpStatus, NotFoundException, Param, ParseIntPipe, Patch, Post, Query, UsePipes, ValidationPipe } from '@nestjs/common';
 import { ApiParam, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { LoggerService } from '../logger/logger.service';
 import { StorageService } from '../storage/storage.service';
 import { ContactExceptionDto, ContactsCreateDto, ContactsFindAllDto, ContactsUpdateDto } from './contacts.dto';
 import { Contact } from './contacts.entity';
@@ -16,6 +17,7 @@ export class ContactsController {
 
   constructor(
     private storage: StorageService,
+    private logger: LoggerService,
   ) {}
 
   @Get()
