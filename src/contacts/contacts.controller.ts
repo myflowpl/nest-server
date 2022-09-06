@@ -1,5 +1,5 @@
-import { Body, Controller, Delete, Get, HttpCode, HttpStatus, NotFoundException, Param, Patch, Post, Query } from '@nestjs/common';
-import { ApiResponse, ApiTags } from '@nestjs/swagger';
+import { Body, Controller, Delete, Get, HttpCode, HttpStatus, NotFoundException, Param, ParseIntPipe, Patch, Post, Query, UsePipes, ValidationPipe } from '@nestjs/common';
+import { ApiParam, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { ContactExceptionDto, ContactsCreateDto, ContactsFindAllDto, ContactsUpdateDto } from './contacts.dto';
 import { Contact } from './contacts.entity';
 
@@ -14,11 +14,11 @@ let data = [
 export class ContactsController {
 
   @Get()
-  async findAll(@Query() query: ContactsFindAllDto): Promise<Contact[]> {
+  async findAll(@Query(new ValidationPipe({transform: true})) query: ContactsFindAllDto): Promise<Contact[]> {
 
     console.log('QUERY PARAMS', query)
 
-    return data.filter(contact => contact.id === parseInt(query.id, 10) || contact.name === query.name)
+    return data.filter(contact => contact.id === query.id || contact.name === query.name)
   }
 
   @ApiResponse({status: 404, type: ContactExceptionDto, description: 'Contact not found' })
@@ -36,6 +36,7 @@ export class ContactsController {
   }
 
   @Post()
+  @UsePipes( new ValidationPipe() )
   async create(@Body() contactDto: ContactsCreateDto): Promise<Contact> {
 
     const contact: Contact = {
@@ -67,16 +68,18 @@ export class ContactsController {
   }
 
   @Delete(':id')
-  async remove(@Param('id') id: string): Promise<number> {
+  @ApiParam({name: 'id', type: String})
+  @UsePipes(ValidationPipe)
+  async remove(@Param('id', new ParseIntPipe()) id: number): Promise<number> {
 
-    const index = data.findIndex(contact => contact.id === parseInt(id));
+    const index = data.findIndex(contact => contact.id === id);
 
     if(index < 0) {
       throw new NotFoundException(`Contact for id "${id}" was not found`);
     }
 
-    data = data.filter(c => c.id !== parseInt(id))
+    data = data.filter(c => c.id !== id)
 
-    return parseInt(id);
+    return id;
   }
 }
