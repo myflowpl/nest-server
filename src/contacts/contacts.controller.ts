@@ -52,11 +52,7 @@ export class ContactsController {
   @HttpCode(204)
   async update(@Body() contactDto: ContactsUpdateDto, @Param('id') id: string): Promise<Contact> {
     
-    const contact = data.find(contact => contact.id === parseInt(id));
-
-    if(!contact) {
-      throw new NotFoundException(`Contact for id "${id}" was not found`);
-    }
+    const contact = await this.findOne(id);
 
     const updatedContact: Contact = {
       ...contact,
