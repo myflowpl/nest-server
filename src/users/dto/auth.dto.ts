@@ -1,6 +1,6 @@
 import { ApiProperty } from "@nestjs/swagger";
 import { IsEmail, IsString, MinLength } from "class-validator";
-import { User } from "../entities/user.entity";
+import { RoleNames, User } from "../entities/user.entity";
 
 export class AuthRegisterDto {
 
@@ -34,4 +34,9 @@ export class AuthLoginDto {
 export class AuthLoginResponse {
   token: string;
   user: User
+}
+
+export class UserRoleDto {
+  userId: number;
+  roleName: RoleNames;
 }

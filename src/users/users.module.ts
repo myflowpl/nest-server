@@ -7,12 +7,13 @@ import { JwtModule } from '@nestjs/jwt';
 import { ConfigModule, ConfigService } from '../config';
 import { StorageModule } from '../storage/storage.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { User } from './entities/user.entity';
+import { Role, User } from './entities/user.entity';
+import { UsersAdminController } from './controllers/users-admin/users-admin.controller';
 
 @Module({
   imports: [
     StorageModule,
-    TypeOrmModule.forFeature([User]),
+    TypeOrmModule.forFeature([User, Role]),
     JwtModule.registerAsync({
       imports: [ConfigModule],
       inject: [ConfigService],
@@ -22,7 +23,7 @@ import { User } from './entities/user.entity';
       })
     }),
   ],
-  controllers: [UsersController, AuthController],
+  controllers: [UsersController, AuthController, UsersAdminController],
   providers: [UsersService, AuthService]
 })
 export class UsersModule {}
