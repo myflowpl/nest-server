@@ -1,8 +1,9 @@
 import { BadRequestException, Body, Controller, Get, Post, UseGuards, UsePipes, ValidationPipe } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { Auth } from '../decorators/auth.decorator';
+import { Roles } from '../decorators/roles.decorator';
 import { AuthLoginDto, AuthLoginResponse, AuthRegisterDto, AuthRegisterResponse } from '../dto/auth.dto';
-import { User } from '../entities/user.entity';
+import { RoleNames, User } from '../entities/user.entity';
 import { JwtAuthGuard } from '../guards/jwt-auth.guard';
 import { AuthService } from '../services/auth.service';
 import { UsersService } from '../services/users.service';
@@ -60,6 +61,7 @@ export class AuthController {
 
   @Get('me')
   @UseGuards(JwtAuthGuard)
+  @Roles(RoleNames.ROOT)
   @ApiBearerAuth()
   me(@Auth() user: User) {
 
