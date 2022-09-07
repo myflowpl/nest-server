@@ -13,6 +13,7 @@ import Axios, {
   AxiosResponse,
   CancelTokenSource,
 } from 'axios';
+import { ConfigService } from './config';
 
 @Controller()
 @ApiTags('Main Page')
@@ -21,7 +22,10 @@ export class AppController {
   constructor(
     private readonly appService: AppService,
     private http: HttpService,
-    ) {}
+    private config: ConfigService,
+    ) {
+      // console.log('CONFIG', config)
+    }
 
   @Get()
   getHello(): string {

@@ -5,13 +5,14 @@ import { StorageModule } from './storage/storage.module';
 import { ContactsModule } from './contacts/contacts.module';
 import { LoggerModule } from './logger/logger.module';
 import { HttpModule } from '@nestjs/axios'
+import { ConfigModule } from './config/config.module';
 
 @Module({
   imports: [
     HttpModule,
     StorageModule, 
     ContactsModule, 
-    LoggerModule
+    LoggerModule, ConfigModule
   ],
   controllers: [AppController],
   providers: [AppService],
