@@ -61,7 +61,7 @@ export class AuthController {
 
   @Get('me')
   @UseGuards(JwtAuthGuard)
-  @Roles(RoleNames.ROOT)
+  // @Roles(RoleNames.ROOT)
   @ApiBearerAuth()
   me(@Auth() user: User) {
 

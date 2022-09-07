@@ -11,4 +11,7 @@ export class ConfigService {
   readonly DOMAIN = process.env.DOMAIN;
   readonly STORAGE_DIR = resolve(process.env.STORAGE_DIR);
   readonly JWT_SECRET = process.env.JWT_SECRET;
+
+  readonly DB_NAME = resolve(this.STORAGE_DIR, 'nest.db')
+
 }
