@@ -35,3 +35,12 @@ export class ContactsUpdateDto {
   @ApiProperty({example: 'Julia'})
   name: string;
 }
+
+export class SimpleUser {
+  id: number;
+  name: string;
+}
+
+export class SimplePayload {
+  user: SimpleUser
+}

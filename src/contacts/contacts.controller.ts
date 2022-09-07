@@ -1,9 +1,12 @@
-import { Body, Controller, Delete, Get, HttpCode, HttpStatus, NotFoundException, Param, ParseIntPipe, Patch, Post, Query, UsePipes, ValidationPipe } from '@nestjs/common';
-import { ApiParam, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { Body, Controller, Delete, Get, HttpCode, HttpStatus, NotFoundException, Param, ParseIntPipe, Patch, Post, Query, Req, UseGuards, UsePipes, ValidationPipe } from '@nestjs/common';
+import { ApiBearerAuth, ApiParam, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { Request } from 'express';
 import { LoggerService } from '../logger/logger.service';
 import { StorageService } from '../storage/storage.service';
-import { ContactExceptionDto, ContactsCreateDto, ContactsFindAllDto, ContactsUpdateDto } from './contacts.dto';
+import { Auth } from '../users/decorators/auth.decorator';
+import { ContactExceptionDto, ContactsCreateDto, ContactsFindAllDto, ContactsUpdateDto, SimpleUser } from './contacts.dto';
 import { Contact } from './contacts.entity';
+import { SimpleGuard } from './simple.guard';
 
 
 let data = [
@@ -44,7 +47,11 @@ export class ContactsController {
 
   @Post()
   @UsePipes( new ValidationPipe() )
-  async create(@Body() contactDto: ContactsCreateDto): Promise<Contact> {
+  @UseGuards(SimpleGuard)
+  @ApiBearerAuth()
+  async create(@Body() contactDto: ContactsCreateDto, @Auth() user: SimpleUser): Promise<Contact> {
+
+    console.log('AUTH USER', user)
 
     const contact: Contact = {
       ...contactDto,
@@ -89,4 +96,26 @@ export class ContactsController {
 
     return id;
   }
+
+  // @Get('autocomplete')
+  // async autocomplete(@Req() req: Request) {
+
+  //   const request$ = this.dataService.search('sdfsdf')
+
+  //   const subscription = request$.subscribe(data => {
+  //     // todo something with data
+  //   })
+
+  //   const ctrl = new AbortController()
+
+  //   req.on('end', () => {
+  //     ctrl.abort()
+  //     subscription.unsubscribe();
+  //   })
+
+  //   const data1 =  await fetch('/get/data/from/here', {signal: ctrl.signal});
+  //   const data2 =  await fetch('/get/data/from/here', {signal: ctrl.signal});
+
+  //   return [data1, data2]
+  // }
 }
