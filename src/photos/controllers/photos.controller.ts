@@ -22,6 +22,8 @@ export class PhotosController {
 
     const photo = await this.photosService.create(file, body)
 
-    return { file, body, photo }
+    const thumbs = await this.photosService.createThumbs(photo.filename)
+
+    return { file, body, photo, thumbs }
   }
 }
