@@ -1,48 +1,27 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
+import { expressApp } from './express/server';
+import { ExpressAdapter } from '@nestjs/platform-express'
+import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
+
+  const app = await NestFactory.create(AppModule, new ExpressAdapter(expressApp));
+
+  // SWAGGER SETUP
+  const swaggerConfig = new DocumentBuilder()
+  .setTitle('Mój Projekt w Nest')
+  .setDescription('Przykładowy projekt w Node.js i TypeScript')
+  .setVersion('1.0')
+  .build();
+
+  const document = SwaggerModule.createDocument(app, swaggerConfig);
+
+  SwaggerModule.setup('docs', app, document, { swaggerOptions: { persistAuthorization: true } });
+  // END OF SWAGGER SETUP
+
+
   await app.listen(3000);
+
 }
 bootstrap();
-
-// function Log(label) {
-//   return (target, key, descriptor) => {
-//     console.log(`LOG ${label}: ${key} was decorated!`, label, target, key, descriptor);
-
-//     const orgFn = descriptor.value;
-
-//     descriptor.value = function(...args) {
-//       console.log(` ${key} function logic replaced`)
-
-//       const data = orgFn.call(this, ...args)
-
-//       console.log(` ${key} function logic wrapped after`, data)
-
-//       return data;
-//     }
-//   };
-// }
-
-// function controller(...args) {
-//   console.log('CLASS DECORATOR', args)
-// }
-
-// @controller
-// class P {
-//   @Log('debug')
-//   foo() {
-//     console.log('foo() WORK IS RUNNING')
-//     return 'test data'
-//   }
-
-//   @Log('wargning')
-//   bar() {}
-// }
-
-// console.log('RUN THE APP')
-
-// const p = new P()
-
-// p.foo();
