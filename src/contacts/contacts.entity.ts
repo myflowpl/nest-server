@@ -7,7 +7,7 @@ export class Contact {
   @Transform(({ value }) => value.toUpperCase(), { toPlainOnly: true})
   name: string;
 
-  // @Exclude()
+  @Exclude()
   email: string;
   message: string;
 }
