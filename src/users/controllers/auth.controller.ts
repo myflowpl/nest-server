@@ -21,7 +21,7 @@ export class AuthController {
   me(@Payload('user') user: User) {
     console.log('CONTROLLER LOGIC')
 
-    throw new UserBlockedException(UserBlockReason.PAYMENT);
+    // throw new UserBlockedException(UserBlockReason.PAYMENT);
 
     return user;
 

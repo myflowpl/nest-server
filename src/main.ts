@@ -5,10 +5,18 @@ import { ExpressAdapter } from '@nestjs/platform-express'
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { ConfigService } from './config';
 import { PerformanceInterceptor } from './users/interceptors/performance.interceptor';
+import {
+  FastifyAdapter,
+  NestFastifyApplication,
+} from '@nestjs/platform-fastify';
 
 async function bootstrap() {
 
-  const app = await NestFactory.create(AppModule, new ExpressAdapter(expressApp));
+  const app = await NestFactory.create(
+    AppModule, 
+    new ExpressAdapter(expressApp),
+    // new FastifyAdapter()
+  );
 
   const config = app.get(ConfigService);
   
