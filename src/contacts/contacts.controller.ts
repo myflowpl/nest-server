@@ -1,4 +1,4 @@
-import { BadRequestException, Body, Controller, Delete, Get, NotFoundException, Param, Patch, Post, Query } from '@nestjs/common';
+import { BadRequestException, Body, Controller, Delete, Get, NotFoundException, Param, ParseFilePipe, ParseIntPipe, Patch, Post, Query, UsePipes, ValidationPipe } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { StoreService } from '../store/store.service';
 import { CreateContactDto, GetContactsDto, UpdateContactDto } from './contacts.dto';
@@ -13,9 +13,12 @@ export class ContactsController {
   ) {}
   
   @Get()
-  async findAll(@Query() query: GetContactsDto): Promise<Contact[]> {
+  async findAll(@Query(new ValidationPipe({transform: true})) query: GetContactsDto): Promise<Contact[]> {
 
     const contacts = await this.store.findAll(Contact);
+
+
+    console.log(query)
 
     return contacts.slice((query.page-1) * query.pageSize, query.page * query.pageSize)
 
@@ -38,9 +41,9 @@ export class ContactsController {
   }
 
   @Get(':id')
-  async findOne(@Param('id') id: string): Promise<Contact> {
+  async findOne(@Param('id', ParseIntPipe) id: number): Promise<Contact> {
 
-    const contact = await this.store.findOne(Contact, +id);
+    const contact = await this.store.findOne(Contact, id);
 
     if(!contact) {
       throw new NotFoundException(`Contact by id ${id} not found`)
@@ -50,7 +53,7 @@ export class ContactsController {
   }
 
   @Patch(':id')
-  async update(@Param('id') id: string, @Body() data: UpdateContactDto): Promise<Contact> {
+  async update(@Param('id', ParseFilePipe) id: string, @Body() data: UpdateContactDto): Promise<Contact> {
 
     const contact = await this.store.update(Contact, +id, data);
 
@@ -62,9 +65,10 @@ export class ContactsController {
   }
 
   @Delete(':id')
-  async remove(@Param('id') id: string): Promise<number> {
+  @UsePipes(ParseIntPipe)
+  async remove(@Param('id') id: number): Promise<number> {
     
-    const contact = await this.store.remove(Contact, +id);
+    const contact = await this.store.remove(Contact, id);
 
     if(!contact) {
       throw new NotFoundException(`Contact by id ${id} not found`)
