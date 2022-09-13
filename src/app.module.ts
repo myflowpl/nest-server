@@ -1,4 +1,5 @@
 import { Module } from '@nestjs/common';
+import { HttpModule } from '@nestjs/axios';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { StoreModule } from './store/store.module';
@@ -8,6 +9,7 @@ import { UsersModule } from './users/users.module';
 
 @Module({
   imports: [
+    HttpModule,
     StoreModule, 
     ConfigModule, 
     ContactsModule, 

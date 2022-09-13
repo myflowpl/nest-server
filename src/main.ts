@@ -4,12 +4,17 @@ import { expressApp } from './express/server';
 import { ExpressAdapter } from '@nestjs/platform-express'
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { ConfigService } from './config';
+import { PerformanceInterceptor } from './users/interceptors/performance.interceptor';
 
 async function bootstrap() {
 
   const app = await NestFactory.create(AppModule, new ExpressAdapter(expressApp));
 
   const config = app.get(ConfigService);
+  
+  // app.useGlobalInterceptors(
+  //   app.get(PerformanceInterceptor)
+  // );
 
   // SWAGGER SETUP
   const swaggerConfig = new DocumentBuilder()
