@@ -1,7 +1,7 @@
-import { BadRequestException, Body, Controller, Delete, Get, NotFoundException, Param, ParseFilePipe, ParseIntPipe, Patch, Post, Query, UsePipes, ValidationPipe } from '@nestjs/common';
+import { BadRequestException, Body, ClassSerializerInterceptor, Controller, DefaultValuePipe, Delete, Get, NotFoundException, Param, ParseFilePipe, ParseIntPipe, Patch, Post, Query, UseInterceptors, UsePipes, ValidationPipe } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { StoreService } from '../store/store.service';
-import { CreateContactDto, GetContactsDto, UpdateContactDto } from './contacts.dto';
+import { CreateContactDto, GetContactsDto, SortDir, UpdateContactDto } from './contacts.dto';
 import { Contact } from './contacts.entity';
 
 @Controller('contacts')
@@ -13,11 +13,16 @@ export class ContactsController {
   ) {}
   
   @Get()
-  async findAll(@Query(new ValidationPipe({transform: true})) query: GetContactsDto): Promise<Contact[]> {
+  @UsePipes(new ValidationPipe({
+    transform: true, 
+    transformOptions: { enableImplicitConversion: true }
+  }))
+  async findAll(@Query() query: GetContactsDto, @Query('sortDir', new DefaultValuePipe(1)) sortDir: SortDir): Promise<Contact[]> {
 
     const contacts = await this.store.findAll(Contact);
 
 
+    console.log(sortDir)
     console.log(query)
 
     return contacts.slice((query.page-1) * query.pageSize, query.page * query.pageSize)
@@ -25,7 +30,7 @@ export class ContactsController {
   }
 
   @Post()
-  async create(@Body() data: CreateContactDto): Promise<Contact> {
+  async create(@Body(new ValidationPipe({})) data: CreateContactDto): Promise<Contact> {
 
     const existingEmail = await this.store.findAll(Contact).then(
       contacts => contacts.find(contact => contact.email === data.email)
@@ -41,6 +46,7 @@ export class ContactsController {
   }
 
   @Get(':id')
+  @UseInterceptors(ClassSerializerInterceptor)
   async findOne(@Param('id', ParseIntPipe) id: number): Promise<Contact> {
 
     const contact = await this.store.findOne(Contact, id);
