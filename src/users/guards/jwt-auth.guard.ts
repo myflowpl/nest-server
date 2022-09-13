@@ -5,8 +5,6 @@ import { RoleNames, User } from '../entities/user.entity';
 @Injectable()
 export class JwtAuthGuard implements CanActivate {
 
-  
-
   async canActivate(context: ExecutionContext): Promise<boolean> {
 
     const request: Request = context.switchToHttp().getRequest();
