@@ -74,11 +74,10 @@ export class AppController {
 
     // WORK AROUND bo nie działa unsubscribe na oficjalnym serwisie
     return new Observable<any[]>(subscriber => {
-      
-      const cancelSource = Axios.CancelToken.source();
 
       const axios = this.http.axiosRef;
 
+      const cancelSource = Axios.CancelToken.source();
 
       axios.get(url, {
         cancelToken: cancelSource.token,
