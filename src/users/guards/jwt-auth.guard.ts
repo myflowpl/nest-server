@@ -1,9 +1,15 @@
 import { CanActivate, ExecutionContext, Injectable } from '@nestjs/common';
+import { Reflector } from '@nestjs/core';
 import { Request } from 'express';
+import { ROLES_KEY } from '../decorators/roles.decorator';
 import { RoleNames, User } from '../entities/user.entity';
 
 @Injectable()
 export class JwtAuthGuard implements CanActivate {
+
+  constructor(
+    private reflector: Reflector
+  ) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
 
@@ -28,7 +34,19 @@ export class JwtAuthGuard implements CanActivate {
       return false;
     }
 
-    return true;
+    // pobrac role z dkoratora @Roles()
+    const requiredRoles: RoleNames[] = this.reflector.get(ROLES_KEY, context.getHandler()) || [];
+
+    if(!requiredRoles.length) {
+      return true;
+    }
+
+    // pobrac role usera
+    const userRoles: RoleNames[] = request.payload.user?.roles?.map(role => role.name) || [];
+
+    // zvalidowac wymanage role
+
+    return requiredRoles.some(role => userRoles.includes(role));
   }
 
   extractToken(request: Request): string {
