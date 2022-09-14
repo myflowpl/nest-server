@@ -1,6 +1,6 @@
 import { ApiProperty } from "@nestjs/swagger";
 import { IsEmail, MinLength } from "class-validator";
-import { User } from "../entities/user.entity";
+import { RoleNames, User } from "../entities/user.entity";
 
 export class AuthRegisterDto {
   @ApiProperty({example: 'Piotr'})
@@ -33,4 +33,9 @@ export class AuthLoginResponse {
   static create(data: Partial<AuthLoginResponse>): AuthLoginResponse {
     return Object.assign(new AuthLoginResponse(), data);
   }
+}
+
+export class AddRoleDto {
+  userId: number;
+  roleName: RoleNames;
 }

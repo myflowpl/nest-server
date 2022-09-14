@@ -7,6 +7,7 @@ import { ConfigModule, ConfigService } from '../config';
 import { JwtModule } from '@nestjs/jwt';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Role, User } from './entities/user.entity';
+import { UsersAdminController } from './controllers/users-admin.controller';
 
 @Module({
   imports: [
@@ -22,7 +23,7 @@ import { Role, User } from './entities/user.entity';
     }),
     TypeOrmModule.forFeature([User, Role])
   ],
-  controllers: [AuthController],
+  controllers: [AuthController, UsersAdminController],
   providers: [UsersService, AuthService],
   exports: [UsersService, AuthService],
 })
