@@ -12,7 +12,18 @@ export class AuthService {
     private jwtService: JwtService
   ) {}
 
-  // async validateUser(email: string, password: string): Promise<User | null> {}
+  async validateUser(email: string, password: string): Promise<User | null> {
+
+    const [user] = await this.usersService.findBy({ email });
+
+    if(!user) {
+      return null;
+    }
+
+    const isValid = await this.validatePassword(password, user.password);
+
+    return isValid ? user : null;
+  }
 
   async encodePassword(password: string): Promise<string> {
     return bcrypt.hash(password, 10);
