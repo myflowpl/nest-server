@@ -5,6 +5,8 @@ import { AuthService } from './services/auth.service';
 import { StoreModule } from '../store/store.module';
 import { ConfigModule, ConfigService } from '../config';
 import { JwtModule } from '@nestjs/jwt';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { Role, User } from './entities/user.entity';
 
 @Module({
   imports: [
@@ -17,7 +19,8 @@ import { JwtModule } from '@nestjs/jwt';
         secret: config.JWT_SECRET,
         signOptions: { expiresIn: '4d'}
       })
-    })
+    }),
+    TypeOrmModule.forFeature([User, Role])
   ],
   controllers: [AuthController],
   providers: [UsersService, AuthService],

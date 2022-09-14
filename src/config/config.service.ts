@@ -18,6 +18,9 @@ export class ConfigService implements OnModuleInit {
   @MinLength(3)
   readonly JWT_SECRET = process.env.JWT_SECRET;
 
+  readonly DB_NAME = resolve(this.STORAGE_DIR, 'nest.db')
+
+
   async onModuleInit() {
 
     await validateOrReject(this).catch(errors => {
