@@ -1,4 +1,4 @@
-import { Injectable, OnModuleInit } from '@nestjs/common';
+import { Injectable, OnModuleInit, OnApplicationShutdown } from '@nestjs/common';
 import { resolve } from 'path';
 import 'dotenv/config'; 
 import { MinLength, validateOrReject } from 'class-validator';

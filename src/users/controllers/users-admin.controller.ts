@@ -1,4 +1,5 @@
-import { Body, Controller, Delete, Post } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Post } from '@nestjs/common';
+import { Client, ClientProxy, Transport } from '@nestjs/microservices';
 import { ApiBody, ApiTags } from '@nestjs/swagger';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
@@ -11,12 +12,23 @@ import { UserByIdPipe } from '../pipes/user-by-id.pipe';
 @ApiTags('UsersAdmin')
 export class UsersAdminController {
 
+  @Client({transport: Transport.TCP, options: {port: 3001}})
+  client: ClientProxy
   
   constructor(
 
     @InjectRepository(User)
     private userRepository: Repository<User>
   ) {}
+
+  @Get('sum')
+  sumNumbers() {
+
+    const pattern = 'ADD_NUMBERS';
+    const payload = [1,2,3];
+
+    return this.client.send<number>(pattern, payload);
+  }
 
   @Post('roles')
   @ApiBody({type: AddRoleDto})
