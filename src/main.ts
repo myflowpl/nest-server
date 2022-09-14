@@ -1,7 +1,7 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 // import { expressApp } from './express/server';
-// import { ExpressAdapter } from '@nestjs/platform-express'
+import { ExpressAdapter, NestExpressApplication } from '@nestjs/platform-express'
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { ConfigService } from './config';
 import { PerformanceInterceptor } from './users/interceptors/performance.interceptor';
@@ -9,14 +9,19 @@ import { PerformanceInterceptor } from './users/interceptors/performance.interce
 //   FastifyAdapter,
 //   NestFastifyApplication,
 // } from '@nestjs/platform-fastify';
+import { join } from 'path';
 
 async function bootstrap() {
 
-  const app = await NestFactory.create(
+  const app = await NestFactory.create<NestExpressApplication>(
     AppModule, 
     // new ExpressAdapter(expressApp),
     // new FastifyAdapter()
   );
+
+  app.setBaseViewsDir(join(__dirname, 'views'));
+  
+  app.setViewEngine('hbs');
 
   const config = app.get(ConfigService);
   

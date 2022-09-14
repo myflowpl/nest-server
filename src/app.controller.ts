@@ -22,8 +22,19 @@ export class AppController {
   }
 
   @Get()
-  getHello(): string {
-    return this.appService.getHello();
+  @Render('main-page')
+  async getHello() {
+
+    const message = this.appService.getHello();
+
+    const photos = [
+      {url: 'https://cdn.pixabay.com/photo/2021/09/14/17/07/scooter-6624573_1280.jpg'},
+      {url: 'https://cdn.pixabay.com/photo/2021/09/14/17/07/scooter-6624573_1280.jpg'},
+      {url: 'https://cdn.pixabay.com/photo/2021/09/14/17/07/scooter-6624573_1280.jpg'},
+      {url: 'https://cdn.pixabay.com/photo/2021/09/14/17/07/scooter-6624573_1280.jpg'},
+    ]
+
+    return { message, photos };
   }
 
   @Get('autocomplete')
