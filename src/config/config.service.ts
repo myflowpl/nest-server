@@ -15,7 +15,7 @@ export class ConfigService implements OnModuleInit {
 
   readonly STORAGE_DIR = resolve(process.env.STORAGE_DIR || '');
 
-  @MinLength(30)
+  @MinLength(3)
   readonly JWT_SECRET = process.env.JWT_SECRET;
 
   async onModuleInit() {
