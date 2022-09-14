@@ -1,5 +1,5 @@
 import { DataSource } from 'typeorm';
-import { SqliteConnectionOptions } from 'typeorm/driver/sqlite/SqliteConnectionOptions';
+// import { SqliteConnectionOptions } from 'typeorm/driver/sqlite/SqliteConnectionOptions';
 
 const source = new DataSource({
   "type": "sqlite",
