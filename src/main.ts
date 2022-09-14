@@ -1,20 +1,20 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
-import { expressApp } from './express/server';
-import { ExpressAdapter } from '@nestjs/platform-express'
+// import { expressApp } from './express/server';
+// import { ExpressAdapter } from '@nestjs/platform-express'
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { ConfigService } from './config';
 import { PerformanceInterceptor } from './users/interceptors/performance.interceptor';
-import {
-  FastifyAdapter,
-  NestFastifyApplication,
-} from '@nestjs/platform-fastify';
+// import {
+//   FastifyAdapter,
+//   NestFastifyApplication,
+// } from '@nestjs/platform-fastify';
 
 async function bootstrap() {
 
   const app = await NestFactory.create(
     AppModule, 
-    new ExpressAdapter(expressApp),
+    // new ExpressAdapter(expressApp),
     // new FastifyAdapter()
   );
 

@@ -18,7 +18,7 @@ export class AppController {
     private config: ConfigService,
     private http: HttpService,
   ) {
-    // console.log('Config', config);
+    console.log('Config', config);
   }
 
   @Get()

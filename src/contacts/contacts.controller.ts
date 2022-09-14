@@ -3,7 +3,7 @@ import { ApiTags } from '@nestjs/swagger';
 import { StoreService } from '../store/store.service';
 import { CreateContactDto, GetContactsDto, SortDir, UpdateContactDto } from './contacts.dto';
 import { Contact } from './contacts.entity';
-
+import { APP_PIPE } from '@nestjs/core';
 @Controller('contacts')
 @ApiTags('Contacts')
 export class ContactsController {

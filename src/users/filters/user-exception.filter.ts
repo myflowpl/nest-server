@@ -5,7 +5,7 @@ import { UserBlockedException } from './user.exception';
 
 @Catch(UserBlockedException)
 export class UserExceptionFilter implements ExceptionFilter {
-  
+
   private logger = new Logger('Users Exception Filter', { timestamp: true });
 
   constructor(private config: ConfigService) {}
