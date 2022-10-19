@@ -9,27 +9,12 @@ const envFile = './.env';
 const envTplFile = './.env-tpl';
 const configJsonFile = './config.json';
 
-(async function() {
-  if (result.parsed) {
-    await setupConfigJsonFile(result.parsed);
-  } else {
-    await setupEnvFile();
-  }
-})()
-
-async function setupConfigJsonFile(config) {
-  config = {
-    ...config,
-    SOURCE: 'from assets config.json file (dev only)'
-  };
-  writeFileSync(configJsonFile, JSON.stringify(config, null, 2));
-  console.log(chalk.green(`Plik ${configJsonFile} został uaktualniony konfiguracją z pliku .env`));
-  await printData(config);
-}
+setupEnvFile();
 
 async function setupEnvFile() {
 
   if (existsSync(envFile)) {
+    await printData(result.parsed);
     return console.log(chalk.green('Ten projekt ma plik .env i jest gotowy do pracy'));
   }
   console.log(chalk.green('Brak pliku .env !!!'));
@@ -83,7 +68,7 @@ async function setupEnvFile() {
 
   console.log(chalk.green('Plik konfiguracyjny .env jest gotowy'));
 
-  await setupConfigJsonFile(data);
+  await printData(data);
 
   console.log(chalk.green('Można rozpocząć pracę :)'));
 };
