@@ -11,6 +11,7 @@ export class ConfigService implements OnModuleInit, OnModuleDestroy {
     // throw new Error('Method not implemented.');
   }
 
+  readonly DEBUG = true;
   readonly PORT = 3000;
 
 }
