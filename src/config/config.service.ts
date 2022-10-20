@@ -1,7 +1,15 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, OnModuleInit, OnModuleDestroy } from '@nestjs/common';
 
 @Injectable()
-export class ConfigService {
+export class ConfigService implements OnModuleInit, OnModuleDestroy {
+
+  async onModuleInit() {
+    // throw new Error('Method not implemented.');
+  }
+
+  async onModuleDestroy() {
+    // throw new Error('Method not implemented.');
+  }
 
   readonly PORT = 3000;
 
