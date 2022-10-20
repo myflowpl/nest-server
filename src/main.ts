@@ -1,14 +1,14 @@
 import { NestFactory } from '@nestjs/core';
 // import { Request } from 'express';
 import { AppModule } from './app.module';
-import { ExpressAdapter } from '@nestjs/platform-express';
+import { ExpressAdapter, NestExpressApplication } from '@nestjs/platform-express';
 import { expressApp } from './express/server';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { ConfigService } from './config';
 
 async function bootstrap() {
 
-  const app = await NestFactory.create(AppModule, new ExpressAdapter(expressApp));
+  const app = await NestFactory.create<NestExpressApplication>(AppModule, new ExpressAdapter(expressApp));
 
   const config = app.get(ConfigService);
 
@@ -17,6 +17,7 @@ async function bootstrap() {
   .setTitle('Mój Projekt w Nest')
   .setDescription('Przykładowy projekt w Node.js i TypeScript')
   .setVersion('1.0')
+  .addBearerAuth()
   .build();
 
   const document = SwaggerModule.createDocument(app, swaggerConfig);

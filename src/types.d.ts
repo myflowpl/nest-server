@@ -1,8 +1,8 @@
-// import { RequestPayload } from '../entities';
 import 'express';
+import { RequestPayload } from './users/entities/user.entity';
 
 declare module 'express' {
   export interface Request {
-    //  payload?: RequestPayload;
+     payload?: RequestPayload | undefined | null;
   }
 }
