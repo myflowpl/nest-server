@@ -29,3 +29,8 @@ export class GetContactsDto {
   sortBy?: string;
   sortDir?: SortDir;
 }
+
+export class UpdateContactDto {
+  name: string;
+  message: string;
+}

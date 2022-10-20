@@ -1,7 +1,7 @@
-import { BadRequestException, Body, Controller, Get, InternalServerErrorException, Param, Post, Query } from '@nestjs/common';
+import { BadRequestException, Body, Controller, Delete, Get, InternalServerErrorException, NotFoundException, Param, Patch, Post, Query } from '@nestjs/common';
 import { ApiResponse, ApiTags } from '@nestjs/swagger';
 import { StoreService } from '../store/store.service';
-import { CreateContactDto, ErrorResponse, GetContactsDto } from './contacts.dto';
+import { CreateContactDto, ErrorResponse, GetContactsDto, UpdateContactDto } from './contacts.dto';
 import { Contact } from './contacts.entity';
 
 @Controller('contacts')
@@ -43,10 +43,43 @@ export class ContactsController {
   }
 
   @Get(':id')
+  @ApiResponse({status: 404, type: ErrorResponse, description: 'Contact not found'})
   async findOne(@Param('id') id: string): Promise<Contact> {
 
     const contact = await this.store.findOne(Contact, +id);
 
+    if(!contact) {
+      throw new NotFoundException(`Contact for id ${id} was not found`)
+    }
+
     return contact;
   }
+
+  @Delete(':id')
+  @ApiResponse({status: 404, type: ErrorResponse, description: 'Contact not found'})
+  async remove(@Param('id') id: string): Promise<number> {
+
+    const contact = await this.store.findOne(Contact, +id);
+
+    if(!contact) {
+      throw new NotFoundException(`Contact for id ${id} was not found`)
+    }
+
+    const c = await this.store.remove(Contact, +id);
+
+    return c;
+  }
+
+  @Patch(':id')
+  async update(@Param('id') id: string, @Body() data: UpdateContactDto): Promise<Contact> {
+
+    const contact = await this.store.update(Contact, +id, data);
+
+    if(!contact) {
+      throw new NotFoundException(`Contact for id ${id} not found`)
+    }
+
+    return contact;
+  }
+
 }
