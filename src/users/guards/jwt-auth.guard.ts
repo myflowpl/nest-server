@@ -1,9 +1,15 @@
 import { CanActivate, ExecutionContext, Injectable, UnauthorizedException } from '@nestjs/common';
+import { Reflector } from '@nestjs/core';
 import { Request } from 'express';
+import { ROLES_KEY } from '../decorators/roles.decorator';
 import { RequestPayload, RoleNames, User } from '../entities/user.entity';
 
 @Injectable()
 export class JwtAuthGuard implements CanActivate {
+
+  constructor(
+    private reflector: Reflector
+  ) {}
   
   async canActivate(context: ExecutionContext): Promise<boolean> {
 
@@ -20,7 +26,7 @@ export class JwtAuthGuard implements CanActivate {
       user: User.create({
         id: 1,
         name: 'Piotr',
-        roles: [{id: 1, name: RoleNames.ROOT}]
+        roles: [{id: 1, name: RoleNames.ADMIN}]
       })
     };
 
@@ -28,7 +34,19 @@ export class JwtAuthGuard implements CanActivate {
       throw new UnauthorizedException('JWT token expired')
     }
 
-    return true;
+    // get required roles from the controller @Roles() decorator
+    const requiredRoles: RoleNames[] = this.reflector.get(ROLES_KEY, context.getHandler());
+
+    // if no required roles allow access
+    if(!requiredRoles || !requiredRoles.length) {
+      return true;
+    }
+
+    // get current user roles
+    const userRoles: RoleNames[] = request.payload.user?.roles?.map(role => role.name) || [];
+
+    // test if required roles are assigned to user roles
+    return requiredRoles.some(role => userRoles.includes(role));
   }
 
   extractToken(req: Request): string {
