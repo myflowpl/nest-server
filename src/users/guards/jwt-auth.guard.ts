@@ -26,6 +26,7 @@ export class JwtAuthGuard implements CanActivate {
       user: User.create({
         id: 1,
         name: 'Piotr',
+        password: 'hash of the password',
         roles: [{id: 1, name: RoleNames.ADMIN}]
       })
     };
