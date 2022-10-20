@@ -1,4 +1,4 @@
-import { BadRequestException, Body, Controller, Delete, Get, InternalServerErrorException, NotFoundException, Param, Patch, Post, Query } from '@nestjs/common';
+import { BadRequestException, Body, Controller, Delete, Get, InternalServerErrorException, NotFoundException, Param, ParseIntPipe, Patch, Post, Query, UsePipes, ValidationPipe } from '@nestjs/common';
 import { ApiResponse, ApiTags } from '@nestjs/swagger';
 import { StoreService } from '../store/store.service';
 import { CreateContactDto, ErrorResponse, GetContactsDto, UpdateContactDto } from './contacts.dto';
@@ -8,6 +8,7 @@ import { Contact } from './contacts.entity';
 @ApiTags('Contacts')
 @ApiResponse({status: 400, type: ErrorResponse, description: 'Validation error'})
 @ApiResponse({status: 500, type: ErrorResponse, description: 'Unknown error'})
+
 export class ContactsController {
 
   constructor(
@@ -15,7 +16,10 @@ export class ContactsController {
   ) {}
 
   @Get()
+  @UsePipes(new ValidationPipe({transform: true, transformOptions: {enableImplicitConversion: true}}))
   async findAll(@Query() query: GetContactsDto): Promise<Contact[]> {
+
+    console.log(query)
 
     const contacts = await this.store.findAll(Contact);
 
@@ -23,7 +27,7 @@ export class ContactsController {
   }
 
   @Post()
-  async create(@Body() data: CreateContactDto): Promise<Contact> {
+  async create(@Body(ValidationPipe) data: CreateContactDto): Promise<Contact> {
 
     const existingEmail = await this.store.findAll(Contact).then(
       contacts => contacts.find(contact => contact.email === data.email)
@@ -44,9 +48,9 @@ export class ContactsController {
 
   @Get(':id')
   @ApiResponse({status: 404, type: ErrorResponse, description: 'Contact not found'})
-  async findOne(@Param('id') id: string): Promise<Contact> {
+  async findOne(@Param('id', new ParseIntPipe()) id: number): Promise<Contact> {
 
-    const contact = await this.store.findOne(Contact, +id);
+    const contact = await this.store.findOne(Contact, id);
 
     if(!contact) {
       throw new NotFoundException(`Contact for id ${id} was not found`)
@@ -57,21 +61,23 @@ export class ContactsController {
 
   @Delete(':id')
   @ApiResponse({status: 404, type: ErrorResponse, description: 'Contact not found'})
-  async remove(@Param('id') id: string): Promise<number> {
+  @UsePipes(ParseIntPipe)
+  async remove(@Param('id') id: number): Promise<number> {
 
-    const contact = await this.store.findOne(Contact, +id);
+    const contact = await this.store.findOne(Contact, id);
 
     if(!contact) {
       throw new NotFoundException(`Contact for id ${id} was not found`)
     }
 
-    const c = await this.store.remove(Contact, +id);
+    const c = await this.store.remove(Contact, id);
 
     return c;
   }
 
   @Patch(':id')
-  async update(@Param('id') id: string, @Body() data: UpdateContactDto): Promise<Contact> {
+  @UsePipes()
+  async update(@Param('id', ParseIntPipe) id: number, @Body() data: UpdateContactDto): Promise<Contact> {
 
     const contact = await this.store.update(Contact, +id, data);
 
