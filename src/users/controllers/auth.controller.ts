@@ -1,9 +1,9 @@
-import { BadRequestException, Body, ClassSerializerInterceptor, Controller, Get, Post, UseFilters, UseGuards, UseInterceptors, ValidationPipe } from '@nestjs/common';
+import { BadRequestException, Body, ClassSerializerInterceptor, Controller, Get, Post, UnauthorizedException, UseFilters, UseGuards, UseInterceptors, ValidationPipe } from '@nestjs/common';
 import { ApiBearerAuth, ApiForbiddenResponse, ApiTags, ApiUnauthorizedResponse } from '@nestjs/swagger';
 import { ApiAuth } from '../decorators/api-auth.decorator';
 import { Auth } from '../decorators/auth.decorator';
 import { Roles } from '../decorators/roles.decorator';
-import { AuthRegisterDto } from '../dto/auth.dto';
+import { AuthLoginDto, AuthRegisterDto } from '../dto/auth.dto';
 import { ExceptionResponse, RoleNames, User } from '../entities/user.entity';
 import { UserExceptionFilter } from '../filters/user-exception.filter';
 import { JwtAuthGuard } from '../guards/jwt-auth.guard';
@@ -23,7 +23,7 @@ export class AuthController {
   ) {}
 
   @Get()
-  @ApiAuth(RoleNames.ADMIN)
+  @ApiAuth()
   @UseInterceptors(PerformanceInterceptor)
   me(@Auth() user: User) {
 
@@ -47,5 +47,22 @@ export class AuthController {
     })
 
     return user;
+  }
+
+  @Post('login')
+  async login(@Body(new ValidationPipe({transform: true})) data: AuthLoginDto) {
+
+    // find user
+    const user = await this.authService.validateUser(data.email, data.password);
+
+    // throw error if not found
+    if(!user) {
+      throw new UnauthorizedException('Credentials invalid');
+    }
+
+    // create token and return dto
+    const token = await this.authService.encodeUserToken(user);
+
+    return { token, user };
   }
 }
