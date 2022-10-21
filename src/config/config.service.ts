@@ -12,6 +12,8 @@ export class ConfigService implements OnModuleInit, OnModuleDestroy {
 
   readonly JWT_SECRET = process.env.JWT_SECRET;
 
+  readonly DB_NAME = resolve(this.STORAGE_DIR, 'nest.db')
+
   async onModuleInit() {
     // throw new Error('Method not implemented.');
   }
