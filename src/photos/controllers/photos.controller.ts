@@ -2,6 +2,7 @@ import { Body, Controller, Post, UploadedFile, UseInterceptors } from '@nestjs/c
 import { FileInterceptor } from '@nestjs/platform-express';
 import { ApiConsumes, ApiTags } from '@nestjs/swagger';
 import { PhotoUploadDto } from '../photos.dto';
+import { IsImagePipe } from '../pipes/is-image.pipe';
 import { PhotosService } from '../services/photos.service';
 
 @Controller('photos')
@@ -17,11 +18,13 @@ export class PhotosController {
   @UseInterceptors(FileInterceptor('file'))
   async upload(
     @Body() data: PhotoUploadDto,
-    @UploadedFile() file: Express.Multer.File
+    @UploadedFile(IsImagePipe) file: Express.Multer.File
   ) {
 
     const photo = await this.photosService.create(file, data);
 
-    return { data, file, photo }
+    const thumbs = await this.photosService.createThumbs(photo.filename);
+
+    return { data, file, photo, thumbs };
   }
 }
