@@ -3,12 +3,14 @@ import { Reflector } from '@nestjs/core';
 import { Request } from 'express';
 import { ROLES_KEY } from '../decorators/roles.decorator';
 import { RequestPayload, RoleNames, User } from '../entities/user.entity';
+import { AuthService } from '../services/auth.service';
 
 @Injectable()
 export class JwtAuthGuard implements CanActivate {
 
   constructor(
-    private reflector: Reflector
+    private reflector: Reflector,
+    private authService: AuthService,
   ) {}
   
   async canActivate(context: ExecutionContext): Promise<boolean> {
@@ -22,14 +24,7 @@ export class JwtAuthGuard implements CanActivate {
     }
 
     // validate token & create request payload
-    request.payload = {
-      user: User.create({
-        id: 1,
-        name: 'Piotr',
-        password: 'hash of the password',
-        roles: [{id: 1, name: RoleNames.ADMIN}]
-      })
-    };
+    request.payload = await this.authService.decodeUserToken(token);
 
     if(!request.payload) {
       throw new UnauthorizedException('JWT token expired')

@@ -21,6 +21,7 @@ export class UserExceptionFilter implements ExceptionFilter {
       statusCode: status,
       userId,
       path: req.url,
+      message: exception.message,
       errorStack: this.config.DEBUG ? exception.stack : null,
       errorMessage: this.config.DEBUG ? exception.message : null,
     };
