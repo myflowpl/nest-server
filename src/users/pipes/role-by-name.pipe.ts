@@ -1,8 +1,25 @@
-import { ArgumentMetadata, Injectable, PipeTransform } from '@nestjs/common';
+import { ArgumentMetadata, Injectable, NotFoundException, PipeTransform } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+import { Role, RoleNames } from '../entities/user.entity';
 
 @Injectable()
 export class RoleByNamePipe implements PipeTransform {
-  transform(value: any, metadata: ArgumentMetadata) {
-    return value;
+
+  constructor(
+
+    @InjectRepository(Role)
+    private roleRepository: Repository<Role>
+  ) {}
+
+  async transform(name: RoleNames, metadata: ArgumentMetadata): Promise<Role> {
+
+    const role = await this.roleRepository.findOneBy({ name });
+
+    if(!role) {
+      throw new NotFoundException(`Role ${name} not found`);
+    }
+
+    return role;
   }
 }
