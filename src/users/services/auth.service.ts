@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { RequestPayload, User } from '../entities/user.entity';
+import { RequestPayload, RoleNames, User } from '../entities/user.entity';
 
 @Injectable()
 export class AuthService {
@@ -11,7 +11,8 @@ export class AuthService {
       user: User.create({
         id: 1,
         name: 'piotr',
-        email: 'piotr@myflow.pl'
+        email: 'piotr@myflow.pl',
+        roles: [{id: 1, name: RoleNames.ROOT}]
       })
     }
 

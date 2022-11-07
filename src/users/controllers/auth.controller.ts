@@ -1,16 +1,15 @@
 import { Controller, Get, UseGuards } from '@nestjs/common';
-import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+import { ApiTags } from '@nestjs/swagger';
+import { ApiAuth } from '../decorators/api-auth.decorator';
 import { Auth } from '../decorators/auth.decorator';
-import { User } from '../entities/user.entity';
-import { JwtAuthGuard } from '../guards/jwt-auth.guard';
+import { RoleNames, User } from '../entities/user.entity';
 
 @Controller('auth')
 @ApiTags('Auth')
 export class AuthController {
 
   @Get()
-  @UseGuards(JwtAuthGuard)
-  @ApiBearerAuth()
+  @ApiAuth(RoleNames.ADMIN)
   me(@Auth() user: User) {
 
     return user;
