@@ -1,7 +1,13 @@
+import { Transform, Type } from "class-transformer";
+import { IsEmail, IsNumber, IsOptional, Max, MinLength } from "class-validator";
 
 export class CreateContactDto {
+  @MinLength(3)
   name: string;
+
+  @IsEmail()
   email: string;
+  
   message?: string;
 }
 
@@ -11,11 +17,20 @@ export enum SortDir {
 }
 
 export class GetContactsDto {
-  page?: number;
-  pageSize?: number;
 
-  sortBy?: string;
-  sortDir?: SortDir
+  @IsNumber()
+  @IsOptional()
+  page?: number = 1;
+  
+  @IsNumber()
+  @Max(5)
+  @IsOptional()
+  @Transform((data) => parseInt(data.value))
+  @Type()
+  pageSize?: number =2 ;
+
+  sortBy?: string = 'name';
+  sortDir?: SortDir = SortDir.ASC
 }
 
 export class ErrorResponse {

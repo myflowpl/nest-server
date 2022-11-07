@@ -1,4 +1,4 @@
-import { BadRequestException, Body, Controller, Delete, Get, NotFoundException, Param, Patch, Post, Query } from '@nestjs/common';
+import { BadRequestException, Body, Controller, Delete, Get, NotFoundException, Param, ParseIntPipe, Patch, Post, Query, UsePipes, ValidationPipe } from '@nestjs/common';
 import { ApiResponse, ApiTags } from '@nestjs/swagger';
 import { StoreService } from '../store/store.service';
 import { CreateContactDto, ErrorResponse, GetContactsDto, UpdateContactDto } from './contacts.dto';
@@ -14,8 +14,13 @@ export class ContactsController {
   ) {}
 
   @Get()
+  @UsePipes(new ValidationPipe({
+    transform: true, 
+    transformOptions: { enableImplicitConversion: true },
+  }))
   async findAll(@Query() query: GetContactsDto): Promise<Contact[]> {
 
+    console.log('QUERY', query)
     const contacts = await this.store.findAll(Contact)
 
     return contacts.slice(
@@ -25,7 +30,7 @@ export class ContactsController {
   }
 
   @Post()
-  async create(@Body() data: CreateContactDto): Promise<Contact> {
+  async create(@Body(new ValidationPipe()) data: CreateContactDto): Promise<Contact> {
 
     const existingEmail = await this.store.findAll(Contact).then(
       contacts => contacts.find(c => c.email === data.email)
@@ -42,9 +47,11 @@ export class ContactsController {
 
   @Get(':id')
   @ApiResponse({status: 404, type: ErrorResponse, description: 'Contact not found'})
-  async findOne(@Param('id') id: string) {
+  async findOne(@Param('id', ParseIntPipe) id: number) {
 
-    const contact = await this.store.findOne(Contact, +id);
+    console.log('ID', id)
+
+    const contact = await this.store.findOne(Contact, id);
 
     if(!contact) {
       throw new NotFoundException(`Contact for id ${id} not found`);
@@ -69,7 +76,7 @@ export class ContactsController {
   async remove(@Param('id') id: string) {
 
     const contact = await this.store.remove(Contact, +id);
-    
+
     if(!contact) {
       throw new NotFoundException(`Contact for id ${id} not found`);
     }
