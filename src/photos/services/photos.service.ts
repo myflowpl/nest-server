@@ -54,4 +54,11 @@ export class PhotosService {
 
     return { small }
   }
+
+  findAll() {
+    return this.photoRepository.find().then(photos => photos.map(photo => ({
+      thumbPath: '/thumbs/'+photo.filename,
+      downloadPath: '/photos/download/'+photo.filename,
+    })))
+  }
 }

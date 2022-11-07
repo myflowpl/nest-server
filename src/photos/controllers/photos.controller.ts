@@ -1,4 +1,4 @@
-import { Body, Controller, Post, UploadedFile, UseInterceptors } from '@nestjs/common';
+import { Body, Controller, Get, Post, Render, UploadedFile, UseInterceptors } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { ApiConsumes, ApiTags } from '@nestjs/swagger';
 import { ApiAuth } from '../../users/decorators/api-auth.decorator';
@@ -31,5 +31,12 @@ export class PhotosController {
     const thumbs = await this.photosService.createThumbs(photo.filename);
 
     return { data, file, photo, thumbs };
+  }
+
+  @Get()
+  @Render('photos/index')
+  async index() {
+    const photos = await this.photosService.findAll();
+    return { photos };
   }
 }
