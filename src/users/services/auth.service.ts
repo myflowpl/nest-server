@@ -12,7 +12,7 @@ export class AuthService {
         id: 1,
         name: 'piotr',
         email: 'piotr@myflow.pl',
-        roles: [{id: 1, name: RoleNames.ROOT}]
+        roles: [{id: 1, name: RoleNames.ADMIN}]
       })
     }
 
