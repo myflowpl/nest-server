@@ -1,3 +1,4 @@
+import { Exclude, Transform } from "class-transformer";
 
 export enum RoleNames {
   ADMIN = 'admin',
@@ -13,7 +14,12 @@ export class User {
   id: number;
   name: string;
   email: string;
+
+  @Exclude()
+  // @Transform((prop) => 'HIDDEN PASS', {toPlainOnly: true})
+  // @Transform((prop) => 'SHOW PASS', {toClassOnly: true})
   password: string;
+
   roles: Role[];
 
   static create(data: Partial<User>): User {

@@ -1,4 +1,4 @@
-import { Controller, Get, UseInterceptors } from '@nestjs/common';
+import { ClassSerializerInterceptor, Controller, Get, UseInterceptors } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { ApiAuth } from '../decorators/api-auth.decorator';
 import { Auth } from '../decorators/auth.decorator';
@@ -11,7 +11,7 @@ export class AuthController {
 
   @Get()
   @ApiAuth(RoleNames.ADMIN)
-  @UseInterceptors(PerformanceInterceptor)
+  @UseInterceptors(PerformanceInterceptor, ClassSerializerInterceptor)
   me(@Auth() user: User) {
 
     return user;
