@@ -22,7 +22,11 @@ export class AuthService {
   async decodeUserToken(token: string): Promise<RequestPayload | null> {
 
 
-    const payload: TokenPayload = await this.jwtService.verifyAsync(token);
+    const payload: TokenPayload | null = await this.jwtService.verifyAsync(token).catch(() => null);
+
+    if(!payload) {
+      return null;
+    }
 
     const user = await this.usersService.findOne(payload.sub);
 

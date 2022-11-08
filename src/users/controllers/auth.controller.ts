@@ -18,7 +18,7 @@ export class AuthController {
   ) {}
 
   @Get()
-  @ApiAuth(RoleNames.ADMIN)
+  @ApiAuth()
   @UseInterceptors(PerformanceInterceptor, ClassSerializerInterceptor)
   me(@Auth() user: User) {
 
