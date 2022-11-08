@@ -1,4 +1,4 @@
-import { Body, ClassSerializerInterceptor, Controller, Get, Post, UseInterceptors, BadRequestException } from '@nestjs/common';
+import { Body, ClassSerializerInterceptor, Controller, Get, Post, UseInterceptors, BadRequestException, ValidationPipe } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { ApiAuth } from '../decorators/api-auth.decorator';
 import { Auth } from '../decorators/auth.decorator';
@@ -26,7 +26,7 @@ export class AuthController {
   }
 
   @Post('register')
-  async register(@Body() data: AuthRegisterDto) {
+  async register(@Body(new ValidationPipe()) data: AuthRegisterDto) {
 
     const [exists] = await this.usersService.findBy({email: data.email});
 
@@ -46,7 +46,7 @@ export class AuthController {
   }
 
   @Post('login')
-  async login(@Body() data: AuthLoginDto) {
+  async login(@Body(new ValidationPipe()) data: AuthLoginDto) {
 
     const user = await this.authService.validateUser(data.email, data.password);
 
