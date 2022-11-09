@@ -7,6 +7,7 @@ import { ContactsModule } from './contacts/contacts.module';
 import { UsersModule } from './users/users.module';
 import { HttpModule } from '@nestjs/axios';
 import { DbModule } from './db/db.module';
+import { PhotosModule } from './photos/photos.module';
 
 @Module({
   imports: [
@@ -16,6 +17,7 @@ import { DbModule } from './db/db.module';
     UsersModule,
     HttpModule,
     DbModule,
+    PhotosModule,
   ],
   controllers: [AppController],
   providers: [AppService],
