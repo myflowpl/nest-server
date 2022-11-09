@@ -3,6 +3,7 @@ import { rename } from 'fs/promises';
 import { extname, resolve } from 'path';
 import { ConfigService } from '../config';
 import { Photo, PhotoUploadDto } from './photo.entity';
+import * as sharp from 'sharp';
 
 @Injectable()
 export class PhotosService {
@@ -29,5 +30,24 @@ export class PhotosService {
 
     // return photo
     return photo;
+  }
+
+  async createThumbs(filename: string) {
+
+    // create src file path
+    const srcFile = resolve(this.config.STORAGE_PHOTOS, filename);
+    
+    // create small thumbs
+    const small = resolve(this.config.STORAGE_THUMBS, filename);
+
+    await sharp(srcFile)
+      .rotate()
+      .resize(200, 200, { fit: 'cover', position: 'attention'})
+      .jpeg({quality: 100})
+      .toFile(small);
+
+    // other sizes
+
+    return { small };
   }
 }
