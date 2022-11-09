@@ -12,5 +12,11 @@
     "baseUrl": "./",
     "incremental": true,
     "skipLibCheck": true
-  }
+  },
+  "ts-node": {
+    "files": true
+  },
+  "files": [
+    "src/types.d.ts"
+  ],
 }

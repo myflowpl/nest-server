@@ -1,5 +1,5 @@
 import { Exclude, Transform } from "class-transformer";
-import { Entity, PrimaryGeneratedColumn, Column } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, ManyToMany, JoinTable } from 'typeorm';
 
 export enum RoleNames {
   ADMIN = 'admin',
@@ -9,15 +9,26 @@ export enum RoleNames {
 @Entity()
 export class Role {
 
+  constructor(data: Partial<Role> = {}) {
+    Object.assign(this, data);
+  }
+
   @PrimaryGeneratedColumn()
   id: number;
 
   @Column()
   name: RoleNames;
+
+  @ManyToMany(type => User)
+  users: User[];
 }
 
 @Entity()
 export class User {
+
+  constructor(data: Partial<User> = {}) {
+    Object.assign(this, data);
+  }
 
   @PrimaryGeneratedColumn()
   id: number;
@@ -34,6 +45,8 @@ export class User {
   @Column()
   password: string;
 
+  @ManyToMany(type => Role, role => role.users, { eager: true })
+  @JoinTable()
   roles: Role[];
 
   static create(data: Partial<User>): User {
