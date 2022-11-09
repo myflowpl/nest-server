@@ -16,6 +16,9 @@
   "ts-node": {
     "files": true
   },
+  "include": [
+    "src/**/*"
+  ],
   "files": [
     "src/types.d.ts"
   ],
