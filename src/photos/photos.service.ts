@@ -4,15 +4,21 @@ import { extname, resolve } from 'path';
 import { ConfigService } from '../config';
 import { Photo, PhotoUploadDto } from './photo.entity';
 import * as sharp from 'sharp';
+import { User } from '../users/entities/user.entity';
+import { Repository } from 'typeorm';
+import { InjectRepository } from '@nestjs/typeorm';
 
 @Injectable()
 export class PhotosService {
 
   constructor(
     private config: ConfigService,
+
+    @InjectRepository(Photo)
+    private photosRepository: Repository<Photo>
   ) {}
 
-  async create(file: Express.Multer.File, data: PhotoUploadDto) {
+  async create(file: Express.Multer.File, data: PhotoUploadDto, user: User) {
 
     // create new filename
     const filename = file.filename + extname(file.originalname).toLowerCase();
@@ -25,9 +31,14 @@ export class PhotosService {
 
     // create photo entity
     const photo = new Photo({
-      filename
+      filename,
+      description: data.description,
+      user
     });
 
+    // save entity
+    await this.photosRepository.save(photo);
+    
     // return photo
     return photo;
   }

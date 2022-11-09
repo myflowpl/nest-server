@@ -23,6 +23,7 @@ import { UsersAdminController } from './controllers/users-admin.controller';
     }),
   ],
   controllers: [AuthController, UsersAdminController],
-  providers: [UsersService, AuthService]
+  providers: [UsersService, AuthService],
+  exports: [UsersService, AuthService],
 })
 export class UsersModule {}
