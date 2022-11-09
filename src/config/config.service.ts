@@ -2,7 +2,7 @@ import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { resolve } from 'path';
 import 'dotenv/config';
 import { IsBoolean, IsNumber, IsUrl, validateOrReject } from 'class-validator';
-import { stat } from 'fs/promises';
+import { mkdir, stat } from 'fs/promises';
 
 export const joinUrl = (...paths) => paths.join('/');
 
@@ -37,16 +37,22 @@ export class ConfigService implements OnModuleInit {
 
   async onModuleInit() {
 
+    // validation of config
     await validateOrReject(this).catch(errors => {
       this.logger.error('CONFIG VALIDATION ERROR', errors)
       throw errors;
     });
 
+    // validation of storage dir existence
     await stat(resolve(this.STORAGE_DIR, '.storage')).catch((err) => {
       this.logger.error(`STORAGE_DIR location should exists !!! tested: ${this.STORAGE_DIR}`)
       throw err;
     })
 
-
+    // validation storage dir structure
+    await mkdir(this.STORAGE_TMP, { recursive: true });
+    await mkdir(this.STORAGE_PHOTOS, { recursive: true });
+    await mkdir(this.STORAGE_ASSETS, { recursive: true });
+    await mkdir(this.STORAGE_THUMBS, { recursive: true });
   }
 }
