@@ -1,8 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import { rename } from 'fs/promises';
 import { extname, resolve } from 'path';
-import { ConfigService } from '../config';
-import { Photo, PhotoUploadDto } from './photo.entity';
+import { ConfigService, joinUrl } from '../config';
+import { Photo, PhotoDto, PhotoUploadDto } from './photo.entity';
 import * as sharp from 'sharp';
 import { User } from '../users/entities/user.entity';
 import { Repository } from 'typeorm';
@@ -60,5 +60,23 @@ export class PhotosService {
     // other sizes
 
     return { small };
+  }
+
+  async getPhotos(): Promise<PhotoDto[]> {
+
+    const photos = await this.photosRepository.find();
+
+    return photos.map(photo => ({
+      id: photo.id,
+      description: photo.description,
+      thumbUrl: joinUrl(this.config.PHOTOS_BASE_PATH ,photo.filename),
+      downloadUrl: joinUrl(this.config.PHOTOS_DOWNLOAD_PATH ,photo.filename),
+    }));
+  }
+
+  async getByName(filename: string): Promise<Photo | null> {
+
+    return this.photosRepository.findOneBy({filename});
+
   }
 }

@@ -31,15 +31,14 @@ export class ConfigService implements OnModuleInit {
   readonly STORAGE_ASSETS = resolve(this.STORAGE_DIR, 'assets');
   readonly STORAGE_THUMBS = resolve(this.STORAGE_ASSETS, 'thumbs');
 
-  readonly PHOTOS_DOMAIN = 'http://localhost:3000';
-  readonly PHOTOS_BASE_PATH = joinUrl(this.PHOTOS_DOMAIN, 'thumbs');
-  readonly PHOTOS_DOWNLOAD_PATH = joinUrl(this.PHOTOS_DOMAIN, 'photos/download');
+  readonly PHOTOS_BASE_PATH = joinUrl(this.DOMAIN, 'thumbs');
+  readonly PHOTOS_DOWNLOAD_PATH = joinUrl(this.DOMAIN, 'photos/download');
 
   async onModuleInit() {
 
     // validation of config
     await validateOrReject(this).catch(errors => {
-      this.logger.error('CONFIG VALIDATION ERROR', errors)
+      errors.forEach(e => this.logger.error(Object.values(e.constraints).join(', ')))
       throw errors;
     });
 

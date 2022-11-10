@@ -9,5 +9,5 @@ export const ApiAuth = (...roles: RoleNames[]) => applyDecorators(
   Roles(...roles),
   ApiBearerAuth(),
   ApiResponse({status: 401, type: ExceptionResponse, description: 'JWT token required'}),
-  ApiResponse({status: 403, type: ExceptionResponse, description: 'Some extra roles required'})
+  ApiResponse({status: 403, type: ExceptionResponse, description: 'Some extra roles required'}),
 );

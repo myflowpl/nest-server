@@ -3,6 +3,12 @@
   "collection": "@nestjs/schematics",
   "sourceRoot": "src",
   "compilerOptions": {
+    "assets": [
+      "**/*.hbs",
+      "**/*.js",
+      "**/*.json"
+    ],
+    "watchAssets": true,
     "plugins": [
       {
         "name": "@nestjs/swagger/plugin",

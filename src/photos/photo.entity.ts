@@ -29,3 +29,11 @@ export class Photo {
     Object.assign(this, data);
   }
 }
+
+export class PhotoDto {
+  id: number;
+  description?: string;
+  thumbUrl: string;
+  downloadUrl: string;
+
+}

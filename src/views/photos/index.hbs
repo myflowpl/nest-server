@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>Photos Gallery</title>
+    <meta>
+  </head>
+  <body>
+    <h1>Welcome to {{title}}</h1>
+    {{#each photos}}
+      <div>
+        <img src="{{thumbUrl}}"><br>
+        <a href="{{downloadUrl}}">Download</a>
+        <p>{{description}}</p>
+      </div>
+    {{/each}}
+  </body>
+</html>
