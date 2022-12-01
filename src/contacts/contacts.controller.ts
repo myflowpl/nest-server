@@ -1,7 +1,7 @@
-import { Body, Controller, Get, Headers, Param, Post, Query, NotFoundException } from '@nestjs/common';
+import { Body, Controller, Get, Headers, Param, Post, Query, NotFoundException, HttpException, HttpStatus, Delete, Patch, ParseIntPipe, UsePipes, ValidationPipe } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { StoreService } from '../store/store.service';
-import { CreateContactDto, GetContactsDto } from './contact.dto';
+import { CreateContactDto, GetContactsDto, UpdateContactsDto } from './contact.dto';
 import { Contact } from './contact.entity';
 
 @Controller('contacts')
@@ -13,6 +13,7 @@ export class ContactsController {
   ) {}
 
   @Get()
+  @UsePipes(new ValidationPipe({transform: true, transformOptions: {enableImplicitConversion: true}}))
   async findAll(@Query() query: GetContactsDto) {
 
     console.log('QUERY', query)
@@ -31,15 +32,50 @@ export class ContactsController {
   }
 
   @Get(':id')
-  async findOne(@Param('id') id: string) {
+  @UsePipes(ParseIntPipe)
+  async findOne(@Param('id') id: number) {
 
-    const contact = await this.store.findOne(Contact, +id);
+    const contact = await this.store.findOne(Contact, id);
 
     if(!contact) {
-      throw new NotFoundException(`Contact for id ${id} was not found`);
+      throw new HttpException(`Contact for id ${id} was not found`, HttpStatus.NOT_FOUND);
+      // throw new NotFoundException(`Contact for id ${id} was not found`);
     }
 
     return contact;
   }
 
+  @Delete(':id')
+  @UsePipes(ParseIntPipe)
+  async remove(@Param('id') id: number) {
+    
+    const contact = await this.store.findOne(Contact, id);
+
+// throw new Error('Hej, this is test error')
+
+    if(!contact) {
+      throw new NotFoundException(`Contact for id ${id} was not found`);
+    }
+
+    const c = await this.store.remove(Contact, id);
+
+    return 'removed successfully';
+  }
+
+  @Patch(':id')
+  async update(
+    @Param('id', ParseIntPipe) id: number, 
+    @Body(new ValidationPipe({whitelist: true, forbidNonWhitelisted: true})) data: UpdateContactsDto,
+  ): Promise<Contact> {
+
+    let contact = await this.store.findOne(Contact, id);
+
+    if(!contact) {
+      throw new NotFoundException(`Contact for id ${id} was not found`);
+    }
+
+    const c = await this.store.update(Contact, id, data);
+
+    return c;
+  }
 }
