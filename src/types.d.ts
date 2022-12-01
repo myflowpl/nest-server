@@ -1,9 +1,10 @@
 import 'express';
 import { RequestPayload } from './users/entities/user.entity/user.entity';
+import { PAYLOAD_KEY } from './users/guards/jwt-auth.guard';
 
 declare module 'express' {
   export interface Request {
-    payload?: RequestPayload | null;
+    [PAYLOAD_KEY]?: RequestPayload | null;
   }
 }
 
