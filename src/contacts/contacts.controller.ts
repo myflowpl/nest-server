@@ -1,7 +1,7 @@
-import { Body, Controller, Get, Headers, Param, Post, Query, NotFoundException, HttpException, HttpStatus, Delete, Patch, ParseIntPipe, UsePipes, ValidationPipe } from '@nestjs/common';
-import { ApiTags } from '@nestjs/swagger';
+import { Body, Controller, Get, Headers, Param, Post, Query, NotFoundException, HttpException, HttpStatus, Delete, Patch, ParseIntPipe, UsePipes, ValidationPipe, DefaultValuePipe } from '@nestjs/common';
+import { ApiResponse, ApiTags } from '@nestjs/swagger';
 import { StoreService } from '../store/store.service';
-import { CreateContactDto, GetContactsDto, UpdateContactsDto } from './contact.dto';
+import { CreateContactDto, ErrorResponse, GetContactsDto, UpdateContactsDto } from './contact.dto';
 import { Contact } from './contact.entity';
 
 @Controller('contacts')
@@ -13,7 +13,7 @@ export class ContactsController {
   ) {}
 
   @Get()
-  @UsePipes(new ValidationPipe({transform: true, transformOptions: {enableImplicitConversion: true}}))
+  @UsePipes(new ValidationPipe({transform: true, transformOptions: {enableImplicitConversion: false}}))
   async findAll(@Query() query: GetContactsDto) {
 
     console.log('QUERY', query)
@@ -63,9 +63,10 @@ export class ContactsController {
   }
 
   @Patch(':id')
+  @ApiResponse({status: 404, type: ErrorResponse, description: `Contact not found`})
   async update(
-    @Param('id', ParseIntPipe) id: number, 
-    @Body(new ValidationPipe({whitelist: true, forbidNonWhitelisted: true})) data: UpdateContactsDto,
+    @Param('id', new DefaultValuePipe(0), ParseIntPipe) id: number, 
+    @Body( new ValidationPipe({whitelist: true, forbidNonWhitelisted: true})) data: UpdateContactsDto,
   ): Promise<Contact> {
 
     let contact = await this.store.findOne(Contact, id);

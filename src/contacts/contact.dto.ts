@@ -21,12 +21,10 @@ export class GetContactsDto {
 
   @IsNumber()
   @Min(1)
-  // @IsOptional()
-  page: number;
+  page: number = 1;
 
   @IsNumber()
   @Min(2)
-  @IsOptional()
   pageSize: number = 2;
 
   @IsString()
@@ -44,4 +42,10 @@ export class UpdateContactsDto {
   @IsString()
   @MinLength(3)
   message: string;
+}
+
+export class ErrorResponse {
+  statusCode: number;
+  message: string;
+  error: string;
 }
