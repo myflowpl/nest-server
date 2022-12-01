@@ -10,7 +10,8 @@ import { UsersModule } from './users/users.module';
   imports: [
     StoreModule, 
     ConfigModule, 
-    ContactsModule, UsersModule,
+    ContactsModule, 
+    UsersModule,
   ],
   controllers: [AppController],
   providers: [AppService],

@@ -20,7 +20,7 @@ export class PerformanceInterceptor implements NestInterceptor {
       map(res => res),
 
       // catch errors
-      catchError(err => of(err)),
+      // catchError(err => of(err)),
 
       tap({
         finalize: () => console.timeEnd('TIME'),
