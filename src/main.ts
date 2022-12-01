@@ -14,6 +14,7 @@ async function bootstrap() {
   .setTitle('My Nest Project')
   .setDescription('REST API with Node.js & TypeScript')
   .setVersion('1.0')
+  .addBearerAuth()
   .build();
 
   const document = SwaggerModule.createDocument(app, swaggerConfig);
