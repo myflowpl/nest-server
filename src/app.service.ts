@@ -13,7 +13,9 @@ export class AppService {
   ) {}
 
   async getHello(): Promise<any> {
-    return this.store.data;
+
+    return 'Hello from Nest !!'
+    // return this.store.data;
   }
 
   request(url: string) {
