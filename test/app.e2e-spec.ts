@@ -4,18 +4,38 @@ import * as request from 'supertest';
 import { AppModule } from './../src/app.module';
 import { AuthLoginDto, AuthLoginResponse } from '../src/users/dto/auth.dto/auth.dto';
 import { User } from '../src/users/entities/user.entity/user.entity';
+import { AuthService } from '../src/users/services/auth.service';
 
 describe('AppController (e2e)', () => {
 
   let app: INestApplication;
 
+  let authService: AuthService;
+
   beforeEach(async () => {
 
     const moduleFixture: TestingModule = await Test.createTestingModule({
       imports: [AppModule],
-    }).compile();
+    })
+    // .overrideProvider(AuthService)
+    // .useValue({
+    //   async decodeUserToken() {
+        
+    //     const user: User = {
+    //       id: 1,
+    //       email: 'piotr@myflow.pl',
+    //       name: 'Piotr',
+    //       password: '',
+    //       roles: [],
+    //     }
+    //     return {user}
+    //   }
+    // })
+    .compile();
 
     app = moduleFixture.createNestApplication();
+
+    authService = app.get(AuthService);
 
     await app.init();
   });
@@ -56,19 +76,27 @@ describe('AppController (e2e)', () => {
 
   it('/auth (GET)', () => {
 
-    const resBody: User = {
-      id: expect.any(Number),
+    const user: User = {
+      id: 1,
       email: 'piotr@myflow.pl',
       name: 'Piotr',
-      password: expect.any(String),
-      roles: expect.any(Array)
+      password: '',
+      roles: [],
     }
+
+    const decodeMock = jest.spyOn(authService, 'decodeUserToken')
+
+    decodeMock.mockImplementation(async () => ({user}))
+
+    const token = 'Bearer test-token';
     
     return request(app.getHttpServer())
       .get('/auth')
+      .set('Authorization', token)
       .expect(200)
       .then(res => {
-        expect(res.body).toMatchObject(resBody);
+        expect(res.body).toMatchObject(user);
+        expect(decodeMock).toHaveBeenCalledWith('test-token')
       });
   })
 
