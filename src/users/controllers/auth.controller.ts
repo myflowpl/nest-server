@@ -3,7 +3,7 @@ import { ApiBearerAuth, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { ApiAuth } from '../decorators/api-auth.decorator';
 import { Auth } from '../decorators/auth.decorator';
 import { Roles } from '../decorators/roles.decorator';
-import { AuthRegisterDto } from '../dto/auth.dto/auth.dto';
+import { AuthLoginDto, AuthLoginResponse, AuthRegisterDto } from '../dto/auth.dto/auth.dto';
 import { ExceptionResponse, RoleNames, User } from '../entities/user.entity/user.entity';
 import { UserExceptionFilter } from '../filters/user-exception.filter';
 import { JwtAuthGuard } from '../guards/jwt-auth.guard';
@@ -52,5 +52,29 @@ export class AuthController {
     });
 
     return user
+  }
+
+  @Post('login')
+  async login(@Body(ValidationPipe) data: AuthLoginDto): Promise<AuthLoginResponse> {
+
+    // find user by email
+    let [user] = await this.usersService.findBy({ email: data.email })
+
+    if(!user) {
+      throw new BadRequestException(`Credentials invalid`);
+    }
+
+    // validate password
+    const isValid = await this.authService.validatePassword(data.password, user.password);
+
+    if(!isValid) {
+      throw new BadRequestException(`Credentials invalid`);
+    }
+
+    // create jwt token
+    const token = await this.authService.encodeUserToken(user);
+
+    // return response
+    return { token, user }
   }
 }

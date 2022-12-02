@@ -1,5 +1,6 @@
 import { ApiProperty } from "@nestjs/swagger";
 import { IsEmail, MinLength, registerDecorator, ValidationArguments, ValidationOptions } from "class-validator";
+import { User } from "../../entities/user.entity/user.entity";
 
 export class AuthRegisterDto {
 
@@ -15,6 +16,24 @@ export class AuthRegisterDto {
   @IsPassword()
   password: string;
 }
+
+export class AuthLoginDto {
+  
+  @ApiProperty({example: 'piotr@myflow.pl'})
+  @IsEmail()
+  email: string;
+  
+  @ApiProperty({example: '!@#$'})
+  @IsPassword()
+  password: string;
+}
+
+export class AuthLoginResponse {
+  token: string;
+  user: User;
+}
+
+
 
 
 export function IsPassword(validationOptions?: ValidationOptions) {
