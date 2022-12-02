@@ -12,4 +12,16 @@ export class UsersService {
   async findOne(id: number): Promise<User | null> {
     return this.store.findOne(User, id);
   }
+
+  async create(data: Partial<User>): Promise<User> {
+    return this.store.create(User, data);
+  }
+
+  async findBy(query: Partial<User>): Promise<User[]> {
+
+    return this.store.findAll(User).then(
+      users => users.filter(user => user.email === query.email)
+    )
+    
+  }
 }

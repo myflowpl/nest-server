@@ -9,7 +9,7 @@ export class Role {
   id: number;
   name: RoleNames;
 
-  constructor(data: Partial<Role>) {
+  constructor(data?: Partial<Role>) {
     return Object.assign(this, data);
   }
 }
@@ -24,7 +24,7 @@ export class User {
   
   roles: Role[];
 
-  constructor(data: Partial<User>) {
+  constructor(data?: Partial<User>) {
     return Object.assign(this, data);
   }
 }
