@@ -1,12 +1,18 @@
 import { Exclude } from "class-transformer";
+import { Column, Entity, PrimaryGeneratedColumn } from "typeorm";
 
 export enum RoleNames {
   ADMIN = 'admin',
   ROOT = 'root',
 }
 
+@Entity()
 export class Role {
+
+  @PrimaryGeneratedColumn()
   id: number;
+
+  @Column()
   name: RoleNames;
 
   constructor(data?: Partial<Role>) {
@@ -14,12 +20,20 @@ export class Role {
   }
 }
 
+@Entity()
 export class User {
+  
+  @PrimaryGeneratedColumn()
   id: number;
+
+  @Column()
   name: string;
+
+  @Column()
   email: string;
 
   @Exclude()
+  @Column()
   password: string;
   
   roles: Role[];
