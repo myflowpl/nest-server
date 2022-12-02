@@ -8,7 +8,7 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
   const config = app.get(ConfigService);
-
+  
   // SWAGGER SETUP
   const swaggerConfig = new DocumentBuilder()
   .setTitle('My Nest Project')
