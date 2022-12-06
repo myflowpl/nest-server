@@ -13,12 +13,13 @@ export class ContactsController {
   ) {}
 
   @Get()
-  @UsePipes(new ValidationPipe({transform: true, transformOptions: {enableImplicitConversion: false}}))
+  @UsePipes(new ValidationPipe({transform: true, transformOptions: {enableImplicitConversion: true}}))
   async findAll(@Query() query: GetContactsDto) {
 
-    console.log('QUERY', query)
-
-    const contacts = await this.store.findAll(Contact);
+    const contacts = await this.store.find(Contact, {
+      take: query.pageSize, 
+      skip: query.pageSize*query.pageIndex
+    });
 
     return contacts;
   }
@@ -26,7 +27,9 @@ export class ContactsController {
   @Post()
   async create(@Body() data: CreateContactDto) {
 
-    const contact = await this.store.create(Contact, data);
+    const contact = new Contact(data);
+
+    await this.store.save(contact);
 
     return contact;
   }
@@ -35,7 +38,7 @@ export class ContactsController {
   @UsePipes(ParseIntPipe)
   async findOne(@Param('id') id: number) {
 
-    const contact = await this.store.findOne(Contact, id);
+    const contact = await this.store.findOneBy(Contact, {id});
 
     if(!contact) {
       throw new HttpException(`Contact for id ${id} was not found`, HttpStatus.NOT_FOUND);
@@ -49,15 +52,13 @@ export class ContactsController {
   @UsePipes(ParseIntPipe)
   async remove(@Param('id') id: number) {
     
-    const contact = await this.store.findOne(Contact, id);
-
-// throw new Error('Hej, this is test error')
+    const contact = await this.store.findOneBy(Contact, {id});
 
     if(!contact) {
       throw new NotFoundException(`Contact for id ${id} was not found`);
     }
 
-    const c = await this.store.remove(Contact, id);
+    const c = await this.store.remove(contact);
 
     return 'removed successfully';
   }
@@ -69,13 +70,13 @@ export class ContactsController {
     @Body( new ValidationPipe({whitelist: true, forbidNonWhitelisted: true})) data: UpdateContactsDto,
   ): Promise<Contact> {
 
-    let contact = await this.store.findOne(Contact, id);
+    let contact = await this.store.findOneBy(Contact, {id});
 
     if(!contact) {
       throw new NotFoundException(`Contact for id ${id} was not found`);
     }
 
-    const c = await this.store.update(Contact, id, data);
+    const c = await this.store.update(Contact, data, {id});
 
     return c;
   }

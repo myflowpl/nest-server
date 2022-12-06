@@ -8,8 +8,15 @@ export class UsersService {
 
   constructor(
     private store: StoreService,
-    private manager: EntityManager,
+    private manager: StoreService,
+    // private manager: EntityManager,
   ) {}
+
+  async find(page: number, pageSize = 10): Promise<User[]> {
+    // return this.store.findOne(User, id);
+
+    return this.manager.find(User, { take: pageSize, skip: page*pageSize })
+  }
 
   async findOne(id: number): Promise<User | null> {
     // return this.store.findOne(User, id);
@@ -27,13 +34,13 @@ export class UsersService {
     return user;
   }
 
-  async findBy(query: Partial<User>): Promise<User[]> {
+  async findOneBy(where: Partial<User>): Promise<User> {
 
     // return this.store.findAll(User).then(
     //   users => users.filter(user => user.email === query.email)
     // )
 
-    return this.manager.find(User, { where: query });
+    return this.manager.findOneBy(User, where);
     
   }
 }

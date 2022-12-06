@@ -20,8 +20,8 @@ export enum SortDir {
 export class GetContactsDto {
 
   @IsNumber()
-  @Min(1)
-  page: number = 1;
+  @Min(0)
+  pageIndex: number = 0;
 
   @IsNumber()
   @Min(2)

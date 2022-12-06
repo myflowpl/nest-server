@@ -36,7 +36,7 @@ export class AuthController {
   async register(@Body(ValidationPipe) data: AuthRegisterDto): Promise<User> {
 
     // check if email exists
-    let [user] = await this.usersService.findBy({ email: data.email })
+    let user = await this.usersService.findOneBy({ email: data.email })
 
     if(user) {
       throw new BadRequestException(`Emaill ${data.email} is already taken`);
@@ -58,7 +58,7 @@ export class AuthController {
   async login(@Body(ValidationPipe) data: AuthLoginDto): Promise<AuthLoginResponse> {
 
     // find user by email
-    let [user] = await this.usersService.findBy({ email: data.email })
+    let user = await this.usersService.findOneBy({ email: data.email })
 
     if(!user) {
       throw new BadRequestException(`Credentials invalid`);
