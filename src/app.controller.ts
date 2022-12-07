@@ -1,4 +1,5 @@
 import { Controller, Get, Post } from '@nestjs/common';
+import { ApiTags } from '@nestjs/swagger';
 import { AppService } from './app.service';
 import { ConfigService } from './config';
 import { StoreService } from './store/store.service';
@@ -8,6 +9,7 @@ export interface GetHelloResponse {
 }
 
 @Controller()
+@ApiTags('App')
 export class AppController {
 
   constructor(
