@@ -1,12 +1,31 @@
-import { Controller, Get } from '@nestjs/common';
+import { Controller, Get, Post } from '@nestjs/common';
 import { AppService } from './app.service';
+
+export interface GetHelloResponse {
+  message: string;
+}
 
 @Controller()
 export class AppController {
   constructor(private readonly appService: AppService) {}
 
   @Get()
-  getHello(): string {
-    return this.appService.getHello();
+  getHello() {
+
+    return {
+      message: 'Welcome to my first NestJS app',
+    };
+
+    // return this.appService.getHello();
+  }
+
+  @Get('hello')
+  create() {
+
+    return {
+      message: 'Hello endpoint welcome',
+    };
+
+    // return this.appService.getHello();
   }
 }
