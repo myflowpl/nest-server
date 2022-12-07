@@ -1,5 +1,7 @@
 import { Controller, Get, Post } from '@nestjs/common';
 import { AppService } from './app.service';
+import { ConfigService } from './config';
+import { StoreService } from './store/store.service';
 
 export interface GetHelloResponse {
   message: string;
@@ -9,7 +11,9 @@ export interface GetHelloResponse {
 export class AppController {
 
   constructor(
-    private appService: AppService
+    private appService: AppService,
+    private store: StoreService,
+    private config: ConfigService,
   ) {}
 
   @Get()
