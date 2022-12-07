@@ -7,16 +7,19 @@ export interface GetHelloResponse {
 
 @Controller()
 export class AppController {
-  constructor(private readonly appService: AppService) {}
+
+  constructor(
+    private appService: AppService
+  ) {}
 
   @Get()
   getHello() {
 
-    return {
-      message: 'Welcome to my first NestJS app',
-    };
+    // return {
+    //   message: 'Welcome to my first NestJS app',
+    // };
 
-    // return this.appService.getHello();
+    return this.appService.getHello();
   }
 
   @Get('hello')
