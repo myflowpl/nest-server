@@ -1,7 +1,7 @@
-import { Body, Controller, Get, Post } from '@nestjs/common';
+import { Body, Controller, Get, Post, Query, UsePipes, ValidationPipe } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { StoreService } from '../store/store.service';
-import { CreateContactDto } from './contacts.dto';
+import { CreateContactDto, FindContactsDto } from './contacts.dto';
 import { Contact } from './contacts.entity';
 
 @Controller('contacts')
@@ -13,11 +13,20 @@ export class ContactsController {
   ) {}
 
   @Get()
-  async find(): Promise<Contact[]> {
+  @UsePipes(new ValidationPipe({
+    transform: true, 
+    transformOptions: {enableImplicitConversion: true}
+  }))
+  async find(@Query() query: FindContactsDto): Promise<Contact[]> {
 
-    return [
-      {id: 1, name: 'Piotr', email: 'test', description: 'desc'}
-    ];
+    console.log('query', query);
+
+    const contacts = await this.store.find(Contact, {
+      take: query.pageSize,
+      skip: query.pageSize*query.pageIndex,
+    });
+
+    return contacts;
   }
 
   @Post()
