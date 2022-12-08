@@ -31,7 +31,7 @@ export class ContactsController {
   }
 
   @Post()
-  async create(@Body() data: CreateContactDto): Promise<Contact> {
+  async create(@Body(ValidationPipe) data: CreateContactDto): Promise<Contact> {
 
     const contact = new Contact(data);
 
@@ -70,7 +70,7 @@ export class ContactsController {
   @Patch(':id')
   async update(
     @Param('id', ParseIntPipe) id: number,
-    @Body() data: UpdateContactDto
+    @Body(ValidationPipe) data: UpdateContactDto
   ): Promise<Contact> {
 
     let contact = await this.store.findOneBy(Contact, { id });
