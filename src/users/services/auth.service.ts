@@ -13,7 +13,7 @@ export class AuthService {
     // get user from database
     let user: User;
     // mock the user -> TODO read the user from database
-    if(token) {
+    if(token === 'valid-jwt') {
       user = new User({
         id: 1,
         name: 'Piotr',
