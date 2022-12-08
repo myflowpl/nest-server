@@ -16,7 +16,9 @@ export class AppController {
     private appService: AppService,
     private store: StoreService,
     private config: ConfigService,
-  ) {}
+  ) {
+    // console.log(config)
+  }
 
   @Get()
   getHello() {
