@@ -34,3 +34,9 @@ export class TokenPayload {
 export class RequestPayload {
   user: User;
 }
+
+export class ExceptionResponse {
+  statusCode: number;
+  message: string;
+  error: string;
+}
