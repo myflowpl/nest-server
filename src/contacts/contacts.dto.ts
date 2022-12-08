@@ -13,11 +13,20 @@ export class CreateContactDto {
   description: string;
 }
 
+export class UpdateContactDto {
+
+  @ApiProperty({example: 'Piotr'})
+  name: string;
+
+  @ApiProperty({example: 'NestJS trainer'})
+  description: string;
+}
+
 export class FindContactsDto {
 
   @IsNumber()
   pageIndex: number = 0;
-  
+
   @IsNumber()
   pageSize: number = 2;
 }

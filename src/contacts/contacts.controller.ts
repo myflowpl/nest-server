@@ -1,7 +1,7 @@
-import { Body, Controller, DefaultValuePipe, Delete, Get, NotFoundException, Param, ParseIntPipe, Post, Query, UsePipes, ValidationPipe } from '@nestjs/common';
+import { Body, Controller, DefaultValuePipe, Delete, Get, NotFoundException, Param, ParseIntPipe, Patch, Post, Query, UsePipes, ValidationPipe } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { StoreService } from '../store/store.service';
-import { CreateContactDto, FindContactsDto } from './contacts.dto';
+import { CreateContactDto, FindContactsDto, UpdateContactDto } from './contacts.dto';
 import { Contact } from './contacts.entity';
 
 @Controller('contacts')
@@ -54,7 +54,37 @@ export class ContactsController {
   }
 
   @Delete(':id')
-  async remove(@Param('id', ParseIntPipe) id: number) {
+  async remove(@Param('id', ParseIntPipe) id: number): Promise<boolean> {
 
+    const contact = await this.store.findOneBy(Contact, { id });
+
+    if(!contact) {
+      throw new NotFoundException(`Contact for id ${id} not found`)
+    }
+
+    await this.store.remove(contact);
+
+    return true;
+  }
+
+  @Patch(':id')
+  async update(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() data: UpdateContactDto
+  ): Promise<Contact> {
+
+    let contact = await this.store.findOneBy(Contact, { id });
+
+    if(!contact) {
+      throw new NotFoundException(`Contact for id ${id} not found`)
+    }
+
+    // contact = await this.store.update(Contact, data, {id});
+
+    Object.assign(contact, data);
+
+    await this.store.save(contact);
+
+    return contact;
   }
 }
