@@ -18,7 +18,7 @@ export class JwtAuthGuard implements CanActivate {
     const request: Request = context.switchToHttp().getRequest();
 
     // extract token from the request
-    const token = this.extractToken(request);
+    const token = request.headers.authorization?.replace('Bearer ', '')
 
     // if no token, reject, return false or throw unauthorized error
     if(!token) {
@@ -42,7 +42,7 @@ export class JwtAuthGuard implements CanActivate {
     }
 
     // get user roles
-    const userRoles = request.payload?.user?.roles?.map(role => role.name);
+    const userRoles = request.payload?.user?.roles?.map(role => role.name) || [];
 
     // check if user has required role
     if(!requiredRoles.some(role => userRoles.includes(role))) {
@@ -50,12 +50,6 @@ export class JwtAuthGuard implements CanActivate {
     }
 
     return true;
-  }
-
-  extractToken(request: Request): string {
-    const token = request.headers.authorization;
-
-    return token ? token.replace('Bearer ', '') : '';
   }
 
 }

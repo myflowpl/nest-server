@@ -13,7 +13,8 @@ import { StoreModule } from '../store/store.module';
       imports: [ConfigModule],
       inject: [ConfigService],
       useFactory: (config: ConfigService) => ({
-        secret: config.JWT_SECRET
+        secret: config.JWT_SECRET,
+        signOptions: {expiresIn: '4d'}
       })
     }),
   ],

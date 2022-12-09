@@ -1,4 +1,5 @@
 import { ApiProperty } from "@nestjs/swagger";
+import { User } from "../../entities/user.entity/user.entity";
 
 export class AuthRegisterDto {
 
@@ -10,4 +11,18 @@ export class AuthRegisterDto {
 
   @ApiProperty({example: '!@#$'})
   password: string;
+}
+
+export class AuthLoginDto {
+
+  @ApiProperty({example: 'piotr@myflow.pl'})
+  email: string;
+
+  @ApiProperty({example: '!@#$'})
+  password: string;
+}
+
+export class AuthLoginResponse {
+  token: string;
+  user: User;
 }
