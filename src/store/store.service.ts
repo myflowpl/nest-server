@@ -72,10 +72,24 @@ export class StoreService implements OnModuleInit {
     if(!this.data[name]) {
       return null;
     }
-    const prop = Object.keys(where)[0];
-    const value = where[prop];
+    const props = Object.keys(where);
 
-    const entity = this.data[name].find(e => e[prop] === value);
+    const prop = props[0];
+    const value = where[prop];
+    let entities = this.data[name].filter(e => e[prop] === value);
+    if(props[1]) {
+      const prop = props[1];
+      const value = where[prop];
+  
+      entities = entities.filter(e => e[prop] === value);
+    }
+    if(props[2]) {
+      const prop = props[2];
+      const value = where[prop];
+  
+      entities = entities.filter(e => e[prop] === value);
+    }
+    const entity = entities[0];
 
     if(!entity) {
       return null;
