@@ -18,8 +18,14 @@ export class TranslateResponse {
   language: Languages
 }
 
-// const dto = new TranslateDto();
 
-// dto.translateTo = Languages.PL;
-// dto.word = 'witaj'
+export class AddWordDto {
+  @ApiProperty({example: 'name'})
+  word: string;
 
+  @ApiProperty({example: 'nazwa'})
+  translation: string;
+  
+  @ApiProperty({example: 'en'})
+  language: Languages;
+}
