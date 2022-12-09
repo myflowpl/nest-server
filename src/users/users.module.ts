@@ -20,6 +20,6 @@ import { StoreModule } from '../store/store.module';
   ],
   controllers: [AuthController],
   providers: [UsersService, AuthService],
-  exports: [],
+  exports: [UsersService, AuthService],
 })
 export class UsersModule {}

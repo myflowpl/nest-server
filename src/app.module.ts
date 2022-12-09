@@ -5,6 +5,7 @@ import { StoreModule } from './store/store.module';
 import { ConfigModule } from './config/config.module';
 import { ContactsModule } from './contacts/contacts.module';
 import { UsersModule } from './users/users.module';
+import { TranslatorModule } from './translator/translator.module';
 
 @Module({
   imports: [
@@ -12,6 +13,7 @@ import { UsersModule } from './users/users.module';
     ConfigModule,
     ContactsModule,
     UsersModule,
+    TranslatorModule,
   ],
   controllers: [AppController],
   providers: [AppService],
