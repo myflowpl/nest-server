@@ -16,6 +16,7 @@ async function bootstrap() {
   .setTitle('Mój Projekt w Nest')
   .setDescription('Przykładowy projekt w Node.js i TypeScript')
   .setVersion('1.0')
+  .addBearerAuth()
   .build();
 
   const document = SwaggerModule.createDocument(app, swaggerConfig);
