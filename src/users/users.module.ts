@@ -5,6 +5,7 @@ import { AuthService } from './services/auth.service';
 import { JwtModule } from '@nestjs/jwt';
 import { ConfigModule, ConfigService } from '../config';
 import { StoreModule } from '../store/store.module';
+import { UsersAdminController } from './controllers/users-admin.controller';
 
 @Module({
   imports: [
@@ -25,7 +26,7 @@ import { StoreModule } from '../store/store.module';
       })
     }),
   ],
-  controllers: [AuthController],
+  controllers: [AuthController, UsersAdminController],
   providers: [UsersService, AuthService],
   exports: [UsersService, AuthService]
 })

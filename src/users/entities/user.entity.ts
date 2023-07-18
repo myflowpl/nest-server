@@ -8,6 +8,10 @@ export enum RoleNames {
 export class Role {
     id: number;
     name: RoleNames;
+
+    constructor(data?: Role) {
+        Object.assign(this, data);
+    }
 }
 
 export class User {

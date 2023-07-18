@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { StoreService } from '../../store/store.service';
-import { User } from '../entities/user.entity';
+import { Role, User } from '../entities/user.entity';
 
 @Injectable()
 export class UsersService {
@@ -16,6 +16,11 @@ export class UsersService {
     async save(user: User) {
 
         return this.store.save(user);
+
+    }
+
+    async getRoles() {
+        return this.store.find(Role);
 
     }
 }
