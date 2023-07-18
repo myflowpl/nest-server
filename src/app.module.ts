@@ -5,12 +5,13 @@ import { StoreModule } from './store/store.module';
 import { ConfigModule } from './config';
 import { ContactsModule } from './contacts/contacts.module';
 import { UsersModule } from './users/users.module';
+import { DbModule } from './db/db.module';
 
 @Module({
   imports: [
     StoreModule, 
     ConfigModule, 
-    ContactsModule, UsersModule,
+    ContactsModule, UsersModule, DbModule,
   ],
   controllers: [AppController],
   providers: [AppService],
