@@ -12,7 +12,7 @@ export class AuthService {
             name: 'Piotr',
             email: 'piotr@myflow.pl',
             password: 'hashed-password',
-            roles: [ { id: 1, name: RoleNames.ROOT } ]
+            roles: [ { id: 1, name: RoleNames.ADMIN } ]
         });
 
         return token ? { user, token } : null;

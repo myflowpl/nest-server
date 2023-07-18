@@ -29,3 +29,9 @@ export class RequestPayload {
     user: User;
     token: string;
 }
+
+export class ExceptionResponse {
+    message: string;
+    error: string;
+    statusCode: number;
+}
