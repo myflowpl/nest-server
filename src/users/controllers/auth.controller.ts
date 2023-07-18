@@ -1,14 +1,15 @@
-import { BadRequestException, Body, Controller, Get, Post } from '@nestjs/common';
+import { BadRequestException, Body, ClassSerializerInterceptor, Controller, Get, Post, UseInterceptors, ValidationPipe } from '@nestjs/common';
 import { ApiResponse, ApiTags } from '@nestjs/swagger';
 import { RoleNames, User } from '../entities/user.entity';
 import { Auth } from '../decorators/auth.decorator';
 import { ApiAuth } from '../decorators/api-auth.decorator';
-import { AuthRegisterDto } from '../dto/auth.dto';
+import { AuthLoginDto, AuthLoginResponse, AuthRegisterDto } from '../dto/auth.dto';
 import { AuthService } from '../services/auth.service';
 import { UsersService } from '../services/users.service';
 
 @Controller('auth')
 @ApiTags('Auth')
+@UseInterceptors(ClassSerializerInterceptor)
 export class AuthController {
 
     constructor(
@@ -17,15 +18,15 @@ export class AuthController {
     ) {}
 
     @Get()
-    @ApiAuth(RoleNames.ROOT)
+    @ApiAuth()
     @ApiResponse({status: 200, type: User, description: 'Return user session data'})
     me(@Auth() user: User, @Auth('token') token: string ) {
         
-        return { user, token };
+        return new AuthLoginResponse({ user, token });
     }
 
     @Post('register')
-    async register(@Body() data: AuthRegisterDto) {
+    async register(@Body(ValidationPipe) data: AuthRegisterDto) {
 
         let user = await this.usersService.findOneBy({ email: data.email });
 
@@ -43,5 +44,26 @@ export class AuthController {
         await this.usersService.save(user);
 
         return user;
+    }
+
+    @Post('login')
+    async login(@Body() data: AuthLoginDto): Promise<AuthLoginResponse> {
+
+        let user = await this.usersService.findOneBy({ email: data.email });
+
+        if(!user) {
+            throw new BadRequestException(`Bad credentials`)
+        }
+
+        const isValid = await this.authService.validatePassword(data.password, user.password);
+
+
+        if(!isValid) {
+            throw new BadRequestException(`Bad credentials`)
+        }
+
+        const token = await this.authService.encodeUserToken(user);
+
+        return { token, user };
     }
 }
