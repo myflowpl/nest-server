@@ -6,10 +6,11 @@ import { ApiAuth } from '../decorators/api-auth.decorator';
 import { AuthLoginDto, AuthLoginResponse, AuthRegisterDto } from '../dto/auth.dto';
 import { AuthService } from '../services/auth.service';
 import { UsersService } from '../services/users.service';
+import { PerformanceInterceptor } from '../interceptors/performance.interceptor';
 
 @Controller('auth')
 @ApiTags('Auth')
-@UseInterceptors(ClassSerializerInterceptor)
+@UseInterceptors(PerformanceInterceptor, ClassSerializerInterceptor)
 export class AuthController {
 
     constructor(
