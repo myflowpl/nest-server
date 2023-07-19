@@ -2,7 +2,7 @@ import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { StoreModule } from './store/store.module';
-import { ConfigModule } from './config';
+import { ConfigModule, ConfigService } from './config';
 import { ContactsModule } from './contacts/contacts.module';
 import { UsersModule } from './users/users.module';
 import { DbModule } from './db/db.module';
@@ -28,10 +28,15 @@ import { ApiModule, Configuration } from './api-client';
     AppService, 
     // {
     //   provide: AuthApi,
-    //   useFactory: () => {
+    //   inject: [ConfigService],
+    //   useFactory: (config: ConfigService) => {
 
     //     const options = new Configuration({
     //       basePath: 'http://localhost:3000',
+    //       // accessToken: config.JWT_SECRET,
+    //       accessToken() {
+    //           return config.JWT_SECRET,
+    //       }
     //     });
 
     //     return new AuthApi(options);
