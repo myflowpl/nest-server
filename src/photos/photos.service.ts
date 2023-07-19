@@ -4,15 +4,21 @@ import { extname, resolve } from 'path';
 import { ConfigService } from '../config';
 import { rename } from 'fs/promises';
 import * as sharp from 'sharp';
+import { Repository } from 'typeorm';
+import { InjectRepository } from '@nestjs/typeorm';
+import { User } from '../users/entities/user.entity';
 
 @Injectable()
 export class PhotosService {
 
     constructor(
         private config: ConfigService,
+
+        @InjectRepository(Photo)
+        private photosRepository: Repository<Photo>
     ) {}
 
-    async create(file: Express.Multer.File, data: PhotosUploadDto) {
+    async create(file: Express.Multer.File, data: PhotosUploadDto, user: User) {
 
         // create new filename, tmp filenam + orginal extension
         const filename = file.filename + extname(file.originalname).toLowerCase();
@@ -26,8 +32,12 @@ export class PhotosService {
         // create photo entity
         const photo = new Photo({ 
             filename, 
-            description: data.description
+            description: data.description,
+            user,
         });
+
+        // persist entity in database
+        await this.photosRepository.save(photo);
 
         // return photo
         return photo;
@@ -44,7 +54,7 @@ export class PhotosService {
         // creathe thumb
         await sharp(srcFile)
             .rotate()
-            .resize(200, 200, { fit: 'cover', position: 'attention' })
+            .resize(200, 200, { })
             .jpeg({ quality: 100 })
             .toFile(destFile);
 
