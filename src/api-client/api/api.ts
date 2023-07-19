@@ -1,0 +1,11 @@
+export * from './app.service';
+import { AppService } from './app.service';
+export * from './auth.service';
+import { AuthService } from './auth.service';
+export * from './contacts.service';
+import { ContactsService } from './contacts.service';
+export * from './photos.service';
+import { PhotosService } from './photos.service';
+export * from './usersAdmin.service';
+import { UsersAdminService } from './usersAdmin.service';
+export const APIS = [AppService, AuthService, ContactsService, PhotosService, UsersAdminService];

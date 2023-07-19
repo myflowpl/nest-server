@@ -3,12 +3,17 @@ import { AppService } from './app.service';
 import { ApiTags } from '@nestjs/swagger';
 import { combineLatest, finalize, map, of, tap, delay } from 'rxjs';
 import { OnCloseInterceptor } from './users/interceptors/on-close.interceptor';
+import { AuthService } from './api-client';
 
 @Controller()
 @ApiTags('App')
 @UseInterceptors(OnCloseInterceptor)
 export class AppController {
-  constructor(private readonly appService: AppService) {}
+
+  constructor(
+    private readonly appService: AppService,
+    private authApi: AuthService,
+  ) {}
 
   @Get()
   getHello(): string {
@@ -47,5 +52,21 @@ export class AppController {
         finalize: () => console.log('MICRO FINALIZE', delayTime),
       })
     );
+  }
+
+  @Get('service')
+  async serviceLogin() {
+
+    return this.authApi.login({
+      email: 'piotr@myflow.pl',
+      password: '!@#$',
+    }).pipe(
+      map(res => res.data),
+    )
+
+    // return {
+    //   loginData,
+    // }
+    
   }
 }
