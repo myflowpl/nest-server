@@ -23,6 +23,9 @@ export class Photo {
     @ManyToOne(type => User, {nullable: false, eager: true})
     user: User;
 
+    thumbUrl?: string;
+    downloadUrl?: string;
+
     constructor(data?: Partial<Photo>) {
         Object.assign(this, data);
     }

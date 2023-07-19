@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { Photo, PhotosUploadDto } from './photo.entity';
 import { extname, resolve } from 'path';
-import { ConfigService } from '../config';
+import { ConfigService, joinUrl } from '../config';
 import { rename } from 'fs/promises';
 import * as sharp from 'sharp';
 import { Repository } from 'typeorm';
@@ -17,6 +17,17 @@ export class PhotosService {
         @InjectRepository(Photo)
         private photosRepository: Repository<Photo>
     ) {}
+
+    async getPhotos() {
+        const photos = await this.photosRepository.find();
+
+        photos.forEach(photo => {
+            photo.thumbUrl = joinUrl(this.config.PHOTOS_BASE_PATH, photo.filename);
+            photo.downloadUrl = joinUrl(this.config.PHOTOS_DOWNLOAD_PATH, photo.filename);
+        });
+
+        return photos;
+    }
 
     async create(file: Express.Multer.File, data: PhotosUploadDto, user: User) {
 

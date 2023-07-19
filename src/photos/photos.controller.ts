@@ -1,4 +1,4 @@
-import { Body, Controller, Post, UploadedFile, UseInterceptors } from '@nestjs/common';
+import { Body, Controller, Get, Post, Render, UploadedFile, UseInterceptors } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { ApiBody, ApiConsumes, ApiTags } from '@nestjs/swagger';
 import { PhotosUploadDto } from './photo.entity';
@@ -15,6 +15,18 @@ export class PhotosController {
     constructor(
         private photosService: PhotosService,
     ) {}
+
+    @Get()
+    @Render('photos/index')
+    async photos() {
+
+        const title = 'Nest rendered HTML';
+
+        const photos = await this.photosService.getPhotos();
+
+        return { title, photos };
+    }
+
 
     @Post('upload')
     @UseInterceptors(FileInterceptor('file'))
