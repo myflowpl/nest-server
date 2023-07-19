@@ -32,7 +32,7 @@ export class User {
     @Column()
     name: string;
 
-    @Column()
+    @Column({unique: true})
     email: string;
 
     @Exclude()

@@ -1,4 +1,4 @@
-import { BadRequestException, Body, ClassSerializerInterceptor, Controller, Get, Post, UseInterceptors, ValidationPipe } from '@nestjs/common';
+import { BadRequestException, Body, ClassSerializerInterceptor, Controller, Get, Post, UseFilters, UseInterceptors, ValidationPipe } from '@nestjs/common';
 import { ApiResponse, ApiTags } from '@nestjs/swagger';
 import { RoleNames, User } from '../entities/user.entity';
 import { Auth } from '../decorators/auth.decorator';
@@ -7,6 +7,7 @@ import { AuthLoginDto, AuthLoginResponse, AuthRegisterDto } from '../dto/auth.dt
 import { AuthService } from '../services/auth.service';
 import { UsersService } from '../services/users.service';
 import { PerformanceInterceptor } from '../interceptors/performance.interceptor';
+import { EmailExistsFilter } from '../filters/email-exists.filter';
 
 @Controller('auth')
 @ApiTags('Auth')
@@ -27,17 +28,18 @@ export class AuthController {
     }
 
     @Post('register')
+    @UseFilters(EmailExistsFilter)
     async register(@Body(ValidationPipe) data: AuthRegisterDto) {
 
-        let user = await this.usersService.findOneBy({ email: data.email });
+        // let user = await this.usersService.findOneBy({ email: data.email });
 
-        if(user) {
-            throw new BadRequestException(`Email ${data.email} is already taken`)
-        }
+        // if(user) {
+        //     throw new BadRequestException(`Email ${data.email} is already taken`)
+        // }
 
         const password = await this.authService.encodePassword(data.password);
 
-        user = new User({
+        let user = new User({
             ...data,
             password,
         });
