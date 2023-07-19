@@ -2,6 +2,9 @@ import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { resolve } from 'path';
 import 'dotenv/config';
 import { IsBoolean, IsNumber, IsUrl, MinLength, validateOrReject } from 'class-validator';
+import { mkdir, stat } from 'fs/promises';
+
+export const joinUrl = (...paths) => paths.join('/');
 
 @Injectable()
 export class ConfigService implements OnModuleInit {
@@ -24,6 +27,18 @@ export class ConfigService implements OnModuleInit {
 
     readonly DB_NAME = resolve(this.STORAGE_DIR, 'nest.db');
 
+    // photos module
+    readonly STORAGE_TMP = resolve(this.STORAGE_DIR, 'tmp');
+    readonly STORAGE_PHOTOS = resolve(this.STORAGE_DIR, 'photos');
+
+    readonly STORAGE_ASSETS = resolve(this.STORAGE_DIR, 'assets');
+    readonly STORAGE_THUMBS = resolve(this.STORAGE_ASSETS, 'thumbs');
+
+    readonly PHOTOS_DOMAIN = 'http://localhost:3000';
+    readonly PHOTOS_BASE_PATH = joinUrl(this.PHOTOS_DOMAIN, 'thumbs');
+    readonly PHOTOS_DOWNLOAD_PATH = joinUrl(this.PHOTOS_DOMAIN, 'photos/download');
+
+
     async onModuleInit() {
         
         // TODO init config properties
@@ -37,7 +52,17 @@ export class ConfigService implements OnModuleInit {
             throw errors;
         })
 
-        // TODO validate storage file structure
+        // validation of storage dir existence
+        await stat(resolve(this.STORAGE_DIR, '.storage')).catch((err) => {
+            this.logger.error(`STORAGE_DIR location should exists !!! tested: ${this.STORAGE_DIR}`)
+            throw err;
+        })
+    
+        // validation storage dir structure
+        await mkdir(this.STORAGE_TMP, { recursive: true });
+        await mkdir(this.STORAGE_PHOTOS, { recursive: true });
+        await mkdir(this.STORAGE_ASSETS, { recursive: true });
+        await mkdir(this.STORAGE_THUMBS, { recursive: true });
         
     }
 }

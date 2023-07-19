@@ -6,12 +6,16 @@ import { ConfigModule } from './config';
 import { ContactsModule } from './contacts/contacts.module';
 import { UsersModule } from './users/users.module';
 import { DbModule } from './db/db.module';
+import { PhotosModule } from './photos/photos.module';
 
 @Module({
   imports: [
     StoreModule, 
     ConfigModule, 
-    ContactsModule, UsersModule, DbModule,
+    ContactsModule, 
+    UsersModule, 
+    DbModule, 
+    PhotosModule,
   ],
   controllers: [AppController],
   providers: [AppService],
