@@ -8,6 +8,7 @@ import { UsersModule } from './users/users.module';
 import { DbModule } from './db/db.module';
 import { PhotosModule } from './photos/photos.module';
 import { ApiModule, Configuration } from './api-client';
+import { ChatModule } from './chat/chat.module';
 
 @Module({
   imports: [
@@ -21,11 +22,12 @@ import { ApiModule, Configuration } from './api-client';
       return new Configuration({
         basePath: 'http://localhost:3000',
       });
-    })
+    }),
+    ChatModule
   ],
   controllers: [AppController],
   providers: [
-    AppService, 
+    AppService,
     // {
     //   provide: AuthApi,
     //   inject: [ConfigService],

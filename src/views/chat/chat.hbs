@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Chat on NestJS Websockets</title>
+    <link href="https://unpkg.com/vue-simple-notify/dist/vue-simple-notify.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.6.10/dist/vue.js"></script>
+    <script src="https://unpkg.com/vue-simple-notify/dist/vue-simple-notify.min.js"></script>
+    <script src="/socket.io/socket.io.js"></script>
+    <style>
+        .chat {
+            max-width: 400px;
+            display: block;
+            margin: auto;
+            border-radius: 6px;
+            border: 1px solid gray;
+            padding: 0 15px 20px;
+        }
+        .messages {
+            height: 150px;
+            overflow-y: scroll;
+        }
+        form {
+            margin-top: 15px;
+        }
+    </style>
+</head>
+<body>
+    <main id="v-app">
+        <section class="chat">
+            <h1>Chat (Nest Websockets Example)</h1>
+            <p>Welcome: <b v-text="username"></b></p>
+            <p>We have <b v-text="users.length"></b> users: <b v-text="users.join(', ')"></b></p>
+            <div class="messages">
+                <ul>
+                    <li v-for="msg of messages">
+                        <strong v-text="msg.user.username"></strong> <i v-text="msg.message"></i>
+                    </li>
+                </ul>
+            </div>
+
+            <form>
+                <input v-model="text" type="text"/>
+                <button type="submit" @click.prevent="sendChatMessage()">Send</button>
+            </form>
+
+        </section>
+    </main>
+    <script>
+        var app = new Vue({
+            el: '#v-app',
+            data: {
+                users: [],
+                username: '',
+                text: '',
+                messages: [],
+                socket: { chat: null },
+            },
+            methods: {
+                sendChatMessage() {
+                    this.socket.chat.emit('client_message', { message: this.text });
+                    this.text = "";
+                },
+                receiveChatMessage(msg) {
+                    this.messages.push(msg);
+                },
+            },
+            created() {
+                this.username = location.search.replace('?', '') || prompt('Enter your username:');
+
+
+                const options = { 
+                    auth:  { token: this.username },
+                    query: {test: '234'}
+                };
+                
+                this.socket.chat = io('http://localhost:3000/chat', options );
+
+                this.socket.chat.on('server_message', (msg) => {
+                    this.receiveChatMessage(msg);
+                });
+
+                this.socket.chat.on('server_users', (users) => {
+                    this.users = users;
+                });
+
+                // login
+                this.socket.chat.emit('client_login');
+
+            }
+        });
+
+    </script>
+</body>
+</html>
