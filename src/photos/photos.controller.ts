@@ -7,7 +7,6 @@ import { IsImagePipe } from './pipes/is-image/is-image.pipe';
 import { Auth } from '../users/decorators/auth.decorator';
 import { User } from '../users/entities/user.entity';
 import { ApiAuth } from '../users/decorators/api-auth.decorator';
-import { Response } from 'express';
 import { join } from 'path';
 import { ConfigService } from '../config';
 import { createReadStream } from 'fs';
@@ -34,6 +33,7 @@ export class PhotosController {
     }
 
     @Get('download/:filename')
+    @ApiAuth()
     // @UseInterceptors(DownloadInterceptor)
     donwload(@Param('filename') filename: string) {
 

@@ -9,11 +9,20 @@
     <h1>Welcome to {{title}}</h1>
 
     {{#each photos}}
-        <div>
+        <div style="float: left; padding: 5px;">
             <img src="{{thumbUrl}}">
             <p>{{description}}</p>
             <a href="{{downloadUrl}}">Download</a>
         </div>
     {{/each}}
+
+
+    <script async>
+        const token = JSON.parse(localStorage.getItem('authorized')).bearer.value;
+        document.querySelectorAll('a').forEach(
+            el => el.href = el.href+'?token='+token
+        );
+    </script>
+
 </body>
 </html>
