@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, NotFoundException, Param, Patch, Post, Query } from '@nestjs/common';
+import { Body, Controller, DefaultValuePipe, Delete, Get, NotFoundException, Param, ParseIntPipe, Patch, Post, Query, UsePipes, ValidationPipe } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { StoreService } from '../store/store.service';
 import { Contact } from './contacts.entity';
@@ -13,22 +13,26 @@ export class ContactsController {
     ) {}
 
     @Get()
-    async findAll(@Query() query: GetContactsDto) {
+    @UsePipes(new ValidationPipe({
+        transform: true,
+        transformOptions: { enableImplicitConversion: true }
+    }))
+    async findAll( @Query() query: GetContactsDto) {
 
         console.log('query', query)
 
-        const pageIndex = parseInt(query.pageIndex as any);
         const pageSize = parseInt(query.pageSize as any);
 
         const contacts = await this.store.find(Contact, {
-            take: pageSize,
-            skip: pageSize*pageIndex,
+            take: query.pageSize,
+            skip: query.pageSize*query.pageIndex,
         });
 
         return contacts;
     }
 
     @Post()
+    @UsePipes(new ValidationPipe({transform: true}))
     async create(@Body() data: CreateContactDto): Promise<Contact> {
         
         const contact = new Contact(data);
@@ -42,11 +46,11 @@ export class ContactsController {
      * /contacts/33
      */
     @Get(':id')
-    async findOne(@Param('id') id: string) {
+    async findOne(@Param('id', ParseIntPipe) id: number) {
 
         console.log('contact id', id)
 
-        const contact = await this.store.findOneBy(Contact, { id: parseInt(id) });
+        const contact = await this.store.findOneBy(Contact, { id });
 
         if(!contact) {
             throw new NotFoundException(`Cotnact for id ${id} not found`);
@@ -57,7 +61,7 @@ export class ContactsController {
 
     @Patch(':id')
     async update(
-        @Param('id') id: string, 
+        @Param('id', new ParseIntPipe()) id: string, 
         @Body() data: UpdateContactDto
     ) {
 
@@ -73,6 +77,7 @@ export class ContactsController {
     }
 
     @Delete(':id')
+    @UsePipes(ParseIntPipe)
     async remove(
         @Param('id') id: string, 
     ) {
