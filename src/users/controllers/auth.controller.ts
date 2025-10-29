@@ -1,4 +1,4 @@
-import { BadRequestException, Body, ClassSerializerInterceptor, Controller, Get, Post, UnauthorizedException, UseGuards, UseInterceptors, UsePipes, ValidationPipe } from '@nestjs/common';
+import { BadRequestException, Body, ClassSerializerInterceptor, Controller, Get, Post, UnauthorizedException, UnprocessableEntityException, UseFilters, UseGuards, UseInterceptors, UsePipes, ValidationPipe } from '@nestjs/common';
 import { ApiBearerAuth, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { JwtAuthGuard } from '../guards/jwt-auth.guard';
 import { Auth } from '../decorators/auth.decorator';
@@ -9,6 +9,7 @@ import { AuthLoginDto, AuthRegisterDto } from '../dto/auth.dto';
 import { AuthService } from '../services/auth.service';
 import { UsersService } from '../services/users.service';
 import { PerformanceInterceptor } from '../interceptors/performance.interceptor';
+import { UserExceptionFilter } from '../filters/user-exception.filter';
 
 @Controller('auth')
 @ApiTags('Auth')
@@ -60,7 +61,12 @@ export class AuthController {
 
     @Post('login')
     @UsePipes(new ValidationPipe({ transform: true }))
+    @UseFilters(UserExceptionFilter)
     async login(@Body() data: AuthLoginDto) {
+
+        if(data.password === 'qwer') {
+            throw new UnprocessableEntityException('strange exception');
+        }
 
         // validate user
         const user = await this.usersService.findOneBy({ email: data.email });
