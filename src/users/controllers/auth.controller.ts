@@ -22,7 +22,7 @@ export class AuthController {
      * profile info
      */
     @Get()
-    @ApiAuth(RoleNames.ADMIN, RoleNames.ROOT)
+    @ApiAuth()
     me(
         @Auth() user: User, 
         @Auth('token') token: string
@@ -57,14 +57,21 @@ export class AuthController {
     }
 
     @Post('login')
+    @UsePipes(new ValidationPipe({ transform: true }))
     async login(@Body() data: AuthLoginDto) {
 
         // validate user
-        const user = await this.authService.validateUser(data);
+        const user = await this.usersService.findOneBy({ email: data.email });
 
         // if not found throw exception
         if(!user) {
             throw new UnauthorizedException(`Credentials invalid`)
+        }
+        
+        // validate the password
+        const isValid = await this.authService.validatePassword(data.password, user.password);
+        if(!isValid) {
+            throw new UnauthorizedException(`Credentials invalid`);
         }
 
         // create token
