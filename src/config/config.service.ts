@@ -10,4 +10,5 @@ export class ConfigService {
   readonly DOMAIN = process.env.DOMAIN;
   readonly STORAGE_DIR = resolve(process.env.STORAGE_DIR);
   readonly JWT_SECRET = process.env.JWT_SECRET;
+  readonly JWT_EXPIRES_IN = '4d'
 }

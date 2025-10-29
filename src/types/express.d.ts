@@ -1,5 +1,5 @@
 import 'express';
-import { RequestPayload } from '../users/entities/user.entity/user.entity';
+import { RequestPayload } from '../users/entities/user.entity';
 
 declare module 'express' {
   export interface Request {

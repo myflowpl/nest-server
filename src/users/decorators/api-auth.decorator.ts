@@ -1,5 +1,5 @@
 import { applyDecorators, UseGuards } from '@nestjs/common';
-import { ExceptionResponse, RoleNames } from '../entities/user.entity/user.entity';
+import { ExceptionResponse, RoleNames } from '../entities/user.entity';
 import { ApiBearerAuth, ApiResponse } from '@nestjs/swagger';
 import { JwtAuthGuard } from '../guards/jwt-auth.guard';
 import { Roles } from './roles.decorator';

@@ -2,7 +2,7 @@ import { CanActivate, ExecutionContext, ForbiddenException, Injectable, Unauthor
 import { Request } from 'express';
 import { AuthService } from '../services/auth.service';
 import { Reflector } from '@nestjs/core';
-import { RoleNames } from '../entities/user.entity/user.entity';
+import { RoleNames } from '../entities/user.entity';
 import { ROLES_KEY } from '../decorators/roles.decorator';
 
 @Injectable()
