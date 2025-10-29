@@ -12,7 +12,7 @@ export class AuthController {
     @Get()
     @ApiBearerAuth()
     @UseGuards(JwtAuthGuard)
-    @Roles(RoleNames.ADMIN)
+    @Roles(RoleNames.ADMIN, RoleNames.ROOT)
     me(
         @Auth() user: User, 
         @Auth('token') token: string
