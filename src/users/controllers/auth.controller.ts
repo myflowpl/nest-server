@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Post, UseGuards, UsePipes, ValidationPipe } from '@nestjs/common';
+import { BadRequestException, Body, Controller, Get, Post, UseGuards, UsePipes, ValidationPipe } from '@nestjs/common';
 import { ApiBearerAuth, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { JwtAuthGuard } from '../guards/jwt-auth.guard';
 import { Auth } from '../decorators/auth.decorator';
@@ -6,10 +6,17 @@ import { ExceptionResponse, RequestPayload, RoleNames, User } from '../entities/
 import { Roles } from '../decorators/roles.decorator';
 import { ApiAuth } from '../decorators/api-auth.decorator';
 import { AuthRegisterDto } from '../dto/auth.dto';
+import { AuthService } from '../services/auth.service';
+import { UsersService } from '../services/users.service';
 
 @Controller('auth')
 @ApiTags('Auth')
 export class AuthController {
+
+    constructor(
+        private authService: AuthService,
+        private usersService: UsersService,
+    ) {}
 
     /**
      * profile info
@@ -29,8 +36,23 @@ export class AuthController {
      */
     @Post('register')
     @UsePipes(new ValidationPipe({ transform: true }))
-    register(@Body() data: AuthRegisterDto) {
+    async register(@Body() data: AuthRegisterDto) {
 
-        return data;
+        let user = await this.usersService.findOneBy({ email: data.email });
+
+        if(user) {
+            throw new BadRequestException(`Email ${data.email} is already taken`)
+        }
+
+        const password = await this.authService.encodePassword(data.password);
+
+        user = new User({
+            ...data,
+            password,
+        });
+
+        await this.usersService.save(user);
+
+        return user;
     }
 }

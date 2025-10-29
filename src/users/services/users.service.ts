@@ -14,4 +14,8 @@ export class UsersService {
         return this.store.findOneBy(User, query)
     }
 
+    async save(user: User) {
+        return this.store.save(user);
+    }
+
 }

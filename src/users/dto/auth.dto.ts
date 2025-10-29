@@ -1,5 +1,6 @@
 import { ApiProperty } from "@nestjs/swagger";
 import { IsEmail, MinLength } from "class-validator";
+import { IsPassword } from "../decorators/is-password.decorator";
 
 export class AuthRegisterDto {
 
@@ -12,6 +13,6 @@ export class AuthRegisterDto {
     email: string;
     
     @ApiProperty({example: '!@#$'})
-    @MinLength(3)
+    @IsPassword()
     password: string;
 }
