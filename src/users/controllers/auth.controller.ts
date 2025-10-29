@@ -1,4 +1,4 @@
-import { BadRequestException, Body, Controller, Get, Post, UnauthorizedException, UseGuards, UsePipes, ValidationPipe } from '@nestjs/common';
+import { BadRequestException, Body, ClassSerializerInterceptor, Controller, Get, Post, UnauthorizedException, UseGuards, UseInterceptors, UsePipes, ValidationPipe } from '@nestjs/common';
 import { ApiBearerAuth, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { JwtAuthGuard } from '../guards/jwt-auth.guard';
 import { Auth } from '../decorators/auth.decorator';
@@ -8,9 +8,11 @@ import { ApiAuth } from '../decorators/api-auth.decorator';
 import { AuthLoginDto, AuthRegisterDto } from '../dto/auth.dto';
 import { AuthService } from '../services/auth.service';
 import { UsersService } from '../services/users.service';
+import { PerformanceInterceptor } from '../interceptors/performance.interceptor';
 
 @Controller('auth')
 @ApiTags('Auth')
+@UseInterceptors(PerformanceInterceptor, ClassSerializerInterceptor)
 export class AuthController {
 
     constructor(
