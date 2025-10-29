@@ -1,11 +1,11 @@
-import { BadRequestException, Body, Controller, Get, Post, UseGuards, UsePipes, ValidationPipe } from '@nestjs/common';
+import { BadRequestException, Body, Controller, Get, Post, UnauthorizedException, UseGuards, UsePipes, ValidationPipe } from '@nestjs/common';
 import { ApiBearerAuth, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { JwtAuthGuard } from '../guards/jwt-auth.guard';
 import { Auth } from '../decorators/auth.decorator';
 import { ExceptionResponse, RequestPayload, RoleNames, User } from '../entities/user.entity';
 import { Roles } from '../decorators/roles.decorator';
 import { ApiAuth } from '../decorators/api-auth.decorator';
-import { AuthRegisterDto } from '../dto/auth.dto';
+import { AuthLoginDto, AuthRegisterDto } from '../dto/auth.dto';
 import { AuthService } from '../services/auth.service';
 import { UsersService } from '../services/users.service';
 
@@ -54,5 +54,23 @@ export class AuthController {
         await this.usersService.save(user);
 
         return user;
+    }
+
+    @Post('login')
+    async login(@Body() data: AuthLoginDto) {
+
+        // validate user
+        const user = await this.authService.validateUser(data);
+
+        // if not found throw exception
+        if(!user) {
+            throw new UnauthorizedException(`Credentials invalid`)
+        }
+
+        // create token
+        const token = await this.authService.encodeUserToken(user);
+
+        // return response
+        return { token, user }
     }
 }
