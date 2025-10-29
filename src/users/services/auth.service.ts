@@ -25,6 +25,6 @@ export class AuthService {
         // return request payload
 
 
-    return token ? { user } : null;
+    return token ? { user, token } : null;
   }
 }

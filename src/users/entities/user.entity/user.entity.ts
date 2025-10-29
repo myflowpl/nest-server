@@ -1,3 +1,4 @@
+
 export enum RoleNames {
   ADMIN = 'admin',
   ROOT = 'root',
@@ -29,7 +30,9 @@ export class TokenPayload {
 }
 
 export class RequestPayload {
-  user: User
+  user: User;
+  token?: string;
+  companyName?: string;
 }
 
 export class ExceptionResponse {
