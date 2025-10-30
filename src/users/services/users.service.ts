@@ -1,5 +1,4 @@
 import { Injectable } from '@nestjs/common';
-import { StoreService } from '../../store/store.service';
 import { Role, User } from '../entities/user.entity';
 import { PrismaService, Prisma } from '../../db/prisma.service';
 
@@ -7,7 +6,6 @@ import { PrismaService, Prisma } from '../../db/prisma.service';
 export class UsersService {
 
     constructor(
-        private store: StoreService,
         private db: PrismaService,
     ){}
 
@@ -16,10 +14,6 @@ export class UsersService {
         return this.db.user.findUnique({
             where: query
         })
-    }
-
-    async save(user: User) {
-        return this.store.save(user);
     }
 
     async createUser(data: Prisma.UserCreateInput): Promise<User> {
