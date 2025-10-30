@@ -54,7 +54,7 @@ export class AuthController {
             password,
         });
 
-        await this.usersService.save(user);
+        await this.usersService.createUser(user);
 
         return user;
     }

@@ -22,7 +22,7 @@ export class User {
   @Exclude()
   password: string;
   
-  roles: Role[];
+  roles?: Role[];
 
   constructor(data?: Partial<User>) {
     return Object.assign(this, data);

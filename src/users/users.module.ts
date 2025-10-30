@@ -6,6 +6,7 @@ import { JwtModule } from '@nestjs/jwt';
 import { ConfigModule, ConfigService } from '../config';
 import { StoreModule } from '../store/store.module';
 import { UsersAdminController } from './controllers/users-admin.controller';
+import { DbModule } from '../db/db.module';
 
 @Module({
   imports: [
@@ -29,6 +30,7 @@ import { UsersAdminController } from './controllers/users-admin.controller';
     }),
     StoreModule,
     ConfigModule,
+    DbModule,
   ],
   controllers: [AuthController, UsersAdminController],
   providers: [UsersService, AuthService],
