@@ -18,13 +18,16 @@
     "test:watch": "jest --watch",
     "test:cov": "jest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
-    "test:e2e": "jest --config ./test/jest-e2e.json"
+    "test:e2e": "jest --config ./test/jest-e2e.json",
+    "test:e2e:watch": "jest --config ./test/jest-e2e.json --watch"
   },
   "dependencies": {
     "@nestjs/axios": "^3.0.0",
+    "@nestjs/cache-manager": "^3.0.1",
     "@nestjs/common": "^10.0.0",
     "@nestjs/core": "^10.0.0",
     "@nestjs/jwt": "^10.1.0",
+    "@nestjs/microservices": "^10.4.20",
     "@nestjs/platform-express": "^10.0.0",
     "@nestjs/platform-socket.io": "^10.1.0",
     "@nestjs/swagger": "^7.1.1",
@@ -32,6 +35,7 @@
     "@nestjs/websockets": "^10.1.0",
     "@prisma/client": "^6.18.0",
     "bcrypt": "^5.1.0",
+    "cache-manager": "^7.2.4",
     "chalk": "^4.1.2",
     "class-transformer": "^0.5.1",
     "class-validator": "^0.14.0",

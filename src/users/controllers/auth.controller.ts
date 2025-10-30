@@ -13,7 +13,7 @@ import { UserExceptionFilter } from '../filters/user-exception.filter';
 
 @Controller('auth')
 @ApiTags('Auth')
-@UseInterceptors(PerformanceInterceptor, ClassSerializerInterceptor)
+// @UseInterceptors(PerformanceInterceptor, ClassSerializerInterceptor)
 export class AuthController {
 
     constructor(

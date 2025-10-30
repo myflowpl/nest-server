@@ -7,12 +7,15 @@ describe('AppController (e2e)', () => {
   let app: INestApplication;
 
   beforeEach(async () => {
+
     const moduleFixture: TestingModule = await Test.createTestingModule({
       imports: [AppModule],
     }).compile();
 
     app = moduleFixture.createNestApplication();
+
     await app.init();
+
   });
 
   it('/ (GET)', () => {
@@ -22,3 +25,4 @@ describe('AppController (e2e)', () => {
       .expect('Hello World!');
   });
 });
+

@@ -1,9 +1,11 @@
-import { Body, Controller, DefaultValuePipe, Delete, Get, NotFoundException, Param, ParseIntPipe, Patch, Post, Query, UsePipes, ValidationPipe } from '@nestjs/common';
+import { Body, Controller, DefaultValuePipe, Delete, Get, Inject, NotFoundException, Param, ParseIntPipe, Patch, Post, Query, UseInterceptors, UsePipes, ValidationPipe } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { StoreService } from '../store/store.service';
 import { Contact } from './contacts.entity';
 import { CreateContactDto, GetContactsDto, UpdateContactDto } from './contacts.dto';
 import { JwtService } from '@nestjs/jwt';
+import { CACHE_MANAGER, CacheInterceptor } from '@nestjs/cache-manager';
+import { Cache } from 'cache-manager';
 
 @Controller('contacts')
 @ApiTags('Contacts')
@@ -12,6 +14,7 @@ export class ContactsController {
     constructor(
         private store: StoreService,
         private jwt: JwtService,
+        @Inject(CACHE_MANAGER) private cacheManager: Cache,
     ) {}
 
     @Get()
@@ -19,6 +22,7 @@ export class ContactsController {
         transform: true,
         transformOptions: { enableImplicitConversion: true }
     }))
+    @UseInterceptors(CacheInterceptor)
     async findAll( @Query() query: GetContactsDto) {
 
         console.log('query', query)
@@ -50,6 +54,14 @@ export class ContactsController {
     @Get(':id')
     async findOne(@Param('id', ParseIntPipe) id: number) {
 
+        const key = 'contact'+id;
+        const record  = await this.cacheManager.get(key);
+
+        if(record) {
+            console.log('from cache', )
+            return record;
+        }
+
         console.log('contact id', id)
 
         const contact = await this.store.findOneBy(Contact, { id });
@@ -57,6 +69,8 @@ export class ContactsController {
         if(!contact) {
             throw new NotFoundException(`Cotnact for id ${id} not found`);
         }
+
+        await this.cacheManager.set(key, contact);
 
         return contact;
     }
