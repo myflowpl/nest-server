@@ -49,12 +49,12 @@ export class AuthController {
 
         const password = await this.authService.encodePassword(data.password);
 
-        const newUser = {
+        user = new User({
             ...data,
             password,
-        };
+        });
 
-        const record = await this.usersService.createUser(newUser);
+        const record = await this.usersService.createUser(user);
 
         return record;
     }
