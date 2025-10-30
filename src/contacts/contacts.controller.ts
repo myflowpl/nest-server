@@ -13,7 +13,6 @@ export class ContactsController {
 
     constructor(
         private store: StoreService,
-        private jwt: JwtService,
         @Inject(CACHE_MANAGER) private cacheManager: Cache,
     ) {}
 

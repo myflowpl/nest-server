@@ -5,8 +5,9 @@ import { UsersModule } from '../users/users.module';
 import { CacheModule } from '@nestjs/cache-manager';
 
 @Module({
-  imports: [StoreModule, UsersModule, CacheModule.register()],
+  imports: [StoreModule, CacheModule.register()],
   controllers: [ContactsController],
-  providers: [],
+  providers: [ContactsController],
+  exports: [ContactsController]
 })
 export class ContactsModule {}
