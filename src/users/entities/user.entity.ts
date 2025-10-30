@@ -1,5 +1,5 @@
 import { Exclude } from "class-transformer";
-import { RoleNames } from "../../../generated/prisma/enums";
+import { RoleNames } from "@db";
 
 export { RoleNames }
 
