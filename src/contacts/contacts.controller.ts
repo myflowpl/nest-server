@@ -3,6 +3,7 @@ import { ApiTags } from '@nestjs/swagger';
 import { StoreService } from '../store/store.service';
 import { Contact } from './contacts.entity';
 import { CreateContactDto, GetContactsDto, UpdateContactDto } from './contacts.dto';
+import { JwtService } from '@nestjs/jwt';
 
 @Controller('contacts')
 @ApiTags('Contacts')
@@ -10,6 +11,7 @@ export class ContactsController {
 
     constructor(
         private store: StoreService,
+        private jwt: JwtService,
     ) {}
 
     @Get()

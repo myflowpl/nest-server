@@ -28,9 +28,10 @@ import { UsersAdminController } from './controllers/users-admin.controller';
       },
     }),
     StoreModule,
+    ConfigModule,
   ],
   controllers: [AuthController, UsersAdminController],
   providers: [UsersService, AuthService],
-  exports: [UsersService, AuthService],
+  exports: [UsersService, AuthService, JwtModule],
 })
 export class UsersModule {}
