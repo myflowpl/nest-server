@@ -12,11 +12,13 @@ export class AppController {
     private readonly appService: AppService,
     private readonly storeService: StoreService,
     private readonly config: ConfigService,
-  ) {}
+  ) {
+
+    // console.log(this.config)
+  }
 
   @Get()
   getHello(): string {
-    console.log(this.config)
     return this.appService.getHello();
   }
 
