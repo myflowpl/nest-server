@@ -28,6 +28,12 @@ export class UsersService {
         });
     }
 
+    async createRole(data: Prisma.RoleCreateInput): Promise<Role> {
+        return this.db.role.create({
+            data,
+        });
+    }
+
     // async updateUser(params: {
     //     where: Prisma.UserWhereUniqueInput;
     //     data: Prisma.UserUpdateInput;

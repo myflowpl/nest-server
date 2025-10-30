@@ -14,6 +14,12 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+
+enum RoleNames {
+  ADMIN
+  ROOT
+}
+
 model User {
   id       Int     @id @default(autoincrement())
   email    String  @unique
@@ -24,6 +30,6 @@ model User {
 
 model Role {
   id    Int    @id @default(autoincrement())
-  name  String
+  name  RoleNames
   users User[]
 }

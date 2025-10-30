@@ -1,9 +1,7 @@
 import { Exclude } from "class-transformer";
+import { RoleNames } from "../../../generated/prisma/enums";
 
-export enum RoleNames {
-  ADMIN = 'admin',
-  ROOT = 'root',
-}
+export { RoleNames }
 
 export class Role {
   id: number;

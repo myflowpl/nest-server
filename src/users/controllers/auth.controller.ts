@@ -2,7 +2,7 @@ import { BadRequestException, Body, ClassSerializerInterceptor, Controller, Get,
 import { ApiBearerAuth, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { JwtAuthGuard } from '../guards/jwt-auth.guard';
 import { Auth } from '../decorators/auth.decorator';
-import { ExceptionResponse, RequestPayload, RoleNames, User } from '../entities/user.entity';
+import { ExceptionResponse, RequestPayload, User } from '../entities/user.entity';
 import { Roles } from '../decorators/roles.decorator';
 import { ApiAuth } from '../decorators/api-auth.decorator';
 import { AuthLoginDto, AuthRegisterDto } from '../dto/auth.dto';
