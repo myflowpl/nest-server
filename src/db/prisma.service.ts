@@ -2,7 +2,9 @@
 import { Injectable, OnModuleInit } from '@nestjs/common';
 import { PrismaClient, Prisma } from 'generated/prisma/client';
 import {resolve } from 'path';
-
+import { fixConfig } from './fix-config';
+console.log('CWT prisma nest service', process.cwd())
+fixConfig();
 @Injectable()
 export class PrismaService extends PrismaClient implements OnModuleInit {
 
