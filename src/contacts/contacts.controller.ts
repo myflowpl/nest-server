@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, HttpCode, NotFoundException, Param, Post, Query } from '@nestjs/common';
+import { Body, Controller, Delete, Get, HttpCode, NotFoundException, Param, ParseIntPipe, Patch, Post, Query, UsePipes, ValidationPipe } from '@nestjs/common';
 import { ApiResponse, ApiTags } from '@nestjs/swagger';
 import { Contact } from './contacts.entity';
 import { CreateContactDto, GetContactsDto, HttpExceptionDto } from './contacts.dto';
@@ -32,6 +32,7 @@ export class ContactsController {
     }
 
     @Post()
+    @UsePipes(new ValidationPipe({}))
     async create(@Body() data: CreateContactDto) {
         
         const contact = new Contact(data);
@@ -41,13 +42,33 @@ export class ContactsController {
         return contact;
     }
 
-    @Delete('/remove/:id/active')
+    @Patch(':id')
     @ApiResponse({status: 404, description: 'Contact not found', type: HttpExceptionDto})
-    async delete(@Param('id') id: string ) {
+    async update(
+        @Param('id', ParseIntPipe) id: number,
+        @Body(new ValidationPipe({})) data: CreateContactDto,
+    ) {
 
         console.log('id', id)
 
-        const contact = await this.store.findOneBy(Contact, { id: parseInt(id) });
+        const contact = await this.store.findOneBy(Contact, { id });
+
+        if(!contact) {
+            throw new NotFoundException(`Contact for id "${id}" not found`);
+        }
+
+        await this.store.update(Contact, data, {id});
+
+        return contact;
+    }
+
+    @Delete('/remove/:id/active')
+    @ApiResponse({status: 404, description: 'Contact not found', type: HttpExceptionDto})
+    async delete(@Param('id', ParseIntPipe) id: number ) {
+
+        console.log('id', id)
+
+        const contact = await this.store.findOneBy(Contact, { id });
 
         if(!contact) {
             throw new NotFoundException(`Contact for id "${id}" not found`);
