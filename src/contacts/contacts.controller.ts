@@ -1,17 +1,28 @@
-import { Body, Controller, Delete, Get, HttpCode, Post } from '@nestjs/common';
-import { ApiTags } from '@nestjs/swagger';
+import { Body, Controller, Delete, Get, HttpCode, NotFoundException, Param, Post, Query } from '@nestjs/common';
+import { ApiResponse, ApiTags } from '@nestjs/swagger';
 import { Contact } from './contacts.entity';
-import { CreateContactDto } from './contacts.dto';
+import { CreateContactDto, GetContactsDto, HttpExceptionDto } from './contacts.dto';
+import { StoreService } from '../store/store.service';
 
 @Controller('contacts')
 @ApiTags('Contacts')
 export class ContactsController {
 
+    constructor(
+        private store: StoreService
+    ) {}
+
     @Get()
-    findAll() {
-        return [
-            new Contact({name: 'Piotr'})
-        ]
+    async findAll(@Query() query: GetContactsDto) {
+
+        console.log('query', query)
+
+        const contacts = await this.store.find(Contact, {
+            take: query.pageSize,
+            skip: query.pageSize*query.pageIndex,
+        });
+
+        return contacts;
     }
 
     @Get('active')
@@ -21,15 +32,29 @@ export class ContactsController {
     }
 
     @Post()
-    create(@Body() data: CreateContactDto) {
+    async create(@Body() data: CreateContactDto) {
         
-        console.log('data', data)
+        const contact = new Contact(data);
 
-        return true;
+        await this.store.save(contact);
+
+        return contact;
     }
 
-    @Delete()
-    delete() {
+    @Delete('/remove/:id/active')
+    @ApiResponse({status: 404, description: 'Contact not found', type: HttpExceptionDto})
+    async delete(@Param('id') id: string ) {
 
+        console.log('id', id)
+
+        const contact = await this.store.findOneBy(Contact, { id: parseInt(id) });
+
+        if(!contact) {
+            throw new NotFoundException(`Contact for id "${id}" not found`);
+        }
+
+        await this.store.remove(contact);
+
+        return contact;
     }
 }

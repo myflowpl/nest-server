@@ -17,7 +17,23 @@ export class CreateContactDto {
     })
     message: string;
 
-    constructor(data: Partial<CreateContactDto>) {
+    constructor(data?: Partial<CreateContactDto>) {
         Object.assign(this, data);
     }
+}
+export class GetContactsDto {
+
+    pageIndex: number;
+
+    pageSize: number;
+
+    constructor(data?: Partial<GetContactsDto>) {
+        Object.assign(this, data);
+    }
+}
+
+export class HttpExceptionDto {
+    message: string;
+    error: string;
+    statusCode: number;
 }

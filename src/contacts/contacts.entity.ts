@@ -9,7 +9,7 @@ export class Contact {
     @ApiProperty({description: 'Opis proprerty message jest opcjonalny', required: false, example: 'test value of message'})
     message: string;
 
-    constructor(data: Partial<Contact>) {
+    constructor(data?: Partial<Contact>) {
         Object.assign(this, data);
     }
 }
