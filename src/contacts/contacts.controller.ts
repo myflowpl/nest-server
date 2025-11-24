@@ -13,6 +13,10 @@ export class ContactsController {
     ) {}
 
     @Get()
+    @UsePipes(new ValidationPipe({
+        transform: true, 
+        transformOptions: { enableImplicitConversion: true }
+    }))
     async findAll(@Query() query: GetContactsDto) {
 
         console.log('query', query)
@@ -32,7 +36,7 @@ export class ContactsController {
     }
 
     @Post()
-    @UsePipes(new ValidationPipe({}))
+    @UsePipes( ValidationPipe )
     async create(@Body() data: CreateContactDto) {
         
         const contact = new Contact(data);
@@ -46,7 +50,7 @@ export class ContactsController {
     @ApiResponse({status: 404, description: 'Contact not found', type: HttpExceptionDto})
     async update(
         @Param('id', ParseIntPipe) id: number,
-        @Body(new ValidationPipe({})) data: CreateContactDto,
+        @Body( ValidationPipe ) data: CreateContactDto,
     ) {
 
         console.log('id', id)
