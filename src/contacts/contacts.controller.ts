@@ -50,7 +50,7 @@ export class ContactsController {
     @ApiResponse({status: 404, description: 'Contact not found', type: HttpExceptionDto})
     async update(
         @Param('id', ParseIntPipe) id: number,
-        @Body( ValidationPipe ) data: CreateContactDto,
+        @Body(ValidationPipe ) data: CreateContactDto,
     ) {
 
         console.log('id', id)
