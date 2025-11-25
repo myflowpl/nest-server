@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { StoreService } from '../../store/store.service';
-import { Role, User } from '../entities/user.entity';
+import { Role, RoleNames, User } from '../entities/user.entity';
 
 @Injectable()
 export class UsersService {
@@ -19,5 +19,9 @@ export class UsersService {
 
     async getRoles() {
         return this.store.find(Role);
+    }
+
+    async getRoleByName(name: RoleNames) {
+        return this.store.findOneBy(Role, { name });
     }
 }
