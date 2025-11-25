@@ -1,23 +1,44 @@
 import { Injectable } from '@nestjs/common';
-import { RequestPayload, RoleNames, User } from '../entities/user.entity';
+import { RequestPayload, RoleNames, TokenPayload, User } from '../entities/user.entity';
 import { JwtService } from '@nestjs/jwt';
+import { UsersService } from './users.service';
+import * as bcrypt from 'bcrypt';
 
 @Injectable()
 export class AuthService {
 
     constructor(
-        private jwt: JwtService,
+        private jwtService: JwtService,
+        private usersService: UsersService,
     ) {}
+
+    async encodeUserToken(user: User): Promise<string> {
+
+        const payload: TokenPayload = { sub: user.id };
+
+        return this.jwtService.signAsync(payload);
+
+    }
 
     async decodeUserToken(token: string): Promise<RequestPayload | null> {
 
-        // mock fake user
-        const user = new User({
-            id: 1,
-            name: 'Piotr',
-            roles: [{ id: 1, name: RoleNames.ROOT }]
-        });
+        const payload: TokenPayload | null = await this.jwtService.verifyAsync(token).catch(() => null);
 
-        return token ? { user, token } : null;
+        if(!payload) {
+            return null;
+        }
+
+        const user = await this.usersService.findOneBy({ id: payload.sub });
+
+        return user ? { user, token } : null;
     }
+
+    async encodePassword(password: string): Promise<string> {
+        return bcrypt.hash(password, 10);
+    }
+
+    async validatePassword(password: string, hash: string): Promise<boolean> {
+        return bcrypt.compare(password, hash);
+    }
+
 }

@@ -4,9 +4,12 @@ import { UsersService } from './services/users.service';
 import { AuthService } from './services/auth.service';
 import { JwtModule } from '@nestjs/jwt';
 import { ConfigModule, ConfigService } from '../config';
+import { StoreModule } from '../store/store.module';
 
 @Module({
   imports: [
+    StoreModule,
+    
     // sync 
     // JwtModule.register({
     //   secret: process.env.JWT_SECRET,
