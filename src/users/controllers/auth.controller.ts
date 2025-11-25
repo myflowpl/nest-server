@@ -5,7 +5,7 @@ import { Auth } from '../decorators/auth.decorator';
 import { ExceptionResponse, RoleNames, User } from '../entities/user.entity';
 import { Roles } from '../decorators/roles.decorator';
 import { ApiAuth } from '../decorators/api-auth.decorator';
-import { AuthRegisterDto } from '../dto/auth.dto';
+import { AuthLoginDto, AuthLoginResponse, AuthRegisterDto } from '../dto/auth.dto';
 import { UsersService } from '../services/users.service';
 import { AuthService } from '../services/auth.service';
 
@@ -50,5 +50,30 @@ export class AuthController {
 
         // return user
         return user;
+    }
+
+    @Post('login')
+    async login(@Body(ValidationPipe) data: AuthLoginDto): Promise<AuthLoginResponse> {
+
+        // validate input data with ValidationPipe & Decorators on DTO
+
+        // find user by email
+        let user = await this.usersService.findOneBy({ email: data.email });
+        if(!user) {
+            throw new BadRequestException(`Bad credentials`);
+        }
+
+        // validate password
+        const isValid = await this.authService.validatePassword(data.password, user.password);
+
+        if(!isValid) {
+            throw new BadRequestException(`Bad credentials`);
+        }
+
+        // create token
+        const token = await this.authService.encodeUserToken(user);
+
+        // return user
+        return { token, user };
     }
 }
