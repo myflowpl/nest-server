@@ -4,7 +4,7 @@ import { ApiBody, ApiParam, ApiTags } from '@nestjs/swagger';
 import { UserByIdPipe } from '../pipes/user-by-id.pipe';
 import { RoleByNamePipe } from '../pipes/role-by-name.pipe';
 import { UsersService } from '../services/users.service';
-import { AaddRoleDto } from '../dto/users.dto';
+import { AddRoleDto } from '../dto/users.dto';
 
 @Controller('users-admin')
 @ApiTags('UsersAdmin')
@@ -15,7 +15,7 @@ export class UsersAdminController {
     ) {}
 
     @Post('roles')
-    @ApiBody({type: AaddRoleDto})
+    @ApiBody({type: AddRoleDto})
     async addRole(
         @Body('userId', UserByIdPipe) user: User,
         @Body('roleName', RoleByNamePipe) role: Role,

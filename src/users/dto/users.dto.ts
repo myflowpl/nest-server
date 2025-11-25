@@ -1,6 +1,6 @@
 import { RoleNames } from "../entities/user.entity";
 
-export class AaddRoleDto {
+export class AddRoleDto {
     userId: number;
     roleName: RoleNames;
 }
