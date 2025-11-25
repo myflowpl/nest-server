@@ -1,9 +1,10 @@
-import { Controller, Delete, Param, Post } from '@nestjs/common';
+import { Body, Controller, Delete, Param, Post } from '@nestjs/common';
 import { Role, RoleNames, User } from '../entities/user.entity';
-import { ApiParam, ApiTags } from '@nestjs/swagger';
+import { ApiBody, ApiParam, ApiTags } from '@nestjs/swagger';
 import { UserByIdPipe } from '../pipes/user-by-id.pipe';
 import { RoleByNamePipe } from '../pipes/role-by-name.pipe';
 import { UsersService } from '../services/users.service';
+import { AaddRoleDto } from '../dto/users.dto';
 
 @Controller('users-admin')
 @ApiTags('UsersAdmin')
@@ -13,16 +14,20 @@ export class UsersAdminController {
         private usersService: UsersService,
     ) {}
 
-    @Post('roles/:userId/:roleName')
-    @ApiParam({name: 'userId', type: String})
-    @ApiParam({name: 'roleName', type: String, enum: RoleNames})
+    @Post('roles')
+    @ApiBody({type: AaddRoleDto})
     async addRole(
-        @Param('userId', UserByIdPipe) user: User,
-        @Param('roleName', RoleByNamePipe) role: Role,
+        @Body('userId', UserByIdPipe) user: User,
+        @Body('roleName', RoleByNamePipe) role: Role,
     ) {
-        user.roles = [role];
+        const roles = user.roles || [];
 
-        await this.usersService.save(user);
+        if(!roles.find(r => r.name === role.name)) {
+
+            user.roles = [...roles, role];
+            await this.usersService.save(user);
+        }
+
 
         return { user, role }
     }
@@ -35,6 +40,9 @@ export class UsersAdminController {
         @Param('roleName', RoleByNamePipe) role: Role,
     ) {
 
+        user.roles = (user.roles || []).filter(r => r.name !== role.name);
+
+        await this.usersService.save(user);
 
         return { user, role }
     }
