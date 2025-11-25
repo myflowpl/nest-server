@@ -40,6 +40,7 @@ export class JwtAuthGuard implements CanActivate {
       
     } else if(context.getType() === 'rpc') {
       // TODO implement other conext rpc 
+      context.switchToRpc().getData();
       throw new InternalServerErrorException(`not suppported type of context "${context.getType()}"`);
     }
     
