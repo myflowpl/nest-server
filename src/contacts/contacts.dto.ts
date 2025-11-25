@@ -1,4 +1,4 @@
-import { ApiProperty } from "@nestjs/swagger";
+import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger";
 import { IsEmail, IsNumber, MinLength } from 'class-validator'
 
 export class CreateContactDto {
@@ -22,10 +22,12 @@ export class CreateContactDto {
 export class GetContactsDto {
 
     @IsNumber()
-    pageIndex?: number = 0;
+    @ApiProperty({required: false})
+    pageIndex: number = 0;
     
     @IsNumber()
-    pageSize?: number = 2;
+    @ApiPropertyOptional()
+    pageSize: number = 2;
 
     constructor(data?: Partial<GetContactsDto>) {
         Object.assign(this, data);
