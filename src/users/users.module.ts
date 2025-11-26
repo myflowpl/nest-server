@@ -10,7 +10,7 @@ import { UsersAdminController } from './controllers/users-admin.controller';
 @Module({
   imports: [
     StoreModule,
-    
+    ConfigModule,
     // sync 
     // JwtModule.register({
     //   secret: process.env.JWT_SECRET,

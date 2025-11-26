@@ -1,18 +1,28 @@
-import { Body, Controller, Delete, Param, Post } from '@nestjs/common';
+import { Body, Controller, Delete, Get, InternalServerErrorException, Param, Post, Query, UseFilters } from '@nestjs/common';
 import { Role, RoleNames, User } from '../entities/user.entity';
 import { ApiBody, ApiParam, ApiTags } from '@nestjs/swagger';
 import { UserByIdPipe } from '../pipes/user-by-id.pipe';
 import { RoleByNamePipe } from '../pipes/role-by-name.pipe';
 import { UsersService } from '../services/users.service';
 import { AddRoleDto } from '../dto/users.dto';
+import { UserBlockedException, UserExceptionFilter } from '../filters/user-exception.filter';
 
 @Controller('users-admin')
 @ApiTags('UsersAdmin')
+@UseFilters(UserExceptionFilter)
 export class UsersAdminController {
 
     constructor(
         private usersService: UsersService,
     ) {}
+
+    @Get('error')
+    error(@Query('type') type: string) {
+        if(type == 'user') {
+            throw new UserBlockedException('payment');
+        }
+        throw new InternalServerErrorException('test exception')
+    }
 
     @Post('roles')
     @ApiBody({type: AddRoleDto})
