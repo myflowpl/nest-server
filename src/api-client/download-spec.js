@@ -12,7 +12,7 @@ download(specUrl, specFile)
 .then(data => {
 
   // TODO jeśli jest potrzeba, tu możesz zmodyfikować wygenerowany spec
-  data.paths["/agreement/pdf"].get.responses[200].content["application/pdf"].schema.format = 'binary';
+  // data.paths["/agreement/pdf"].get.responses[200].content["application/pdf"].schema.format = 'binary';
 
   //
   

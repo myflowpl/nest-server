@@ -22,6 +22,21 @@
         ]
       }
     },
+    "/data": {
+      "get": {
+        "operationId": "AppController_data",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "summary": "Backed For Froendend",
+        "tags": [
+          "App"
+        ]
+      }
+    },
     "/microservice/{delayTime}": {
       "get": {
         "operationId": "AppController_microservice",

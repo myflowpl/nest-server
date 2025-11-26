@@ -5,6 +5,7 @@ import { StoreService } from './store/store.service';
 import { ConfigService } from './config';
 import { combineLatest, delay, map, Observable, of, tap } from 'rxjs';
 import { OnCloseInterceptor } from './users/interceptors/on-close.interceptor';
+import { ContactsApi } from './api-client';
 
 @Controller()
 @ApiTags('App')
@@ -15,13 +16,18 @@ export class AppController {
     private readonly appService: AppService,
     private store: StoreService,
     private config: ConfigService,
+    private contactsApi: ContactsApi
   ) {
     // console.log('Store Service', this.config);
   }
 
   @Get()
-  getHello(): string {
-    return this.appService.getHello();
+  async getHello() {
+    const data = await this.contactsApi.contactsControllerFindAll();
+
+    return data.data;
+    
+    // return this.appService.getHello();
   }
 
   /**
