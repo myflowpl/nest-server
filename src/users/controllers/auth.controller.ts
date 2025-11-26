@@ -1,4 +1,4 @@
-import { BadRequestException, Body, Controller, Get, Post, UseGuards, ValidationPipe } from '@nestjs/common';
+import { BadRequestException, Body, Controller, Get, Post, UseGuards, UseInterceptors, ValidationPipe } from '@nestjs/common';
 import { JwtAuthGuard } from '../guards/jwt-auth.guard';
 import { ApiBearerAuth, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { Auth } from '../decorators/auth.decorator';
@@ -8,6 +8,7 @@ import { ApiAuth } from '../decorators/api-auth.decorator';
 import { AuthLoginDto, AuthLoginResponse, AuthRegisterDto } from '../dto/auth.dto';
 import { UsersService } from '../services/users.service';
 import { AuthService } from '../services/auth.service';
+import { PerformanceInterceptor } from '../interceptors/performance.interceptor';
 
 @Controller('auth')
 @ApiTags('Auth')
@@ -20,8 +21,9 @@ export class AuthController {
     
     @Get()
     @ApiAuth(RoleNames.ROOT)
+    @UseInterceptors(PerformanceInterceptor)
     me( @Auth() user: User, @Auth('token') token: string ) {
-
+        console.log('AuthController.me()', )
         return [user, token];
     }
 

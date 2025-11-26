@@ -1,3 +1,5 @@
+import { Exclude, Transform } from "class-transformer";
+
 export enum RoleNames {
   ADMIN = 'admin',
   ROOT = 'root',
@@ -16,7 +18,11 @@ export class User {
   id: number;
   name: string;
   email: string;
+  
+  @Exclude()
   password: string;
+
+  @Transform((v) => v.value?.map(r => r.name), {toPlainOnly: true})
   roles: Role[];
 
   constructor(data?: Partial<User>) {
