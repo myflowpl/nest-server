@@ -3,16 +3,6 @@ import { DataSource } from 'typeorm';
 import { SqliteConnectionOptions } from 'typeorm/driver/sqlite/SqliteConnectionOptions';
 import { AppModule } from '../app.module';
 import { ConfigService } from '../config';
-// import '../types.d.ts';
-
-import 'express';
-import { RequestPayload } from '../users/entities/user.entity';
-
-declare module 'express' {
-    export interface Request {
-        payload?: RequestPayload | undefined | null;
-    }
-}
 
 const buildDataSource = async () => {
 
