@@ -39,10 +39,10 @@ export class UsersModule {
     @Inject(HTTP_SERVER_URL)
     private serverUrl: string,
   ) {
-    console.log('server url in users module', serverUrl)
+    // console.log('server url in users module', serverUrl)
   }
 
   onModuleInit() {
-    console.log('URL inside uers module', this.url)
+    // console.log('URL inside uers module', this.url)
   }
 }

@@ -7,6 +7,7 @@ import { ContactsModule } from './contacts/contacts.module';
 import { UsersModule } from './users/users.module';
 import { Configuration, ApiModule } from './api-client';
 import { ConfigService } from './config';
+import { PrismaModule } from './prisma/prisma.module';
 
 @Module({
   imports: [
@@ -26,7 +27,9 @@ import { ConfigService } from './config';
          });
 
       }
-    })
+    }),
+
+    PrismaModule
 
   ],
   controllers: [AppController],
