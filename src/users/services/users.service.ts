@@ -1,27 +1,28 @@
 import { Injectable } from '@nestjs/common';
 import { StoreService } from '../../store/store.service';
 import { Role, RoleNames, User } from '../entities/user.entity';
+import { EntityManager } from 'typeorm';
 
 @Injectable()
 export class UsersService {
 
     constructor(
-        private store: StoreService,
+        private manager: EntityManager,
     ){}
 
     async findOneBy(query: Partial<User>) {
-        return this.store.findOneBy(User, query);
+        return this.manager.findOneBy(User, query);
     }
 
     async save(user: User) {
-        return this.store.save(user);
+        return this.manager.save(user);
     }
 
     async getRoles() {
-        return this.store.find(Role);
+        return this.manager.find(Role);
     }
 
     async getRoleByName(name: RoleNames) {
-        return this.store.findOneBy(Role, { name });
+        return this.manager.findOneBy(Role, { name });
     }
 }

@@ -21,7 +21,13 @@
     "test:e2e": "jest --config ./test/jest-e2e.json",
     "swagger:download": "node src/api-client/download-spec.js",
     "swagger:generate": "openapi-generator-cli generate -g typescript-nestjs -i ./src/api-client/openapi.json -o ./src/api-client/lib-nest",
-    "swagger:generate:axios": "openapi-generator-cli generate -g typescript-axios -i ./src/api-client/openapi.json -o ./src/api-client/lib"
+    "swagger:generate:axios": "openapi-generator-cli generate -g typescript-axios -i ./src/api-client/openapi.json -o ./src/api-client/lib",
+    "typeorm": "typeorm-ts-node-commonjs -d ./src/db/ormconfig.ts",
+    "migration:generate": "npm run typeorm migration:generate",
+    "migration:show": "npm run typeorm migration:show",
+    "migration:run": "npm run typeorm migration:run",
+    "migration:revert": "npm run typeorm migration:revert",
+    "migration:create": "typeorm-ts-node-commonjs migration:create"
   },
   "dependencies": {
     "@nestjs/axios": "^4.0.1",
@@ -30,6 +36,7 @@
     "@nestjs/jwt": "^11.0.1",
     "@nestjs/platform-express": "^11.0.1",
     "@nestjs/swagger": "^11.2.3",
+    "@nestjs/typeorm": "^11.0.0",
     "@openapitools/openapi-generator-cli": "^2.25.2",
     "axios": "^1.13.2",
     "bcrypt": "^6.0.0",
@@ -41,7 +48,9 @@
     "inquirer": "^8.2.7",
     "reflect-metadata": "^0.2.2",
     "rxjs": "^7.8.1",
-    "swagger-ui-express": "^5.0.1"
+    "sqlite3": "^5.1.7",
+    "swagger-ui-express": "^5.0.1",
+    "typeorm": "^0.3.27"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3.2.0",
