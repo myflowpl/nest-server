@@ -10,6 +10,7 @@ export class ConfigService {
     readonly DOMAIN = process.env.DOMAIN;
     readonly STORAGE_DIR = resolve(process.env.STORAGE_DIR || '');
     readonly JWT_SECRET = process.env.JWT_SECRET;
+    readonly DATABASE_URL: string = process.env.DATABASE_URL || '';
 
     async onModuleInit() {
         // console.log('init config async')

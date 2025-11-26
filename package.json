@@ -24,6 +24,7 @@
     "swagger:generate:axios": "openapi-generator-cli generate -g typescript-axios -i ./src/api-client/openapi.json -o ./src/api-client/lib"
   },
   "dependencies": {
+    "@libsql/client": "^0.15.15",
     "@nestjs/axios": "^4.0.1",
     "@nestjs/common": "^11.0.1",
     "@nestjs/core": "^11.0.1",
@@ -31,6 +32,7 @@
     "@nestjs/platform-express": "^11.0.1",
     "@nestjs/swagger": "^11.2.3",
     "@openapitools/openapi-generator-cli": "^2.25.2",
+    "@prisma/adapter-libsql": "^7.0.1",
     "@prisma/client": "^7.0.1",
     "axios": "^1.13.2",
     "bcrypt": "^6.0.0",

@@ -9,11 +9,41 @@ export class UsersService {
     constructor(
         private store: StoreService,
         private prisma: PrismaService,
-    ){}
+    ) { }
 
-    async findOneBy(query: Partial<User>) {
-        return this.store.findOneBy(User, query);
+    async findOneBy(query: Partial<Omit<User, 'roles'>>): Promise<User | null> {
+        const user = await this.prisma.user.findFirst({
+            where: {
+                id: query.id,
+                email: query.email,
+                name: query.name,
+            },
+            include: {
+                roles: {
+                    include: {
+                        role: true
+                    }
+                }
+            }
+        });
+
+        if (!user) {
+            return null;
+        }
+
+        // Mapowanie wyniku Prisma na encję User z rolami
+        return new User({
+            id: user.id,
+            name: user.name,
+            email: user.email,
+            password: user.password,
+            roles: user.roles.map(ur => new Role({
+                id: ur.role.id,
+                name: ur.role.name as RoleNames
+            }))
+        });
     }
+
 
     async save(user: User) {
         return this.store.save(user);
