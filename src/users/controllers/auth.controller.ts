@@ -9,6 +9,7 @@ import { AuthLoginDto, AuthLoginResponse, AuthRegisterDto } from '../dto/auth.dt
 import { UsersService } from '../services/users.service';
 import { AuthService } from '../services/auth.service';
 import { PerformanceInterceptor } from '../interceptors/performance.interceptor';
+import { Prisma } from '@prisma/client';
 
 @Controller('auth')
 @ApiTags('Auth')
@@ -33,8 +34,8 @@ export class AuthController {
         // validate input data with ValidationPipe & Decorators on DTO
 
         // check if user exists
-        let user = await this.usersService.findOneBy({ email: data.email });
-        if(user) {
+        const existing = await this.usersService.findOneBy({ email: data.email });
+        if(existing) {
             throw new BadRequestException(`Email "${data.email}" is already taken`)
         }
 
@@ -42,13 +43,13 @@ export class AuthController {
         const password = await this.authService.encodePassword(data.password);
 
         // create user entity
-        user = new User({
+        const user: Prisma.UserCreateInput = {
             ...data,
             password,
-        })
+        }
 
         // save entity
-        await this.usersService.save(user);
+        await this.usersService.create(user);
 
         // return user
         return user;

@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { StoreService } from '../../store/store.service';
 import { Role, RoleNames, User } from '../entities/user.entity';
-import { PrismaService } from '../../prisma/prisma.service';
+import { PrismaService, Prisma } from '../../prisma/prisma.service';
 
 @Injectable()
 export class UsersService {
@@ -11,7 +11,7 @@ export class UsersService {
         private prisma: PrismaService,
     ) { }
 
-    async findOneBy(query: Partial<Omit<User, 'roles'>>): Promise<User | null> {
+    async findOneBy(query: Partial<Omit<User, 'roles'>>) {
         const user = await this.prisma.user.findFirst({
             where: {
                 id: query.id,
@@ -44,6 +44,12 @@ export class UsersService {
         });
     }
 
+
+    async create(user: Prisma.UserCreateInput) {
+        return this.prisma.user.create({
+            data: user
+        });
+    }
 
     async save(user: User) {
         return this.store.save(user);
