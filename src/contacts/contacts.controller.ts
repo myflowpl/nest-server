@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, NotFoundException, Param, Patch, Post, Query } from '@nestjs/common';
+import { Body, Controller, DefaultValuePipe, Delete, Get, NotFoundException, Param, ParseIntPipe, Patch, Post, Query, UsePipes, ValidationPipe } from '@nestjs/common';
 import { ApiResponse, ApiTags } from '@nestjs/swagger';
 import { CreateContactDto, CreateContactResponse, ErrorResponse, GetContactsDto, UpdateContactDto } from './contacts.dto';
 import { Contact } from './contacts.entity';
@@ -13,7 +13,14 @@ export class ContactsController {
     ) {}
 
     @Get()
-    async findAll(@Query() query: GetContactsDto): Promise<Contact[]> {
+    @UsePipes(new ValidationPipe({ 
+        transform: true,
+        transformOptions: { enableImplicitConversion: true }
+    }))
+    async findAll(
+        @Query() query: GetContactsDto,
+        // @Query('pageSize', ParseIntPipe) pageSize: number,
+    ): Promise<Contact[]> {
 
         console.log('query', query)
         
@@ -26,6 +33,7 @@ export class ContactsController {
     }
 
     @Post()
+    @UsePipes(new ValidationPipe({ transform: true }))
     async create(@Body() data: CreateContactDto): Promise<CreateContactResponse> {
 
         // create record
@@ -38,11 +46,12 @@ export class ContactsController {
 
     @Get(':id')
     @ApiResponse({status: 404, description: 'Not found error', type: ErrorResponse})
-    async findOne(@Param('id') id: string): Promise<Contact> {
+    @UsePipes(ParseIntPipe)
+    async findOne(@Param('id') id: number): Promise<Contact> {
 
         console.log('param', id)
 
-        const contact = await this.store.findOneBy(Contact, { id: parseInt(id) });
+        const contact = await this.store.findOneBy(Contact, { id });
 
         if(!contact) {
             throw new NotFoundException(`Contact for id: "${id}" not found`);
@@ -54,13 +63,13 @@ export class ContactsController {
     @Patch(':id')
     @ApiResponse({status: 404, description: 'Not found error', type: ErrorResponse})
     async update(
-        @Param('id') id: string,
+        @Param('id', ParseIntPipe) id: number,
         @Body() data: UpdateContactDto,
     ) {
 
         console.log('param', id)
 
-        const contact = await this.store.findOneBy(Contact, { id: parseInt(id) });
+        const contact = await this.store.findOneBy(Contact, { id });
 
         if(!contact) {
             throw new NotFoundException(`Contact for id: "${id}" not found`);
@@ -76,11 +85,13 @@ export class ContactsController {
     }
 
     @Delete('/remove/:id/active')
-    async remove(@Param('id') id: string): Promise<Contact> {
+    async remove(
+        @Param('id', new DefaultValuePipe(0), ParseIntPipe) id: number,
+    ): Promise<Contact> {
 
         console.log('param', id)
 
-        const contact = await this.store.findOneBy(Contact, { id: parseInt(id) });
+        const contact = await this.store.findOneBy(Contact, { id });
 
         if(!contact) {
             throw new NotFoundException(`Contact for id: "${id}" not found`);
