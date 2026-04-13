@@ -12,6 +12,10 @@ export class GetContactsDto {
   sortDir?: SortDir = SortDir.ASC;
 }
 
+export class GetContactDto {
+  id: number;
+}
+
 export class CreateContactDto {
   name: string;
   email: string;
