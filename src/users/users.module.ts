@@ -30,7 +30,14 @@ import { UsersAdminController } from './controllers/users-admin.controller';
     AuthController, 
     UsersAdminController
   ],
-  providers: [UsersService, AuthService],
+  providers: [
+    UsersService, 
+    AuthService,
+    {
+      provide: 'test',
+      useValue: 'test-value'
+    }
+  ],
   exports: [UsersService, AuthService]
 })
 export class UsersModule {}
