@@ -7,6 +7,7 @@ import { AddRoleDto } from '../dto/admin.dto';
 import { StoreService } from '../../store/store.service';
 import { Observable } from 'rxjs';
 import { OnCloseInterceptor } from '../interceptors/on-close.interceptor';
+import { OnClose } from '../decorators/on-close.decorator';
 
 @Controller('users-admin')
 @ApiTags('UsersAdmin')
@@ -72,5 +73,19 @@ export class UsersAdminController {
         });
 
         return request$;
+    }
+
+    @Get('search-promise')
+    @UseInterceptors(OnCloseInterceptor)
+    searchPromise(@OnClose() close$: Observable<any>) {
+
+
+        // TODO request do sql db
+        const res = 'test response'
+    
+        // calncel db req
+        close$.subscribe(() => console.log('DB CANCELED', ))
+
+        return res;
     }
 }
