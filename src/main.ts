@@ -1,6 +1,6 @@
 import { NestFactory, Reflector } from '@nestjs/core';
 import { AppModule } from './app.module';
-import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
+import { SwaggerModule, DocumentBuilder, SwaggerDocumentOptions } from '@nestjs/swagger';
 import { ConfigService } from './config';
 import { ClassSerializerInterceptor } from '@nestjs/common';
 
@@ -21,9 +21,13 @@ async function bootstrap() {
     .addBearerAuth()
     .build();
 
-  const document = SwaggerModule.createDocument(app, swaggerConfig);
+  const options: SwaggerDocumentOptions =  {
+    operationIdFactory: ( controllerKey: string, methodKey: string ) => controllerKey+'_'+methodKey
+  };
 
-  SwaggerModule.setup('docs', app, document, { swaggerOptions: { persistAuthorization: true } });
+  const document = SwaggerModule.createDocument(app, swaggerConfig, options);
+
+  SwaggerModule.setup('docs', app, document, { swaggerOptions: { persistAuthorization: true },  });
   // END OF SWAGGER SETUP
 
 
