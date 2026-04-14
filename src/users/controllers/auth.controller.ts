@@ -1,4 +1,4 @@
-import { BadRequestException, Body, Controller, Get, Post, UseGuards, UseInterceptors, UsePipes, ValidationPipe } from '@nestjs/common';
+import { BadRequestException, Body, Controller, Get, Post, UseFilters, UseGuards, UseInterceptors, UsePipes, ValidationPipe } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { RoleNames, User } from '../entities/user.entity';
 import { Auth } from '../decorators/auth.decorator';
@@ -7,9 +7,11 @@ import { ApiAuth } from '../decorators/api-auth.decorator';
 import { StoreService } from '../../store/store.service';
 import { AuthService } from '../services/auth.service';
 import { PerformanceInterceptor } from '../interceptors/performance.interceptor';
+import { UserExceptionFilter } from '../filters/user-exception.filter';
 
 @Controller('auth')
 @ApiTags('Auth')
+@UseFilters(UserExceptionFilter)
 export class AuthController {
 
     constructor(
@@ -26,7 +28,7 @@ export class AuthController {
     ): MeResponse {
 
         // TODO use user & token
-        // throw new Error('test error')
+        throw new Error('test error')
 
         return { user, token };
     }

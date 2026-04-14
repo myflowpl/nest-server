@@ -1,5 +1,5 @@
 import { CallHandler, ExecutionContext, Injectable, NestInterceptor } from '@nestjs/common';
-import { catchError, map, Observable, of, tap } from 'rxjs';
+import { catchError, map, Observable, of, tap, throwError } from 'rxjs';
 
 @Injectable()
 export class PerformanceInterceptor implements NestInterceptor {
@@ -32,7 +32,7 @@ export class PerformanceInterceptor implements NestInterceptor {
       catchError((err) => {
 
         console.log('CATCH ERROR', err)
-        return of('DUMMY DATA')
+        return throwError(() => err)
       })
     );
   }
