@@ -8,6 +8,7 @@ export class PerformanceInterceptor implements NestInterceptor {
   intercept(context: ExecutionContext, next: CallHandler): Observable<any> {
 
     const request = context.switchToHttp().getRequest();
+    
     // BEFORE
     console.log('BEFORE')
     console.time('Duration')
