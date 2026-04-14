@@ -17,7 +17,7 @@ export class AuthController {
     ){}
 
     @Get('me')
-    @ApiAuth()
+    @ApiAuth(RoleNames.ADMIN)
     me(
         @Auth() user: User,
         @Auth('token') token: string,
