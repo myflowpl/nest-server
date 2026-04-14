@@ -1,22 +1,20 @@
 import { Controller, Get, UseGuards } from '@nestjs/common';
-import { JwtAuthGuard } from '../guards/jwt-auth.guard';
-import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+import { ApiTags } from '@nestjs/swagger';
 import { RoleNames, User } from '../entities/user.entity';
 import { Auth } from '../decorators/auth.decorator';
-import { Roles } from '../decorators/roles.decorator';
+import { MeResponse } from '../dto/auth.dto';
+import { ApiAuth } from '../decorators/api-auth.decorator';
 
 @Controller('auth')
 @ApiTags('Auth')
 export class AuthController {
 
     @Get('me')
-    @UseGuards(JwtAuthGuard)
-    @Roles(RoleNames.ADMIN)
-    @ApiBearerAuth()
+    @ApiAuth(RoleNames.ADMIN)
     me(
         @Auth() user: User,
         @Auth('token') token: string,
-    ) {
+    ): MeResponse {
 
         // TODO use user & token
 
