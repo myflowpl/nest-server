@@ -3,9 +3,11 @@ import { PhotosController } from './photos.controller';
 import { PhotosService } from './photos.service';
 import { MulterModule } from '@nestjs/platform-express';
 import { ConfigService } from '../config';
+import { UsersModule } from '../users/users.module';
 
 @Module({
   imports: [
+    UsersModule,
     MulterModule.registerAsync({
       inject: [ConfigService],
       useFactory: (config: ConfigService) => ({

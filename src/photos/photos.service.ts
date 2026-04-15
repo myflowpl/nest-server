@@ -3,15 +3,18 @@ import { PhotosUploadDto } from './photo.entity';
 import { ConfigService } from '../config';
 import { extname, resolve } from 'path';
 import { rename } from 'fs/promises';
+import { PrismaService } from '../prisma/prisma.service';
+import { User } from '../users/entities/user.entity';
 
 @Injectable()
 export class PhotosService {
 
     constructor(
         private config: ConfigService,
+        private prisma: PrismaService,
     ) { }
 
-    async create(file: Express.Multer.File, data: PhotosUploadDto) {
+    async create(file: Express.Multer.File, data: PhotosUploadDto, user: User) {
 
         // create new filename
         const filename = file.filename + extname(file.originalname).toLowerCase();
@@ -23,10 +26,14 @@ export class PhotosService {
         await rename(file.path, destFile);
 
         // create photo entity
-        const photo = {
-            filename,
-            description: data.description,
-        };
+        const photo = await this.prisma.photo.create({
+            data: {
+                filename,
+                description: data.description,
+                userId: user.id,
+            }
+        })
+        
 
         // return photo
         return photo;

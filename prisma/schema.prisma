@@ -25,6 +25,7 @@ model user {
   email           String            @unique(map: "sqlite_autoindex_user_1")
   password        String
   user_roles_role user_roles_role[]
+  photos          photo[]
 }
 
 model user_roles_role {
@@ -36,4 +37,14 @@ model user_roles_role {
   @@id([userId, roleId])
   @@index([roleId], map: "IDX_4be2f7adf862634f5f803d246b")
   @@index([userId], map: "IDX_5f9286e6c25594c6b88c108db7")
+}
+
+model photo {
+  id          Int     @id @default(autoincrement())
+  filename    String
+  description String?
+
+  // relacja manyToOne
+  user   user @relation(fields: [userId], references: [id])
+  userId Int
 }
