@@ -8,6 +8,7 @@ import { UsersModule } from './users/users.module';
 import { ApiModule } from './api-client-nest';
 import { HttpModule } from '@nestjs/axios';
 import { DbModule } from './db/db.module';
+import { PrismaModule } from './prisma/prisma.module';
 
 @Module({
   imports: [
@@ -18,6 +19,7 @@ import { DbModule } from './db/db.module';
     ApiModule,
     HttpModule,
     DbModule,
+    PrismaModule,
   ],
   controllers: [AppController],
   providers: [

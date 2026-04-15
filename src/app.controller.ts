@@ -3,6 +3,7 @@ import { AppService } from './app.service';
 import { ApiTags } from '@nestjs/swagger';
 import { StoreService } from './store/store.service';
 import { ContactsApi } from './api-client-nest';
+import { PrismaService } from './prisma/prisma.service';
 
 @Controller()
 @ApiTags('App')
@@ -11,7 +12,8 @@ export class AppController {
   constructor(
     private readonly appService: AppService,
     private store: StoreService,
-    private api: ContactsApi
+    private api: ContactsApi,
+    private prisma: PrismaService,
   ) {}
 
   @Get()
@@ -30,6 +32,13 @@ export class AppController {
       pageSize: 2,
       
     });
+    
+  }
+
+  @Get('test-prisma')
+  testPrisma() {
+    
+    return this.prisma.user.findMany();
     
   }
 }

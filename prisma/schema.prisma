@@ -1,0 +1,39 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "sqlite"
+}
+
+model migrations {
+  id        Int    @id @default(autoincrement())
+  timestamp BigInt
+  name      String
+}
+
+model role {
+  id              Int               @id @default(autoincrement())
+  name            String
+  user_roles_role user_roles_role[]
+}
+
+model user {
+  id              Int               @id @default(autoincrement())
+  name            String
+  email           String            @unique(map: "sqlite_autoindex_user_1")
+  password        String
+  user_roles_role user_roles_role[]
+}
+
+model user_roles_role {
+  userId Int
+  roleId Int
+  role   role @relation(fields: [roleId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  user   user @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@id([userId, roleId])
+  @@index([roleId], map: "IDX_4be2f7adf862634f5f803d246b")
+  @@index([userId], map: "IDX_5f9286e6c25594c6b88c108db7")
+}
