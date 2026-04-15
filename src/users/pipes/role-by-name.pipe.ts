@@ -1,12 +1,13 @@
 import { ArgumentMetadata, Injectable, NotFoundException, PipeTransform } from '@nestjs/common';
 import { StoreService } from '../../store/store.service';
 import { Role, RoleNames } from '../entities/user.entity';
+import { EntityManager } from 'typeorm';
 
 @Injectable()
 export class RoleByNamePipe implements PipeTransform {
   
     constructor(
-      private store: StoreService,
+      private store: EntityManager,
     ){}
   
     async transform(name: RoleNames, metadata: ArgumentMetadata): Promise<Role> {

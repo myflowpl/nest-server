@@ -15,7 +15,7 @@ export class Role {
   @Column()
   name: RoleNames;
 
-  @ManyToMany(type => User)
+  @ManyToMany(type => User, user => user)
   users: User[]
 
   constructor(data?: Partial<Role>) {

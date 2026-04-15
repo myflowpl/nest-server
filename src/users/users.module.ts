@@ -6,6 +6,7 @@ import { JwtModule } from '@nestjs/jwt';
 import { ConfigModule, ConfigService } from '../config';
 import { StoreModule } from '../store/store.module';
 import { UsersAdminController } from './controllers/users-admin.controller';
+import { UsersRepository } from './repositories/users.repository';
 
 @Module({
   imports: [
@@ -33,6 +34,7 @@ import { UsersAdminController } from './controllers/users-admin.controller';
   providers: [
     UsersService, 
     AuthService,
+    UsersRepository,
     {
       provide: 'test',
       useValue: 'test-value'

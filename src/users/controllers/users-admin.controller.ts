@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, Param, Post, UseInterceptors } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Post, UseFilters, UseInterceptors } from '@nestjs/common';
 import { Role, RoleNames, User } from '../entities/user.entity';
 import { ApiBody, ApiParam, ApiTags } from '@nestjs/swagger';
 import { UserByIdPipe } from '../pipes/user-by-id.pipe';
@@ -8,13 +8,16 @@ import { StoreService } from '../../store/store.service';
 import { Observable } from 'rxjs';
 import { OnCloseInterceptor } from '../interceptors/on-close.interceptor';
 import { OnClose } from '../decorators/on-close.decorator';
+import { EntityManager } from 'typeorm';
+import { UserExceptionFilter } from '../filters/user-exception.filter';
 
 @Controller('users-admin')
 @ApiTags('UsersAdmin')
+@UseFilters(UserExceptionFilter)
 export class UsersAdminController {
 
     constructor(
-        private store: StoreService
+        private manager: EntityManager
     ) {}
 
     @Post('user/add-role')
@@ -28,7 +31,7 @@ export class UsersAdminController {
 
         user.roles = [role];
 
-        await this.store.save(user);
+        await this.manager.save(user);
 
         return {user,role}
     }
@@ -46,7 +49,7 @@ export class UsersAdminController {
 
         user.roles = roles.filter(r => role.name !== r.name);
 
-        await this.store.save(user);
+        await this.manager.save(user);
 
         return {user,role}
     }

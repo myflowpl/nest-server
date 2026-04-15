@@ -1,12 +1,14 @@
 import { ArgumentMetadata, BadRequestException, Injectable, NotFoundException, PipeTransform } from '@nestjs/common';
 import { StoreService } from '../../store/store.service';
 import { User } from '../entities/user.entity';
+import { EntityManager } from 'typeorm';
+import { UsersRepository } from '../repositories/users.repository';
 
 @Injectable()
 export class UserByIdPipe implements PipeTransform {
 
   constructor(
-    private store: StoreService,
+    private store: UsersRepository,
   ){}
 
   async transform(value: string, metadata: ArgumentMetadata): Promise<User> {
@@ -20,7 +22,7 @@ export class UserByIdPipe implements PipeTransform {
     }
 
     // fetch user
-    const user = await this.store.findOneBy(User, { id })
+    const user = await this.store.findOneBy({ id })
 
     // if no user throw error
     if(!user) {

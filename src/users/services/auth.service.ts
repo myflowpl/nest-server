@@ -3,12 +3,13 @@ import { RequestPayload, TokenPayload, User } from '../entities/user.entity';
 import { JwtService } from '@nestjs/jwt';
 import { StoreService } from '../../store/store.service';
 import * as bcrypt from 'bcrypt';
+import { EntityManager } from 'typeorm';
 @Injectable()
 export class AuthService {
 
     constructor(
         private jwtService: JwtService,
-        private store: StoreService,
+        private manager: EntityManager,
     ) {
 
     }
@@ -24,7 +25,7 @@ export class AuthService {
         }
 
         // get user from storage
-        const user = await this.store.findOneBy(User, { id: payload.sub });
+        const user = await this.manager.findOneBy(User, { id: payload.sub });
 
         // return request payload
         return token ? { user, token } : null;

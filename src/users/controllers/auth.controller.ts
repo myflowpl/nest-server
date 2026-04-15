@@ -8,6 +8,7 @@ import { StoreService } from '../../store/store.service';
 import { AuthService } from '../services/auth.service';
 import { PerformanceInterceptor } from '../interceptors/performance.interceptor';
 import { UserExceptionFilter } from '../filters/user-exception.filter';
+import { EntityManager } from 'typeorm';
 
 @Controller('auth')
 @ApiTags('Auth')
@@ -15,12 +16,12 @@ import { UserExceptionFilter } from '../filters/user-exception.filter';
 export class AuthController {
 
     constructor(
-        private store: StoreService,
+        private manager: EntityManager,
         private authService: AuthService,
     ){}
 
     @Get('me')
-    @ApiAuth(RoleNames.ADMIN)
+    @ApiAuth()
     @UseInterceptors(PerformanceInterceptor)
     me(
         @Auth() user: User,
@@ -28,7 +29,7 @@ export class AuthController {
     ): MeResponse {
 
         // TODO use user & token
-        throw new Error('test error')
+        // throw new Error('test error')
 
         return { user, token };
     }
@@ -40,7 +41,7 @@ export class AuthController {
     }))
     async register(@Body() data: AuthRegisterDto): Promise<User> {
 
-        let user = await this.store.findOneBy(User, { email: data.email });
+        let user = await this.manager.findOneBy(User, { email: data.email });
 
         if(user) {
             throw new BadRequestException('user email is taken');
@@ -56,7 +57,7 @@ export class AuthController {
         })
 
         // save entity
-        await this.store.save(user);
+        await this.manager.save(user);
 
         return user;
 
@@ -66,7 +67,7 @@ export class AuthController {
     async login(@Body(ValidationPipe) data: AuthLoginDto): Promise<AuthLoginResponse> {
 
 
-        let user = await this.store.findOneBy(User, { email: data.email });
+        let user = await this.manager.findOneBy(User, { email: data.email });
 
         if(!user) {
             throw new BadRequestException('Bad credentials');
