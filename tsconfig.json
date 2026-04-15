@@ -19,7 +19,8 @@
     "noFallthroughCasesInSwitch": false,
     "paths": {
       "@config": ["./src/config/index"]
-    }
+    },
+    "types": ["multer"]
   },
   "ts-node": {
     "files": true
