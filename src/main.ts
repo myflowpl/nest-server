@@ -3,15 +3,18 @@ import { AppModule } from './app.module';
 import { SwaggerModule, DocumentBuilder, SwaggerDocumentOptions } from '@nestjs/swagger';
 import { ConfigService } from './config';
 import { ClassSerializerInterceptor } from '@nestjs/common';
+import { NestExpressApplication } from '@nestjs/platform-express';
 
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
+  const app = await NestFactory.create<NestExpressApplication>(AppModule);
 
   app.useGlobalInterceptors(new ClassSerializerInterceptor(app.get(Reflector)))
 
 
   const config = app.get(ConfigService);
+
+  app.useStaticAssets(config.STORAGE_ASSETS);
 
   // SWAGGER SETUP
   const swaggerConfig = new DocumentBuilder()

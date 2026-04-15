@@ -5,6 +5,8 @@ import { extname, resolve } from 'path';
 import { rename } from 'fs/promises';
 import { PrismaService } from '../prisma/prisma.service';
 import { User } from '../users/entities/user.entity';
+// import * as sharp from 'sharp';
+const sharp = require('sharp');
 
 @Injectable()
 export class PhotosService {
@@ -38,5 +40,26 @@ export class PhotosService {
         // return photo
         return photo;
     }
+
+
+  async createThumbs(filename: string) {
+
+    const srcFile = resolve(this.config.STORAGE_PHOTOS, filename);
+
+    // create small thumb
+    const smallDestFile = resolve(this.config.STORAGE_THUMBS, filename);
+
+    await sharp(srcFile)
+      .rotate()
+      .resize(200, 200, { fit: 'cover', position: 'attention' })
+      .jpeg({ quality: 100})
+      .toFile(smallDestFile);
+
+    // TOTO dodac inne wielkosci
+
+    return {
+      small: smallDestFile,
+    }
+  }
 
 }
