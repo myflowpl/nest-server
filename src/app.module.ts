@@ -7,6 +7,7 @@ import { ContactsModule } from './contacts/contacts.module';
 import { UsersModule } from './users/users.module';
 import { ApiModule } from './api-client-nest';
 import { HttpModule } from '@nestjs/axios';
+import { DbModule } from './db/db.module';
 
 @Module({
   imports: [
@@ -16,6 +17,7 @@ import { HttpModule } from '@nestjs/axios';
     UsersModule,
     ApiModule,
     HttpModule,
+    DbModule,
   ],
   controllers: [AppController],
   providers: [

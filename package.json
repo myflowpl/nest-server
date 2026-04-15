@@ -21,7 +21,14 @@
     "test:e2e": "jest --config ./test/jest-e2e.json",
     "swagger:download": "cp http://localhost:3000/docs-json ./src/api-client-axios/openapi.json",
     "swagger:generate:nest": "openapi-generator-cli generate -g typescript-nestjs --additional-properties=serviceSuffix=Api,serviceFileSuffix=.api,useSingleRequestParameter=true  -i http://localhost:3000/docs-json -o ./src/api-client-nest",
-    "swagger:generate:php": "openapi-generator-cli generate -g php  -i http://localhost:3000/docs-json -o ./src/api-client-php"
+    "swagger:generate:php": "openapi-generator-cli generate -g php  -i http://localhost:3000/docs-json -o ./src/api-client-php",
+
+    "typeorm": "typeorm-ts-node-commonjs -d ./src/db/ormconfig.ts",
+    "migration:generate": "npm run typeorm migration:generate",
+    "migration:show": "npm run typeorm migration:show",
+    "migration:run": "npm run typeorm migration:run",
+    "migration:revert": "npm run typeorm migration:revert",
+    "migration:create": "typeorm-ts-node-commonjs migration:create"
   },
   "dependencies": {
     "@nestjs/axios": "^3.1.3",

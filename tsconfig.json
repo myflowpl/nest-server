@@ -21,4 +21,7 @@
       "@config": ["./src/config/index"]
     }
   },
+  "ts-node": {
+    "files": true
+  }
 }
