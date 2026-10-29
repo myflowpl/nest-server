@@ -1,73 +1,46 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="200" alt="Nest Logo" /></a>
-</p>
+# nest-server
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+Projekt startowy do szkolenia **Tworzenie aplikacji w Node.js z wykorzystaniem NestJS i TypeScript**.
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://coveralls.io/github/nestjs/nest?branch=master" target="_blank"><img src="https://coveralls.io/repos/github/nestjs/nest/badge.svg?branch=master#9" alt="Coverage" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+Czysty projekt wygenerowany przez `nest new` (NestJS 12), z doinstalowanymi paczkami, których użyjemy na szkoleniu, oraz bazą PostgreSQL uruchamianą w Dockerze.
 
-## Description
+Pełna instrukcja przygotowania komputera: https://get.myflow.pl/nest/instalki
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+## Wymagania
 
-## Installation
+- Node.js 24 LTS (minimum 22.18)
+- Git
+- Docker (Docker Desktop, Rancher Desktop, OrbStack lub Podman z `docker compose`)
+
+## Uruchomienie
 
 ```bash
-$ npm install
+npm install
+
+# serwer developerski – http://localhost:3000 zwraca "Hello World!"
+npm run start:dev
+
+# baza PostgreSQL w Dockerze
+docker compose up -d
+
+# test połączenia Node.js -> PostgreSQL
+npm run db:check
 ```
 
-## Running the app
+Zatrzymanie bazy: `docker compose down` (dane zostają w wolumenie `db-data`).
 
-```bash
-# development
-$ npm run start
+## Konfiguracja
 
-# watch mode
-$ npm run start:dev
+Domyślne ustawienia działają bez pliku `.env`. Jeśli port `5432` jest zajęty, skopiuj `.env.example` jako `.env` i zmień `POSTGRES_PORT` oraz port w `DATABASE_URL`.
 
-# production mode
-$ npm run start:prod
-```
+## Skrypty
 
-## Test
-
-```bash
-# unit tests
-$ npm run test
-
-# e2e tests
-$ npm run test:e2e
-
-# test coverage
-$ npm run test:cov
-```
-
-## Support
-
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
-
-## Stay in touch
-
-- Author - [Kamil Myśliwiec](https://kamilmysliwiec.com)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
-
-## License
-
-Nest is [MIT licensed](LICENSE).
+| Skrypt | Opis |
+|---|---|
+| `npm run start:dev` | serwer w trybie watch |
+| `npm run build` | kompilacja do `dist/` |
+| `npm test` | testy jednostkowe (Vitest) |
+| `npm run test:e2e` | testy e2e (Vitest + Supertest) |
+| `npm run lint` | lint (oxlint) |
+| `npm run db:up` / `db:down` | start / stop bazy w Dockerze |
+| `npm run db:check` | test połączenia z bazą |

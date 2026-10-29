@@ -1,8 +1,17 @@
 # compiled output
 /dist
 /node_modules
-/storage
+/build
+/generated
+
+# env (szablon: .env.example)
+.env
 *.env
+.env.*
+!.env.example
+
+# uploads / local data
+/storage
 
 # Logs
 logs
@@ -35,3 +44,13 @@ lerna-debug.log*
 !.vscode/tasks.json
 !.vscode/launch.json
 !.vscode/extensions.json
+
+# Claude Code - lokalne ustawienia
+.claude/settings.local.json
+
+# temp directory
+.temp
+.tmp
+
+# TypeScript incremental build
+*.tsbuildinfo
