@@ -1,7 +1,8 @@
-import { Body, Controller, Get, Post } from '@nestjs/common';
+import { Body, Controller, Delete, Get, NotFoundException, Param, ParseIntPipe, Patch, Post, Query, Render } from '@nestjs/common';
 import { StoreService } from '../store/store.service.js';
 import { Contact } from './contacts.entity.js';
-import { CreateContactDto } from './contacts.dto.js';
+import { CreateContactDto, ErrorResponse, GetContactsDto, UpdateContactDto } from './contacts.dto.js';
+import { ApiResponse } from '@nestjs/swagger';
 
 @Controller('contacts')
 export class ContactsController {
@@ -11,24 +12,70 @@ export class ContactsController {
     ) {}
 
     @Get()
-    async findAll() {
+    async findAll(@Query() query: GetContactsDto ) {
 
-        const contacts = await this.store.find(Contact, {});
+        console.log('query', query)
+
+        const contacts = await this.store.find(Contact, {
+            take: query.pageSize,
+            skip: query.pageSize*query.pageIndex,
+        });
 
         return contacts;
     }
 
     @Post()
-    create( @Body() data: CreateContactDto) {
+    async create( @Body() data: CreateContactDto): Promise<Contact> {
 
-        console.log('create data', data);
+        const contact = new Contact(data);
 
-        return data;
+        await this.store.save(contact);
+
+        return contact;
     }
 
-    findOne() {}
+    @Get(':id')
+    @ApiResponse({status: 404, type: ErrorResponse, description: 'Contact not found'})
+    async findOne( @Param('id', ParseIntPipe) id: number ) {
 
-    update() {}
+        console.dir(id)
 
-    remove() {}
+        const contact = await this.store.findOneBy(Contact, { id });
+
+        if(!contact) {
+            throw new NotFoundException(`Contact for id ${id} not found`)
+        }
+
+        return contact;
+    }
+
+    @Patch(':id')
+    @ApiResponse({status: 404, type: ErrorResponse, description: 'Contact not found'})
+    async update( @Param('id', ParseIntPipe) id: number, @Body() data: UpdateContactDto ) {
+
+        const contact = await this.store.findOneBy(Contact, { id });
+
+        if(!contact) {
+            throw new NotFoundException(`Contact for id ${id} not found`)
+        }
+
+        const c = await this.store.update(Contact, data, { id })
+
+        return c;
+    }
+
+    @Delete(':id')
+    async remove( @Param('id', ParseIntPipe) id: number) {
+
+
+        const contact = await this.store.findOneBy(Contact, { id });
+
+        if(!contact) {
+            throw new NotFoundException(`Contact for id ${id} not found`)
+        }
+
+        const c = await this.store.remove(contact)
+
+        return c;
+    }
 }
