@@ -3,16 +3,18 @@ import { AppController } from './app.controller.js';
 import { AppService } from './app.service.js';
 import { StoreModule } from './store/store.module.js';
 import { ConfigModule } from './config/config.module.js';
+import { ContactsModule } from './contacts/contacts.module.js';
 
 @Module({
   imports: [
     StoreModule, 
-    ConfigModule
+    ConfigModule, 
+    ContactsModule
   ],
   controllers: [AppController],
   providers: [AppService],
 })
 export class AppModule {
-  
+
   constructor() {}
 }
