@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, NotFoundException, Param, ParseIntPipe, Patch, Post, Query, Render } from '@nestjs/common';
+import { Body, Controller, Delete, Get, NotFoundException, Param, ParseIntPipe, Patch, Post, Query, Render, UsePipes, ValidationPipe } from '@nestjs/common';
 import { StoreService } from '../store/store.service.js';
 import { Contact } from './contacts.entity.js';
 import { CreateContactDto, ErrorResponse, GetContactsDto, UpdateContactDto } from './contacts.dto.js';
@@ -12,6 +12,9 @@ export class ContactsController {
     ) {}
 
     @Get()
+    @UsePipes(
+        new ValidationPipe({ transform: true,  transformOptions: {enableImplicitConversion: true}}),
+    )
     async findAll(@Query() query: GetContactsDto ) {
 
         console.log('query', query)
@@ -25,7 +28,12 @@ export class ContactsController {
     }
 
     @Post()
+    @UsePipes(
+        new ValidationPipe({ transform: true,  transformOptions: {enableImplicitConversion: true}}),
+    )
     async create( @Body() data: CreateContactDto): Promise<Contact> {
+
+        console.dir(data);
 
         const contact = new Contact(data);
 
