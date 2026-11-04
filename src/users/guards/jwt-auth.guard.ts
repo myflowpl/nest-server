@@ -1,9 +1,15 @@
-import { CanActivate, ExecutionContext, Injectable, UnauthorizedException } from '@nestjs/common';
+import { CanActivate, ExecutionContext, ForbiddenException, Injectable, UnauthorizedException } from '@nestjs/common';
 import { Request } from 'express';
-import { User } from '../entities/user.entity.js';
+import { RoleNames, User } from '../entities/user.entity.js';
+import { Reflector } from '@nestjs/core';
+import { Roles } from '../decorators/roles.decorator.js';
 
 @Injectable()
 export class JwtAuthGuard implements CanActivate {
+
+  constructor(
+    private reflector: Reflector,
+  ) {}
 
   async canActivate( context: ExecutionContext ): Promise<boolean> {
 
@@ -20,13 +26,28 @@ export class JwtAuthGuard implements CanActivate {
 
       // extract user from token
       request.payload = token ? {
-        user: new User({name: 'Piotr'}),
+        user: new User({name: 'Piotr', roles: [{id: 1, name: RoleNames.ADMIN}]}),
         accessToken: token,
       } : null;
 
       // forbidden if no payload
       if(!request.payload) {
         throw new UnauthorizedException('JWT Token invalid');
+      }
+
+      // get required roles
+      const requiredRoles: RoleNames[] = this.reflector.get(Roles, context.getHandler()) || [];
+
+      // if empty allow access
+      if(!requiredRoles.length) {
+        return true;
+      }
+      // get urser roles
+      const userRoles: RoleNames[] = request.payload.user.roles?.map(r => r.name) || [];
+
+      // check if user hasd required roles
+      if(!requiredRoles.some(role => userRoles.includes(role))) {
+        throw new ForbiddenException(`THis endpoin requires one of ${requiredRoles.join(', ')} roles`)
       }
 
       // jest ok
