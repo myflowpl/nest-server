@@ -29,7 +29,8 @@ export class TokenPayload {
 }
 
 export class RequestPayload {
-  user: User
+  user: User;
+  accessToken: string;
 }
 
 export class ExceptionResponse {

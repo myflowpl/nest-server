@@ -20,7 +20,8 @@ export class JwtAuthGuard implements CanActivate {
 
       // extract user from token
       request.payload = token ? {
-        user: new User({name: 'Piotr'})
+        user: new User({name: 'Piotr'}),
+        accessToken: token,
       } : null;
 
       // forbidden if no payload
