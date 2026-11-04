@@ -16,15 +16,6 @@ async function bootstrap() {
 
   SwaggerModule.setup('docs', app, document, { swaggerOptions: { 
     persistAuthorization: true,
-    customCss: `
-    :root {
-      color-scheme: light !important;
-    }
-    html, body, .swagger-ui {
-      background: #ffffff !important;
-      color: #000000 !important;
-    }
-  `,
   } });
   // END OF SWAGGER SETUP
 
