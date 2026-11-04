@@ -31,7 +31,14 @@ Zatrzymanie bazy: `docker compose down` (dane zostają w wolumenie `db-data`).
 
 ## Konfiguracja
 
-Domyślne ustawienia działają bez pliku `.env`. Jeśli port `5432` jest zajęty, skopiuj `.env.example` jako `.env` i zmień `POSTGRES_PORT` oraz port w `DATABASE_URL`.
+Domyślne ustawienia działają bez pliku `.env`. Jeśli port `5432` jest zajęty, utwórz plik `.env` i ustaw w nim `POSTGRES_PORT` oraz port w `DATABASE_URL`, np.:
+
+```
+POSTGRES_PORT=5433
+DATABASE_URL="postgresql://nest:nest@localhost:5433/nest"
+```
+
+Plik `.env.example` jest pusty - uzupełnimy go na szkoleniu (szablon konfiguracji aplikacji).
 
 ## Skrypty
 
