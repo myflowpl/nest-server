@@ -134,11 +134,11 @@ const checks = {
   },
 
   async d6() {
-    const before = new Date();
     const admin = await adminToken();
     ok('administrator (seed) może się zalogować', !!admin, 'uruchom: npm run db:seed');
-    const [row] = await sql(`SELECT "lastLoginAt" FROM "User" WHERE email = 'admin@example.com'`);
-    ok('logowanie zapisuje lastLoginAt', row?.lastLoginAt && new Date(row.lastLoginAt) >= new Date(before.getTime() - 2000), String(row?.lastLoginAt));
+    // porównanie robimy w SQL (Prisma zapisuje czas w UTC)
+    const [row] = await sql(`SELECT "lastLoginAt" > (now() AT TIME ZONE 'UTC') - interval '1 minute' AS recent FROM "User" WHERE email = 'admin@example.com'`);
+    ok('logowanie zapisuje lastLoginAt', row?.recent === true);
     const nulls = await sql(`SELECT count(*)::int AS n FROM "User" WHERE "lastLoginAt" IS NULL`);
     ok('migracja uzupełniła lastLoginAt u istniejących użytkowników', nulls[0].n === 0, `bez lastLoginAt: ${nulls[0].n}`);
     const stats = await api('GET', '/admin/stats', { token: admin });

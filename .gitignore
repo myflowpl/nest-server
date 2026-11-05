@@ -54,3 +54,6 @@ lerna-debug.log*
 
 # TypeScript incremental build
 *.tsbuildinfo
+
+# Prisma Client - wygenerowany kod (npm run db:generate), nie wersjonujemy go
+/src/generated/prisma
