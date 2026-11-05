@@ -15,6 +15,9 @@ model User {
   updatedAt    DateTime @updatedAt
 
   profile Profile?
+  roles   UserRole[]
+
+  @@index([createdAt]) // lista użytkowników z D4 jest domyślnie sortowana po dacie utworzenia
 }
 
 // relacja 1:1 - każdy użytkownik ma co najwyżej jeden profil
@@ -24,4 +27,22 @@ model Profile {
   bio         String?
   userId      Int     @unique
   user        User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Role {
+  id    Int        @id @default(autoincrement())
+  name  String     @unique
+  users UserRole[]
+}
+
+// relacja n:m z własnymi danymi (assignedAt) - dlatego jawna tabela łącząca
+model UserRole {
+  userId     Int
+  roleId     Int
+  assignedAt DateTime @default(now())
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  role       Role     @relation(fields: [roleId], references: [id])
+
+  @@id([userId, roleId])
+  @@index([roleId])
 }
