@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { Inject, Module } from '@nestjs/common';
 import { AuthController } from './controllers/auth.controller.js';
 import { UsersService } from './services/users.service.js';
 import { AuthService } from './services/auth.service.js';
@@ -7,11 +7,12 @@ import { ConfigModule } from '../config/config.module.js';
 import { ConfigService } from '../config/config.service.js';
 import { StoreModule } from '../store/store.module.js';
 import { UsersAdminController } from './controllers/users-admin.controller.js';
+import { TEST_INJEDTION } from '../types.js';
 
 @Module({
   imports: [
-    StoreModule,
     ConfigModule,
+    StoreModule,
 
     JwtModule.registerAsync({
       imports: [ConfigModule],
@@ -28,4 +29,15 @@ import { UsersAdminController } from './controllers/users-admin.controller.js';
   providers: [UsersService, AuthService],
   exports: [UsersService, AuthService],
 })
-export class UsersModule {}
+export class UsersModule {
+
+  constructor(
+    @Inject(TEST_INJEDTION)
+    test: string,
+  ) {
+
+    console.log('UERS MODULE INJECTED:', test)
+  }
+
+
+}

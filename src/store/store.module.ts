@@ -1,8 +1,17 @@
 import { Module } from '@nestjs/common';
 import { StoreService } from './store.service.js';
+import { TEST_INJEDTION } from '../types.js';
 
 @Module({
-  providers: [StoreService],
-  exports: [StoreService]
+  imports: [],
+  providers: [
+    StoreService,
+
+    {
+      provide: TEST_INJEDTION,
+      useValue: 'TEST FROM STORE'
+    }
+  ],
+  exports: [StoreService, TEST_INJEDTION]
 })
-export class StoreModule {}
+export class StoreModule { }
