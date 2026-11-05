@@ -33,10 +33,11 @@ export class AuthService {
 
   /** Logowanie: sprawdza hasło i zwraca token JWT razem z użytkownikiem (bez hasła). */
   async login(data: LoginDto) {
+
     // hasło jest domyślnie wycięte z odpowiedzi (patrz PrismaService), tu prosimy o nie wprost
     const user = await this.prisma.user.findUnique({
       where: { email: data.email },
-      omit: { passwordHash: false },
+      select: { ...userSelect, passwordHash: true }
     });
 
     const valid = user && (await bcrypt.compare(data.password, user.passwordHash));
@@ -45,14 +46,12 @@ export class AuthService {
       throw new UnauthorizedException('Credentials Invalid');
     }
 
-    // hash hasła zostaje tutaj - do odpowiedzi trafia tylko reszta pól
-    const { 
-      passwordHash: _passwordHash, 
-      ...safeUser 
-    } = user;
 
-    return { token: await this.signToken(user.id), user: safeUser };
+    return { token: await this.signToken(user.id), user: toUserView(user) };
   }
+
+
+
 
   /** Tworzy token JWT dla użytkownika o podanym id. */
   signToken(userId: number): Promise<string> {
@@ -60,6 +59,9 @@ export class AuthService {
     return this.jwtService.signAsync(payload);
   }
 
+
+
+  
   /** Sprawdza podpis tokenu. Zwraca payload albo null, gdy token jest błędny lub wygasł. */
   verifyToken(token: string): Promise<TokenPayload | null> {
     return this.jwtService.verifyAsync<TokenPayload>(token).catch(() => null);
