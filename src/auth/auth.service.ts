@@ -61,7 +61,7 @@ export class AuthService {
 
 
 
-  
+
   /** Sprawdza podpis tokenu. Zwraca payload albo null, gdy token jest błędny lub wygasł. */
   verifyToken(token: string): Promise<TokenPayload | null> {
     return this.jwtService.verifyAsync<TokenPayload>(token).catch(() => null);
@@ -73,11 +73,14 @@ export class AuthService {
     if (!payload) {
       return null;
     }
-    const user = await this.prisma.user.findUnique({ where: { id: payload.sub } });
+
+    const user = await this.prisma.user.findUnique({ where: { id: payload.sub }, select: userSelect });
+
     if (!user) {
       return null;
     }
     // role pojawią się w lekcji D3
-    return { user: { id: user.id, email: user.email, roles: [] } };
+    const view = toUserView(user);
+    return { user: { id: view.id, email: view.email, roles: view.roles } };
   }
 }
