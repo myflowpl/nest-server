@@ -9,20 +9,22 @@ export class StatsService {
   constructor(private prisma: PrismaService) {}
 
   async overview() {
-    // 1) groupBy: ilu użytkowników w każdym statusie
-    const byStatus = await this.prisma.user.groupBy({ by: ['status'], _count: { _all: true } });
+    const [byStatus, roles, activeLast7Days, registrations] = await Promise.all([
+      // 1) groupBy: ilu użytkowników w każdym statusie
+      this.prisma.user.groupBy({ by: ['status'], _count: { _all: true } }),
 
-    // 2) licznik relacji: ilu użytkowników ma każdą rolę
-    const roles = await this.prisma.role.findMany({
-      select: { name: true, _count: { select: { users: true } } },
-      orderBy: { name: 'asc' },
-    });
+      // 2) licznik relacji: ilu użytkowników ma każdą rolę
+      this.prisma.role.findMany({
+        select: { name: true, _count: { select: { users: true } } },
+        orderBy: { name: 'asc' },
+      }),
 
-    // 3) zwykły count z filtrem po dacie ostatniego logowania
-    const activeLast7Days = await this.prisma.user.count({ where: { lastLoginAt: { gte: new Date(Date.now() - 7 * DAY) } } });
+      // 3) zwykły count z filtrem po dacie ostatniego logowania
+      this.prisma.user.count({ where: { lastLoginAt: { gte: new Date(Date.now() - 7 * DAY) } } }),
 
-    // 4) $queryRaw: zapytanie SQL, którego Prisma nie wyrazi (grupowanie po dniu)
-    const registrations = await this.registrationsPerDay(14);
+      // 4) $queryRaw: zapytanie SQL, którego Prisma nie wyrazi (grupowanie po dniu)
+      this.registrationsPerDay(14),
+    ]);
 
     return {
       total: byStatus.reduce((sum, row) => sum + row._count._all, 0),
