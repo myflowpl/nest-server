@@ -21,11 +21,29 @@ export class StatsService {
     // 3) zwykły count z filtrem po dacie ostatniego logowania
     const activeLast7Days = await this.prisma.user.count({ where: { lastLoginAt: { gte: new Date(Date.now() - 7 * DAY) } } });
 
+    // 4) $queryRaw: zapytanie SQL, którego Prisma nie wyrazi (grupowanie po dniu)
+    const registrations = await this.registrationsPerDay(14);
+
     return {
       total: byStatus.reduce((sum, row) => sum + row._count._all, 0),
       activeLast7Days,
       byStatus: Object.fromEntries(byStatus.map((row) => [row.status, row._count._all])) as Record<UserStatus, number>,
       byRole: Object.fromEntries(roles.map((role) => [role.name, role._count.users])),
+      registrationsPerDay: registrations,
     };
+  }
+
+  /**
+   * Surowy SQL w tagged template: wartości (${since}) są przekazywane jako parametry, nie sklejane tekstem,
+   * więc nie ma ryzyka SQL injection. `::int` zamienia COUNT (bigint) na zwykłą liczbę.
+   */
+  private registrationsPerDay(days: number) {
+    const since = new Date(Date.now() - days * DAY);
+    return this.prisma.$queryRaw<{ day: Date; count: number }[]>`
+      SELECT date_trunc('day', "createdAt") AS day, COUNT(*)::int AS count
+      FROM "User"
+      WHERE "createdAt" >= ${since}
+      GROUP BY 1
+      ORDER BY 1`;
   }
 }
