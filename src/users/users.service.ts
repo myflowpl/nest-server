@@ -1,4 +1,4 @@
-import { Injectable, NotImplementedException } from '@nestjs/common';
+import { ConflictException, Injectable, NotImplementedException } from '@nestjs/common';
 import { AuthUser, RoleNames } from '../auth/auth.types.js';
 import { Prisma, UserStatus } from '../generated/prisma/client.js';
 import { PrismaService } from '../prisma/index.js';
@@ -95,5 +95,22 @@ export class UsersService {
   /** D7: odebranie roli (z regułą ostatniego administratora). */
   removeRole(_actor: AuthUser, _userId: number, _role: RoleNames): Promise<unknown> {
     throw new NotImplementedException('removeRole zaimplementujesz w lekcji D7');
+  }
+
+  /**
+   * Transakcja interaktywna z poziomem izolacji Serializable.
+   * Dwie równoległe operacje, które razem złamałyby regułę "ostatni admin", nie przejdą obie:
+   * baza przerwie jedną z nich, a my zamieniamy to na czytelny błąd 409.
+   */
+  private async inTransaction<T>(fn: (tx: Prisma.TransactionClient) => Promise<T>): Promise<T> {
+    try {
+      return await this.prisma.$transaction(fn, { isolationLevel: Prisma.TransactionIsolationLevel.Serializable });
+    } catch (e: any) {
+      // konflikt zapisu: z adapterem pg zwykle DriverAdapterError (TransactionWriteConflict), czasem kod P2034
+      if (e?.code === 'P2034' || (e?.name === 'DriverAdapterError' && e?.cause?.kind === 'TransactionWriteConflict')) {
+        throw new ConflictException('Konflikt współbieżnych operacji, spróbuj ponownie');
+      }
+      throw e;
+    }
   }
 }
