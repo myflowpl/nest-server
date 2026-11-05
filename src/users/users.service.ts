@@ -2,7 +2,8 @@ import { Injectable, NotImplementedException } from '@nestjs/common';
 import { AuthUser, RoleNames } from '../auth/auth.types.js';
 import { BulkBlockDto, ListUsersQueryDto, UserStatusName } from './users.dto.js';
 import { PrismaService } from '../prisma/prisma.service.js';
-import { toUserView, userSelect, UserView } from './user.view.js';
+import { toUserView, userSelect, UsersPage, UserView } from './user.view.js';
+import { Prisma } from '../generated/prisma/client.js';
 
 /**
  * Szkielet serwisu: kontroler i trasy już działają, ale każda metoda zwraca 501.
@@ -14,9 +15,36 @@ export class UsersService {
 
   constructor(private prisma: PrismaService) {}
 
-  /** D4: lista z filtrami, sortowaniem i stronicowaniem. */
-  list(_query: ListUsersQueryDto): Promise<unknown> {
-    throw new NotImplementedException('Listę zaimplementujesz w lekcji D4');
+/** Lista użytkowników: filtrowanie, sortowanie i stronicowanie wykonuje baza danych. */
+
+  async list(query: ListUsersQueryDto): Promise<UsersPage> {
+    
+    const { search, role, pageIndex, pageSize, sortBy, sortDir } = query;
+
+    // where budujemy z tego, co przyszło w zapytaniu
+    const where: Prisma.UserWhereInput = {
+      ...(search && {
+        OR: [
+          { email: { contains: search, mode: 'insensitive' } },
+          { profile: { displayName: { contains: search, mode: 'insensitive' } } },
+        ],
+      }),
+      ...(role && { roles: { some: { role: { name: role } } } }),
+    };
+
+    // sortowanie po nazwie wyświetlanej wymaga sięgnięcia do relacji; drugi klucz (id) daje stabilną kolejność przy remisach
+    const orderBy: Prisma.UserOrderByWithRelationInput[] = [
+      sortBy === 'displayName' ? { profile: { displayName: sortDir } } : { [sortBy]: sortDir },
+      { id: 'asc' },
+    ];
+
+    // dwa zapytania w jednej transakcji: strona rekordów + liczba wszystkich pasujących
+    const [users, total] = await this.prisma.$transaction([
+      this.prisma.user.findMany({ where, orderBy, skip: pageIndex * pageSize, take: pageSize, select: userSelect }),
+      this.prisma.user.count({ where }),
+    ]);
+
+    return { items: users.map(toUserView), total, pageIndex, pageSize };
   }
 
   /** D3: użytkownik z profilem i rolami. */

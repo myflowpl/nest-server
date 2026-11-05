@@ -30,3 +30,11 @@ export function toUserView(user: UserWithRelations): UserView {
     createdAt: user.createdAt,
   };
 }
+
+export class UsersPage {
+  items: UserView[];
+  /** Liczba wszystkich pasujących rekordów (nie tylko na tej stronie) */
+  total: number;
+  pageIndex: number;
+  pageSize: number;
+}
