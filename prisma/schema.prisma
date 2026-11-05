@@ -13,4 +13,15 @@ model User {
   passwordHash String
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
+
+  profile Profile?
+}
+
+// relacja 1:1 - każdy użytkownik ma co najwyżej jeden profil
+model Profile {
+  id          Int     @id @default(autoincrement())
+  displayName String
+  bio         String?
+  userId      Int     @unique
+  user        User    @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
