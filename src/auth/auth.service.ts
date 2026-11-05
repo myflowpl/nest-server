@@ -49,6 +49,9 @@ export class AuthService {
       throw new ForbiddenException('Konto jest zablokowane');
     }
 
+    // zapamiętujemy moment ostatniego logowania
+    await this.prisma.user.update({ where: { id: user.id }, data: { lastLoginAt: new Date() } });
+
     return { token: await this.signToken(user.id), user: toUserView(user) };
   }
 
