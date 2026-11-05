@@ -1,5 +1,6 @@
 import { Injectable, NotImplementedException } from '@nestjs/common';
 import { AuthUser, RoleNames } from '../auth/auth.types.js';
+import { Prisma } from '../generated/prisma/client.js';
 import { PrismaService } from '../prisma/index.js';
 import { BulkBlockDto, ListUsersQueryDto, UserStatusName } from './users.dto.js';
 import { toUserView, userSelect, UserView, UsersPage } from './user.view.js';
@@ -12,13 +13,19 @@ import { toUserView, userSelect, UserView, UsersPage } from './user.view.js';
 export class UsersService {
   constructor(private prisma: PrismaService) {}
 
-  /** Lista użytkowników: stronicowanie wykonuje baza danych. */
+  /** Lista użytkowników: sortowanie i stronicowanie wykonuje baza danych. */
   async list(query: ListUsersQueryDto): Promise<UsersPage> {
-    const { pageIndex, pageSize } = query;
+    const { pageIndex, pageSize, sortBy, sortDir } = query;
+
+    // sortowanie po nazwie wyświetlanej wymaga sięgnięcia do relacji; drugi klucz (id) daje stabilną kolejność przy remisach
+    const orderBy: Prisma.UserOrderByWithRelationInput[] = [
+      sortBy === 'displayName' ? { profile: { displayName: sortDir } } : { [sortBy]: sortDir },
+      { id: 'asc' },
+    ];
 
     // dwa zapytania w jednej transakcji: strona rekordów + liczba wszystkich rekordów
     const [users, total] = await this.prisma.$transaction([
-      this.prisma.user.findMany({ orderBy: { id: 'asc' }, skip: pageIndex * pageSize, take: pageSize, select: userSelect }),
+      this.prisma.user.findMany({ orderBy, skip: pageIndex * pageSize, take: pageSize, select: userSelect }),
       this.prisma.user.count(),
     ]);
 
