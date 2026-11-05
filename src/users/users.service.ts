@@ -52,13 +52,16 @@ export class UsersService {
 
   /**
    * Zmiana statusu (blokowanie / odblokowanie) razem z wpisem w dzienniku - w jednej transakcji.
-   * Transakcja interaktywna: kolejne kroki zależą od poprzednich (najpierw czytamy, potem zapisujemy).
+   * Zablokować można każdego, ale nie ostatniego aktywnego administratora.
    */
   async changeStatus(actor: AuthUser, id: number, status: UserStatus): Promise<UserView> {
-    await this.prisma.$transaction(async (tx) => {
+    await this.inTransaction(async (tx) => {
       const user = await tx.user.findUniqueOrThrow({ where: { id }, select: { status: true } });
       if (user.status === status) {
         return; // nic się nie zmienia, więc nie ma czego zapisywać w dzienniku
+      }
+      if (status === UserStatus.BLOCKED) {
+        await this.assertNotLastAdmin(tx, id);
       }
       await tx.user.update({ where: { id }, data: { status } });
       await tx.auditLog.create({
