@@ -3,12 +3,14 @@ import { Request } from 'express';
 import { RoleNames, User } from '../entities/user.entity.js';
 import { Reflector } from '@nestjs/core';
 import { Roles } from '../decorators/roles.decorator.js';
+import { AuthService } from '../services/auth.service.js';
 
 @Injectable()
 export class JwtAuthGuard implements CanActivate {
 
   constructor(
     private reflector: Reflector,
+    private authService: AuthService,
   ) {}
 
   async canActivate( context: ExecutionContext ): Promise<boolean> {
@@ -25,10 +27,7 @@ export class JwtAuthGuard implements CanActivate {
       }
 
       // extract user from token
-      request.payload = token ? {
-        user: new User({name: 'Piotr', roles: [{id: 1, name: RoleNames.ADMIN}]}),
-        accessToken: token,
-      } : null;
+      request.payload = await this.authService.decodeUserToken(token);
 
       // forbidden if no payload
       if(!request.payload) {

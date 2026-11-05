@@ -17,7 +17,7 @@ export class AuthController {
     ) { }
 
     @Get()
-    @ApiAuth(RoleNames.ROOT)
+    @ApiAuth()
     me(@Auth('user') user: User) {
 
         console.log('user', user)
