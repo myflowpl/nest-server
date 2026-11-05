@@ -13,4 +13,12 @@ export class UsersService {
         return this.store.findOneBy(User, { id });
     }
 
+    async create(createUserDto: Partial<User>): Promise<User> {
+        return this.store.save(new User(createUserDto));
+    }
+
+    async findBy(query: Partial<User>): Promise<User[]> {
+        const users = await this.store.find(User);
+        return users.filter(user => user.email === query.email);
+    }
 }

@@ -5,13 +5,12 @@ import { AuthService } from './services/auth.service.js';
 import { JwtModule } from '@nestjs/jwt';
 import { ConfigModule } from '../config/config.module.js';
 import { ConfigService } from '../config/config.service.js';
+import { StoreModule } from '../store/store.module.js';
 
 @Module({
   imports: [
-    // JwtModule.register({
-    //   secret: 'mySecret',
-    //   signOptions: { expiresIn: '1d' },
-    // }),
+    StoreModule,
+    ConfigModule,
 
     JwtModule.registerAsync({
       imports: [ConfigModule],
