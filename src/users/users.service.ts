@@ -90,9 +90,21 @@ export class UsersService {
     return { blocked: result.count };
   }
 
-  /** D7: nadanie roli. */
-  addRole(_actor: AuthUser, _userId: number, _role: RoleNames): Promise<unknown> {
-    throw new NotImplementedException('addRole zaimplementujesz w lekcji D7');
+  /** Nadaje rolę. Wywołanie wielokrotne nic nie psuje (upsert). */
+  async addRole(actor: AuthUser, userId: number, name: RoleNames): Promise<UserView> {
+    await this.inTransaction(async (tx) => {
+      await tx.user.findUniqueOrThrow({ where: { id: userId } });
+      const role = await tx.role.findUniqueOrThrow({ where: { name } });
+      await tx.userRole.upsert({
+        where: { userId_roleId: { userId, roleId: role.id } },
+        update: {},
+        create: { userId, roleId: role.id },
+      });
+      await tx.auditLog.create({
+        data: { actorId: actor.id, action: 'role.add', entity: 'User', entityId: userId, payload: { role: name } },
+      });
+    });
+    return this.findOne(userId);
   }
 
   /** D7: odebranie roli (z regułą ostatniego administratora). */
