@@ -1,4 +1,4 @@
-import { Prisma } from '../generated/prisma/client.js';
+import { Prisma, UserStatus } from '../generated/prisma/client.js';
 import { RoleNames } from '../auth/auth.types.js';
 
 /** Dokładnie te kolumny, których potrzebuje widok użytkownika (profil i role). */
@@ -6,6 +6,7 @@ export const userSelect = {
   id: true,
   email: true,
   createdAt: true,
+  status: true,
   profile: { select: { displayName: true } },
   roles: { select: { role: { select: { name: true } } } },
 } satisfies Prisma.UserSelect;
@@ -18,6 +19,7 @@ export class UserView {
   email: string;
   displayName: string | null;
   roles: RoleNames[];
+  status: UserStatus;
   createdAt: Date;
 }
 
@@ -27,6 +29,7 @@ export function toUserView(user: UserWithRelations): UserView {
     email: user.email,
     displayName: user.profile?.displayName ?? null,
     roles: user.roles.map((userRole) => userRole.role.name as RoleNames),
+    status: user.status,
     createdAt: user.createdAt,
   };
 }

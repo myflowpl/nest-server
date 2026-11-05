@@ -1,23 +1,25 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { ForbiddenException, Injectable, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
+import { UserStatus } from '../generated/prisma/client.js';
 import { PrismaService } from '../prisma/index.js';
+import { toUserView, userSelect } from '../users/user.view.js';
 import { LoginDto, RegisterDto } from './auth.dto.js';
 import { RequestPayload, RoleNames, TokenPayload } from './auth.types.js';
-import { toUserView, userSelect } from '../users/user.view.js';
 
 @Injectable()
 export class AuthService {
   constructor(
     private jwtService: JwtService,
     private prisma: PrismaService,
-  ) { }
+  ) {}
 
-  /** Rejestracja: zapisuje użytkownika z zahashowanym hasłem. Duplikat emaila -> P2002 -> 409. */
+  /**
+   * Rejestracja: jednym zapytaniem tworzy użytkownika, jego profil i przypisanie roli "user".
+   * Duplikat emaila -> P2002 -> 409.
+   */
   async register(data: RegisterDto) {
-
     const passwordHash = await bcrypt.hash(data.password, 10);
-
     const user = await this.prisma.user.create({
       data: {
         email: data.email,
@@ -28,39 +30,33 @@ export class AuthService {
       select: userSelect,
     });
     return toUserView(user);
-
   }
 
   /** Logowanie: sprawdza hasło i zwraca token JWT razem z użytkownikiem (bez hasła). */
   async login(data: LoginDto) {
-
     // hasło jest domyślnie wycięte z odpowiedzi (patrz PrismaService), tu prosimy o nie wprost
     const user = await this.prisma.user.findUnique({
       where: { email: data.email },
-      select: { ...userSelect, passwordHash: true }
+      select: { ...userSelect, passwordHash: true },
     });
 
     const valid = user && (await bcrypt.compare(data.password, user.passwordHash));
-
     if (!user || !valid) {
       throw new UnauthorizedException('Credentials Invalid');
     }
 
+    if (user.status === UserStatus.BLOCKED) {
+      throw new ForbiddenException('Konto jest zablokowane');
+    }
 
     return { token: await this.signToken(user.id), user: toUserView(user) };
   }
-
-
-
 
   /** Tworzy token JWT dla użytkownika o podanym id. */
   signToken(userId: number): Promise<string> {
     const payload: TokenPayload = { sub: userId };
     return this.jwtService.signAsync(payload);
   }
-
-
-
 
   /** Sprawdza podpis tokenu. Zwraca payload albo null, gdy token jest błędny lub wygasł. */
   verifyToken(token: string): Promise<TokenPayload | null> {
@@ -73,13 +69,14 @@ export class AuthService {
     if (!payload) {
       return null;
     }
-
-    const user = await this.prisma.user.findUnique({ where: { id: payload.sub }, select: userSelect });
-
+    // zablokowany użytkownik traci dostęp od razu, nawet z ważnym tokenem
+    const user = await this.prisma.user.findUnique({
+      where: { id: payload.sub, status: UserStatus.ACTIVE },
+      select: userSelect,
+    });
     if (!user) {
       return null;
     }
-    // role pojawią się w lekcji D3
     const view = toUserView(user);
     return { user: { id: view.id, email: view.email, roles: view.roles } };
   }
