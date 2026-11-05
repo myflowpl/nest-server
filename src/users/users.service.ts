@@ -1,8 +1,8 @@
 import { Injectable, NotImplementedException } from '@nestjs/common';
 import { AuthUser, RoleNames } from '../auth/auth.types.js';
-import { Prisma } from '../generated/prisma/client.js';
+import { Prisma, UserStatus } from '../generated/prisma/client.js';
 import { PrismaService } from '../prisma/index.js';
-import { BulkBlockDto, ListUsersQueryDto, UserStatusName } from './users.dto.js';
+import { BulkBlockDto, ListUsersQueryDto } from './users.dto.js';
 import { toUserView, userSelect, UserView, UsersPage } from './user.view.js';
 
 /**
@@ -15,10 +15,11 @@ export class UsersService {
 
   /** Lista użytkowników: filtrowanie, sortowanie i stronicowanie wykonuje baza danych. */
   async list(query: ListUsersQueryDto): Promise<UsersPage> {
-    const { search, role, pageIndex, pageSize, sortBy, sortDir } = query;
+    const { search, role, status, pageIndex, pageSize, sortBy, sortDir } = query;
 
     // where budujemy z tego, co przyszło w zapytaniu
     const where: Prisma.UserWhereInput = {
+      ...(status && { status }),
       ...(search && {
         OR: [
           { email: { contains: search, mode: 'insensitive' } },
@@ -49,14 +50,41 @@ export class UsersService {
     return toUserView(user);
   }
 
-  /** D5: blokowanie / odblokowanie. */
-  changeStatus(_actor: AuthUser, _id: number, _status: UserStatusName): Promise<unknown> {
-    throw new NotImplementedException('changeStatus zaimplementujesz w lekcji D5');
+  /**
+   * Zmiana statusu (blokowanie / odblokowanie) razem z wpisem w dzienniku - w jednej transakcji.
+   * Transakcja interaktywna: kolejne kroki zależą od poprzednich (najpierw czytamy, potem zapisujemy).
+   */
+  async changeStatus(actor: AuthUser, id: number, status: UserStatus): Promise<UserView> {
+    await this.prisma.$transaction(async (tx) => {
+      const user = await tx.user.findUniqueOrThrow({ where: { id }, select: { status: true } });
+      if (user.status === status) {
+        return; // nic się nie zmienia, więc nie ma czego zapisywać w dzienniku
+      }
+      await tx.user.update({ where: { id }, data: { status } });
+      await tx.auditLog.create({
+        data: {
+          actorId: actor.id,
+          action: status === UserStatus.BLOCKED ? 'user.block' : 'user.unblock',
+          entity: 'User',
+          entityId: id,
+        },
+      });
+    });
+    return this.findOne(id);
   }
 
-  /** D5: blokowanie wielu użytkowników naraz. */
-  bulkBlock(_actor: AuthUser, _data: BulkBlockDto): Promise<unknown> {
-    throw new NotImplementedException('bulkBlock zaimplementujesz w lekcji D5');
+  /** Blokowanie wielu użytkowników naraz. Administratorów pomijamy. Transakcja tablicowa. */
+  async bulkBlock(actor: AuthUser, data: BulkBlockDto): Promise<{ blocked: number }> {
+    const [result] = await this.prisma.$transaction([
+      this.prisma.user.updateMany({
+        where: { id: { in: data.ids }, roles: { none: { role: { name: RoleNames.ADMIN } } } },
+        data: { status: UserStatus.BLOCKED },
+      }),
+      this.prisma.auditLog.create({
+        data: { actorId: actor.id, action: 'user.bulk-block', entity: 'User', payload: { ids: data.ids } },
+      }),
+    ]);
+    return { blocked: result.count };
   }
 
   /** D7: nadanie roli. */

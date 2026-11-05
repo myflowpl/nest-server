@@ -1,6 +1,7 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { ForbiddenException, Injectable, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
+import { UserStatus } from '../generated/prisma/client.js';
 import { PrismaService } from '../prisma/index.js';
 import { toUserView, userSelect } from '../users/user.view.js';
 import { LoginDto, RegisterDto } from './auth.dto.js';
@@ -44,6 +45,10 @@ export class AuthService {
       throw new UnauthorizedException('Credentials Invalid');
     }
 
+    if (user.status === UserStatus.BLOCKED) {
+      throw new ForbiddenException('Konto jest zablokowane');
+    }
+
     return { token: await this.signToken(user.id), user: toUserView(user) };
   }
 
@@ -64,7 +69,11 @@ export class AuthService {
     if (!payload) {
       return null;
     }
-    const user = await this.prisma.user.findUnique({ where: { id: payload.sub }, select: userSelect });
+    // zablokowany użytkownik traci dostęp od razu, nawet z ważnym tokenem
+    const user = await this.prisma.user.findUnique({
+      where: { id: payload.sub, status: UserStatus.ACTIVE },
+      select: userSelect,
+    });
     if (!user) {
       return null;
     }
