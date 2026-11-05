@@ -1,14 +1,11 @@
-import { ConflictException, Injectable, NotImplementedException } from '@nestjs/common';
+import { ConflictException, Injectable } from '@nestjs/common';
 import { AuthUser, RoleNames } from '../auth/auth.types.js';
 import { Prisma, UserStatus } from '../generated/prisma/client.js';
 import { PrismaService } from '../prisma/index.js';
 import { BulkBlockDto, ListUsersQueryDto } from './users.dto.js';
 import { toUserView, userSelect, UserView, UsersPage } from './user.view.js';
 
-/**
- * Szkielet serwisu: kontroler i trasy już działają, ale każda metoda zwraca 501.
- * Kolejne metody zaimplementujesz w lekcjach D3-D7.
- */
+/** Serwis użytkowników panelu administracyjnego: odczyt, lista, zmiana statusu, blokada zbiorcza i role. */
 @Injectable()
 export class UsersService {
   constructor(private prisma: PrismaService) {}
@@ -107,9 +104,19 @@ export class UsersService {
     return this.findOne(userId);
   }
 
-  /** D7: odebranie roli (z regułą ostatniego administratora). */
-  removeRole(_actor: AuthUser, _userId: number, _role: RoleNames): Promise<unknown> {
-    throw new NotImplementedException('removeRole zaimplementujesz w lekcji D7');
+  /** Odbiera rolę. Roli admin nie można odebrać ostatniemu administratorowi. */
+  async removeRole(actor: AuthUser, userId: number, name: RoleNames): Promise<UserView> {
+    await this.inTransaction(async (tx) => {
+      await tx.user.findUniqueOrThrow({ where: { id: userId } });
+      if (name === RoleNames.ADMIN) {
+        await this.assertNotLastAdmin(tx, userId);
+      }
+      await tx.userRole.deleteMany({ where: { userId, role: { name } } });
+      await tx.auditLog.create({
+        data: { actorId: actor.id, action: 'role.remove', entity: 'User', entityId: userId, payload: { role: name } },
+      });
+    });
+    return this.findOne(userId);
   }
 
   /**
