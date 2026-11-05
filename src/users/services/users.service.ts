@@ -21,4 +21,9 @@ export class UsersService {
         const users = await this.store.find(User);
         return users.filter(user => user.email === query.email);
     }
+
+    async save(user: User): Promise<User> {
+        return this.store.save(user);
+    }
+
 }
