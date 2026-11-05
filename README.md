@@ -2,7 +2,7 @@
 
 Projekt startowy do części **Baza danych (Prisma)** szkolenia *Tworzenie aplikacji w Node.js z wykorzystaniem NestJS i TypeScript*.
 
-To szkielet infrastruktury **bez kodu domeny**: konfiguracja, Swagger, walidacja, JWT, guard i dekoratory, PostgreSQL w Dockerze razem z Adminerem. Użytkowników, bazę i panel administracyjny budujemy podczas lekcji.
+To szkielet aplikacji: konfiguracja, Swagger, walidacja, JWT, guard i dekoratory, PostgreSQL w Dockerze razem z Adminerem oraz **gotowe kontrolery, DTO i moduły panelu administracyjnego**. Serwisy są puste (trasy zwracają 501) - ich zawartość, czyli całą pracę z bazą przez Prismę, piszemy podczas lekcji.
 
 Pełna instrukcja przygotowania komputera: https://get.myflow.pl/nest/instalki
 
@@ -30,12 +30,16 @@ npm run start:dev        # http://localhost:3000 zwraca "Hello World!"
 | Plik / katalog | Do czego służy |
 |---|---|
 | `src/config/` | typowany `ConfigService` (czyta `.env`), moduł globalny |
-| `src/auth/` | `AuthService` (podpis i weryfikacja JWT), `JwtAuthGuard`, dekoratory `@Auth()`, `@Roles()`, `@ApiAuth()` |
+| `src/auth/` | `AuthService` (podpis i weryfikacja JWT; `register`, `login` i `authenticate` do uzupełnienia), `AuthController`, DTO, `JwtAuthGuard`, dekoratory `@Auth()`, `@Roles()`, `@ApiAuth()` |
+| `src/users/` | kontroler panelu administratora (`/admin/users`), DTO i pusty `UsersService` |
+| `src/stats/` | kontroler `/admin/stats` i pusty `StatsService` |
+| `scripts/check.mjs` | sprawdziany `npm run check:d1` ... `check:d6` |
+| `scripts/n-plus-one.ts`, `scripts/last-admin-race.ts` | skrypty demonstracyjne do lekcji D4 i D5 (zadziałają po wykonaniu tych lekcji) |
 | `src/main.ts` | Swagger (`/docs`), globalny `ValidationPipe` |
 | `compose.yaml` | PostgreSQL 18 i Adminer |
 | `.env.example` | szablon konfiguracji (port, sekret JWT, adres bazy) |
 
-Metoda `AuthService.authenticate()` jest pusta - uzupełnimy ją w lekcji D2, gdy pojawi się baza.
+Metody serwisów rzucają `NotImplementedException` (HTTP 501) - zastąpimy je w lekcjach D2-D6, gdy pojawi się baza. Błędy TypeScripta w skryptach `scripts/*.ts` do czasu pierwszego `npm run db:generate` (lekcja D1) są normalne: brakuje jeszcze wygenerowanego klienta Prismy.
 
 ## Skrypty
 
