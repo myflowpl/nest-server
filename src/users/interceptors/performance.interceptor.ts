@@ -18,28 +18,28 @@ export class PerformanceInterceptor implements NestInterceptor {
 
         finalize: () => console.timeEnd('Req Time')
       }),
-      catchError(err => {
-        // CATCH ERROR & return response
+      // catchError(err => {
+      //   // CATCH ERROR & return response
 
-        // return success - map error to next
-        return of('ERROR: '+err.message)
+      //   // return success - map error to next
+      //   return of('ERROR: '+err.message)
 
-        // return error anyway
-        // return throwError(() => err);
+      //   // return error anyway
+      //   // return throwError(() => err);
 
-        // retry controller method after request edit
-        // edit request
+      //   // retry controller method after request edit
+      //   // edit request
 
-        // retry controller
-        return next.handle();
+      //   // retry controller
+      //   return next.handle();
 
-        // TODO check how to do it
-        // return pipe(
-        //   delay(5000), 
-        //   next.handle()
-        // )
+      //   // TODO check how to do it
+      //   // return pipe(
+      //   //   delay(5000), 
+      //   //   next.handle()
+      //   // )
 
-      }),
+      // }),
       map(res => {
         // AFTER
         console.log('INTERCEPT AFTER', request.url)
