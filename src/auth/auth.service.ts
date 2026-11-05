@@ -21,7 +21,7 @@ export class AuthService {
    * Zamienia token na użytkownika z bazy danych.
    * TODO: implementacja w lekcji D2 (potrzebuje bazy danych).
    */
-  async authenticate(token: string): Promise<RequestPayload | null> {
+  async authenticate(_token: string): Promise<RequestPayload | null> {
     return null;
   }
 }

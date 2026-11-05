@@ -21,7 +21,22 @@
     "test:e2e": "vitest run --config ./vitest.config.e2e.ts",
     "db:up": "docker compose up -d --wait",
     "db:down": "docker compose down",
-    "db:check": "node --env-file-if-exists=.env scripts/check-db.js"
+    "db:check": "node --env-file-if-exists=.env scripts/check-db.js",
+    "db:generate": "prisma generate",
+    "db:migrate": "prisma migrate dev",
+    "db:studio": "prisma studio",
+    "db:status": "prisma migrate status",
+    "db:seed": "prisma db seed",
+    "db:reset": "prisma migrate reset && prisma db seed",
+    "db:playground": "tsx --env-file=.env scripts/playground.ts",
+    "db:n-plus-one": "tsx --env-file=.env scripts/n-plus-one.ts",
+    "db:race": "tsx --env-file=.env scripts/last-admin-race.ts",
+    "check:d1": "node --env-file=.env scripts/check.mjs d1",
+    "check:d2": "node --env-file=.env scripts/check.mjs d2",
+    "check:d3": "node --env-file=.env scripts/check.mjs d3",
+    "check:d4": "node --env-file=.env scripts/check.mjs d4",
+    "check:d5": "node --env-file=.env scripts/check.mjs d5",
+    "check:d6": "node --env-file=.env scripts/check.mjs d6"
   },
   "dependencies": {
     "@nestjs/common": "^12.0.1",

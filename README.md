@@ -48,4 +48,6 @@ Metoda `AuthService.authenticate()` jest pusta - uzupełnimy ją w lekcji D2, gd
 | `npm run db:up` / `db:down` | start / stop bazy w Dockerze |
 | `npm run db:check` | test połączenia z bazą |
 
-Dalsze skrypty (`db:migrate`, `db:studio`, `db:seed`...) dodajemy w lekcjach.
+Skrypty `db:*` (`db:migrate`, `db:studio`, `db:seed`, `db:reset` ...) są już w `package.json` - zaczną działać, gdy w lekcjach pojawi się schemat Prismy.
+
+Po każdej lekcji możesz sprawdzić swoją pracę jednym poleceniem (serwer musi działać): `npm run check:d2` ... `npm run check:d6`. Skrypt wykonuje scenariusz z lekcji i wypisuje ✓ albo ✗ przy każdym punkcie.
