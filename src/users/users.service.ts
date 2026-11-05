@@ -2,7 +2,7 @@ import { Injectable, NotImplementedException } from '@nestjs/common';
 import { AuthUser, RoleNames } from '../auth/auth.types.js';
 import { PrismaService } from '../prisma/index.js';
 import { BulkBlockDto, ListUsersQueryDto, UserStatusName } from './users.dto.js';
-import { toUserView, userSelect, UserView } from './user.view.js';
+import { toUserView, userSelect, UserView, UsersPage } from './user.view.js';
 
 /**
  * Szkielet serwisu: kontroler i trasy już działają, ale każda metoda zwraca 501.
@@ -12,9 +12,17 @@ import { toUserView, userSelect, UserView } from './user.view.js';
 export class UsersService {
   constructor(private prisma: PrismaService) {}
 
-  /** D4: lista z filtrami, sortowaniem i stronicowaniem. */
-  list(_query: ListUsersQueryDto): Promise<unknown> {
-    throw new NotImplementedException('Listę zaimplementujesz w lekcji D4');
+  /** Lista użytkowników: stronicowanie wykonuje baza danych. */
+  async list(query: ListUsersQueryDto): Promise<UsersPage> {
+    const { pageIndex, pageSize } = query;
+
+    // dwa zapytania w jednej transakcji: strona rekordów + liczba wszystkich rekordów
+    const [users, total] = await this.prisma.$transaction([
+      this.prisma.user.findMany({ orderBy: { id: 'asc' }, skip: pageIndex * pageSize, take: pageSize, select: userSelect }),
+      this.prisma.user.count(),
+    ]);
+
+    return { items: users.map(toUserView), total, pageIndex, pageSize };
   }
 
   /** Użytkownik z profilem i rolami. Gdy go nie ma, Prisma rzuca P2025 (filtr zamienia to na 404). */
