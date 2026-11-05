@@ -27,6 +27,7 @@
     "db:studio": "prisma studio",
     "db:status": "prisma migrate status",
     "db:seed": "prisma db seed",
+    "db:psql": "docker compose exec db psql -U nest -d nest",
     "db:reset": "prisma migrate reset && prisma db seed",
     "db:playground": "tsx --env-file=.env scripts/playground.ts",
     "db:n-plus-one": "tsx --env-file=.env scripts/n-plus-one.ts",
@@ -36,7 +37,8 @@
     "check:d3": "node --env-file=.env scripts/check.mjs d3",
     "check:d4": "node --env-file=.env scripts/check.mjs d4",
     "check:d5": "node --env-file=.env scripts/check.mjs d5",
-    "check:d6": "node --env-file=.env scripts/check.mjs d6"
+    "check:d6": "node --env-file=.env scripts/check.mjs d6",
+    "check:d7": "node --env-file=.env scripts/check.mjs d7"
   },
   "dependencies": {
     "@nestjs/common": "^12.0.1",

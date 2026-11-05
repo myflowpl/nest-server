@@ -4,7 +4,7 @@ import { BulkBlockDto, ListUsersQueryDto, UserStatusName } from './users.dto.js'
 
 /**
  * Szkielet serwisu: kontroler i trasy już działają, ale każda metoda zwraca 501.
- * Kolejne metody zaimplementujesz w lekcjach D3-D5.
+ * Kolejne metody zaimplementujesz w lekcjach D3-D7.
  */
 @Injectable()
 export class UsersService {
@@ -28,13 +28,13 @@ export class UsersService {
     throw new NotImplementedException('bulkBlock zaimplementujesz w lekcji D5');
   }
 
-  /** D3: nadanie roli. */
+  /** D7: nadanie roli. */
   addRole(_actor: AuthUser, _userId: number, _role: RoleNames): Promise<unknown> {
-    throw new NotImplementedException('addRole zaimplementujesz w lekcji D3');
+    throw new NotImplementedException('addRole zaimplementujesz w lekcji D7');
   }
 
-  /** D3: odebranie roli. */
+  /** D7: odebranie roli (z regułą ostatniego administratora). */
   removeRole(_actor: AuthUser, _userId: number, _role: RoleNames): Promise<unknown> {
-    throw new NotImplementedException('removeRole zaimplementujesz w lekcji D3');
+    throw new NotImplementedException('removeRole zaimplementujesz w lekcji D7');
   }
 }

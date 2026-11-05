@@ -1,6 +1,6 @@
 // Sprawdzian lekcji: wykonuje scenariusz "Sprawdź" z lekcji i wypisuje ✓ / ✗.
-// Serwer musi działać (npm run start:dev). Uruchom: npm run check:d2   (d1 ... d6)
-import { existsSync } from 'node:fs';
+// Serwer musi działać (npm run start:dev). Uruchom: npm run check:d2   (d1 ... d7)
+import { existsSync, readdirSync, readFileSync } from 'node:fs';
 import pg from 'pg';
 
 const lesson = process.argv[2];
@@ -82,14 +82,7 @@ const checks = {
     ok('zwykły użytkownik na endpoincie admina -> 403', (await api('GET', `/admin/users/${id}`, { token: user })).status === 403);
     const detail = await api('GET', `/admin/users/${id}`, { token: admin });
     ok('administrator widzi użytkownika z rolami', detail.status === 200 && detail.json?.roles?.join() === 'user', `status ${detail.status}`);
-    const add1 = await api('POST', `/admin/users/${id}/roles/admin`, { token: admin });
-    ok('nadanie roli admin', add1.json?.roles?.includes('admin'), JSON.stringify(add1.json));
-    const add2 = await api('POST', `/admin/users/${id}/roles/admin`, { token: admin });
-    ok('drugie nadanie tej samej roli nic nie psuje', add2.status === 201 && add2.json?.roles?.length === 2, `status ${add2.status}`);
-    const rem = await api('DELETE', `/admin/users/${id}/roles/admin`, { token: admin });
-    ok('odebranie roli admin', rem.json?.roles?.join() === 'user', JSON.stringify(rem.json));
     ok('nieistniejący użytkownik -> 404', (await api('GET', '/admin/users/99999999', { token: admin })).status === 404);
-    ok('nieznana rola -> 400', (await api('POST', `/admin/users/${id}/roles/boss`, { token: admin })).status === 400);
   },
 
   async d4() {
@@ -128,7 +121,11 @@ const checks = {
     const bulk = await api('POST', '/admin/users/bulk-block', { token: admin, body: { ids: [id, adminId] } });
     ok('blokada zbiorcza pomija administratora: blocked = 1', bulk.json?.blocked === 1, JSON.stringify(bulk.json));
     const actions = (await sql(`SELECT action FROM "AuditLog" WHERE "entityId" = $1 ORDER BY id`, [id])).map((r) => r.action);
-    ok('dziennik: user.register, user.block, user.unblock', actions.join() === 'user.register,user.block,user.unblock', actions.join());
+    ok('dziennik: user.block, user.unblock', actions.join() === 'user.block,user.unblock', actions.join());
+    // po blokadzie zbiorczej użytkownik jest już BLOCKED, więc ta sama wartość nic nie zmienia
+    const same = await api('PATCH', `/admin/users/${id}/status`, { token: admin, body: { status: 'BLOCKED' } });
+    const actionsAfter = (await sql(`SELECT action FROM "AuditLog" WHERE "entityId" = $1`, [id])).length;
+    ok('ta sama wartość statusu nie dopisuje nic do dziennika', same.status === 200 && actionsAfter === actions.length, `wpisów: ${actionsAfter}`);
     const bulkLog = await sql(`SELECT 1 FROM "AuditLog" WHERE action = 'user.bulk-block' AND payload->'ids' @> to_jsonb($1::int)`, [id]);
     ok('dziennik: wpis user.bulk-block z listą id', bulkLog.length > 0);
   },
@@ -139,19 +136,51 @@ const checks = {
     // porównanie robimy w SQL (Prisma zapisuje czas w UTC)
     const [row] = await sql(`SELECT "lastLoginAt" > (now() AT TIME ZONE 'UTC') - interval '1 minute' AS recent FROM "User" WHERE email = 'admin@example.com'`);
     ok('logowanie zapisuje lastLoginAt', row?.recent === true);
-    const nulls = await sql(`SELECT count(*)::int AS n FROM "User" WHERE "lastLoginAt" IS NULL`);
-    ok('migracja uzupełniła lastLoginAt u istniejących użytkowników', nulls[0].n === 0, `bez lastLoginAt: ${nulls[0].n}`);
+    // konta założone po migracji mają NULL do pierwszego logowania, więc sprawdzamy samą migrację
+    const dir = readdirSync('prisma/migrations').find((name) => name.endsWith('_last_login'));
+    const migrationSql = dir ? readFileSync(`prisma/migrations/${dir}/migration.sql`, 'utf8') : '';
+    ok('migracja last_login uzupełnia dane (UPDATE "User" SET "lastLoginAt")', /UPDATE\s+"User"\s+SET\s+"lastLoginAt"/i.test(migrationSql), dir ?? 'brak folderu *_last_login');
     const stats = await api('GET', '/admin/stats', { token: admin });
     const s = stats.json;
     ok('statystyki: kształt odpowiedzi', stats.status === 200 && s && typeof s.total === 'number' && s.byStatus && s.byRole && Array.isArray(s.registrationsPerDay), `status ${stats.status}`);
     const sum = Object.values(s?.byStatus ?? {}).reduce((a, b) => a + b, 0);
     ok('statystyki: total = suma byStatus', s?.total === sum, `${s?.total} vs ${sum}`);
+    ok('statystyki: activeLast7Days to liczba >= 1 (admin właśnie się zalogował)', s?.activeLast7Days >= 1, `${s?.activeLast7Days}`);
     ok('statystyki: byRole ma admin i user', s?.byRole && 'admin' in s.byRole && 'user' in s.byRole);
+  },
+  async d7() {
+    const admin = await adminToken();
+    ok('administrator (seed) może się zalogować', !!admin, 'uruchom: npm run db:seed');
+    const email = unique('dora');
+    const reg = await register(email, 'secret1', 'Dora');
+    const id = reg.json?.id;
+    const add1 = await api('POST', `/admin/users/${id}/roles/admin`, { token: admin });
+    ok('nadanie roli admin', add1.json?.roles?.includes('admin'), JSON.stringify(add1.json));
+    const add2 = await api('POST', `/admin/users/${id}/roles/admin`, { token: admin });
+    ok('drugie nadanie tej samej roli nic nie psuje', add2.status === 201 && add2.json?.roles?.length === 2, `status ${add2.status}`);
+    const rem = await api('DELETE', `/admin/users/${id}/roles/admin`, { token: admin });
+    ok('odebranie roli admin', rem.json?.roles?.join() === 'user', JSON.stringify(rem.json));
+    ok('nieznana rola -> 400', (await api('POST', `/admin/users/${id}/roles/boss`, { token: admin })).status === 400);
+    const actions = (await sql(`SELECT action FROM "AuditLog" WHERE "entityId" = $1 ORDER BY id`, [id])).map((r) => r.action);
+    ok('dziennik: role.add (dwa razy), role.remove', actions.join() === 'role.add,role.add,role.remove', actions.join());
+
+    // reguła ostatniego administratora: na czas sprawdzenia zostaje tylko admin@example.com, potem przywracamy role
+    const originalAdmins = await sql(`SELECT "userId", "roleId" FROM "UserRole" WHERE "roleId" = (SELECT id FROM "Role" WHERE name = 'admin')`);
+    try {
+      await sql(`DELETE FROM "UserRole" WHERE "roleId" = (SELECT id FROM "Role" WHERE name = 'admin') AND "userId" <> (SELECT id FROM "User" WHERE email = 'admin@example.com')`);
+      const adminId = (await api('GET', '/auth/me', { token: admin })).json?.id;
+      ok('odebranie roli ostatniemu administratorowi -> 409', (await api('DELETE', `/admin/users/${adminId}/roles/admin`, { token: admin })).status === 409);
+      ok('zablokowanie ostatniego administratora -> 409', (await api('PATCH', `/admin/users/${adminId}/status`, { token: admin, body: { status: 'BLOCKED' } })).status === 409);
+    } finally {
+      for (const row of originalAdmins) {
+        await sql(`INSERT INTO "UserRole" ("userId", "roleId") VALUES ($1, $2) ON CONFLICT DO NOTHING`, [row.userId, row.roleId]);
+      }
+    }
   },
 };
 
 if (!checks[lesson]) {
-  console.error(`Użycie: npm run check:d1 ... check:d6 (podano: ${lesson})`);
+  console.error(`Użycie: npm run check:d1 ... check:d7 (podano: ${lesson})`);
   process.exit(2);
 }
 console.log(`Sprawdzam lekcję ${lesson.toUpperCase()} na ${base}\n`);

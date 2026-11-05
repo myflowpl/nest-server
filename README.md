@@ -33,13 +33,14 @@ npm run start:dev        # http://localhost:3000 zwraca "Hello World!"
 | `src/auth/` | `AuthService` (podpis i weryfikacja JWT; `register`, `login` i `authenticate` do uzupełnienia), `AuthController`, DTO, `JwtAuthGuard`, dekoratory `@Auth()`, `@Roles()`, `@ApiAuth()` |
 | `src/users/` | kontroler panelu administratora (`/admin/users`), DTO i pusty `UsersService` |
 | `src/stats/` | kontroler `/admin/stats` i pusty `StatsService` |
-| `scripts/check.mjs` | sprawdziany `npm run check:d1` ... `check:d6` |
-| `scripts/n-plus-one.ts`, `scripts/last-admin-race.ts` | skrypty demonstracyjne do lekcji D4 i D5 (zadziałają po wykonaniu tych lekcji) |
+| `scripts/check.mjs` | sprawdziany `npm run check:d1` ... `check:d7` |
+| `prisma/fixtures.ts` | gotowe dane demonstracyjne do seeda (50 użytkowników) |
+| `scripts/n-plus-one.ts`, `scripts/last-admin-race.ts` | skrypty demonstracyjne: N+1 (dodatek do D4) i wyścig administratorów (D7); zadziałają po wykonaniu tych lekcji |
 | `src/main.ts` | Swagger (`/docs`), globalny `ValidationPipe` |
 | `compose.yaml` | PostgreSQL 18 i Adminer |
 | `.env.example` | szablon konfiguracji (port, sekret JWT, adres bazy) |
 
-Metody serwisów rzucają `NotImplementedException` (HTTP 501) - zastąpimy je w lekcjach D2-D6, gdy pojawi się baza. Błędy TypeScripta w skryptach `scripts/*.ts` do czasu pierwszego `npm run db:generate` (lekcja D1) są normalne: brakuje jeszcze wygenerowanego klienta Prismy.
+Metody serwisów rzucają `NotImplementedException` (HTTP 501) - zastąpimy je w lekcjach D2-D7, gdy pojawi się baza. Błędy TypeScripta w skryptach `scripts/*.ts` są normalne aż do lekcji D3: brakuje wygenerowanego klienta Prismy, a potem modeli, których używają (`Profile`, `Role`).
 
 ## Skrypty
 
@@ -54,4 +55,4 @@ Metody serwisów rzucają `NotImplementedException` (HTTP 501) - zastąpimy je w
 
 Skrypty `db:*` (`db:migrate`, `db:studio`, `db:seed`, `db:reset` ...) są już w `package.json` - zaczną działać, gdy w lekcjach pojawi się schemat Prismy.
 
-Po każdej lekcji możesz sprawdzić swoją pracę jednym poleceniem (serwer musi działać): `npm run check:d2` ... `npm run check:d6`. Skrypt wykonuje scenariusz z lekcji i wypisuje ✓ albo ✗ przy każdym punkcie.
+Po każdej lekcji możesz sprawdzić swoją pracę jednym poleceniem (serwer musi działać): `npm run check:d2` ... `npm run check:d7`. Skrypt wykonuje scenariusz z lekcji i wypisuje ✓ albo ✗ przy każdym punkcie.
