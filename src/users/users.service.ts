@@ -13,9 +13,9 @@ import { toUserView, userSelect, UserView, UsersPage } from './user.view.js';
 export class UsersService {
   constructor(private prisma: PrismaService) {}
 
-  /** Lista użytkowników: szukanie, sortowanie i stronicowanie wykonuje baza danych. */
+  /** Lista użytkowników: filtrowanie, sortowanie i stronicowanie wykonuje baza danych. */
   async list(query: ListUsersQueryDto): Promise<UsersPage> {
-    const { search, pageIndex, pageSize, sortBy, sortDir } = query;
+    const { search, role, pageIndex, pageSize, sortBy, sortDir } = query;
 
     // where budujemy z tego, co przyszło w zapytaniu
     const where: Prisma.UserWhereInput = {
@@ -25,6 +25,7 @@ export class UsersService {
           { profile: { displayName: { contains: search, mode: 'insensitive' } } },
         ],
       }),
+      ...(role && { roles: { some: { role: { name: role } } } }),
     };
 
     // sortowanie po nazwie wyświetlanej wymaga sięgnięcia do relacji; drugi klucz (id) daje stabilną kolejność przy remisach
