@@ -1,6 +1,8 @@
 import { Injectable, NotImplementedException } from '@nestjs/common';
 import { AuthUser, RoleNames } from '../auth/auth.types.js';
 import { BulkBlockDto, ListUsersQueryDto, UserStatusName } from './users.dto.js';
+import { PrismaService } from '../prisma/prisma.service.js';
+import { toUserView, userSelect, UserView } from './user.view.js';
 
 /**
  * Szkielet serwisu: kontroler i trasy już działają, ale każda metoda zwraca 501.
@@ -8,14 +10,19 @@ import { BulkBlockDto, ListUsersQueryDto, UserStatusName } from './users.dto.js'
  */
 @Injectable()
 export class UsersService {
+
+
+  constructor(private prisma: PrismaService) {}
+
   /** D4: lista z filtrami, sortowaniem i stronicowaniem. */
   list(_query: ListUsersQueryDto): Promise<unknown> {
     throw new NotImplementedException('Listę zaimplementujesz w lekcji D4');
   }
 
   /** D3: użytkownik z profilem i rolami. */
-  findOne(_id: number): Promise<unknown> {
-    throw new NotImplementedException('findOne zaimplementujesz w lekcji D3');
+  async findOne(id: number): Promise<UserView> {
+    const user = await this.prisma.user.findUniqueOrThrow({ where: { id }, select: userSelect });
+    return toUserView(user);
   }
 
   /** D5: blokowanie / odblokowanie. */

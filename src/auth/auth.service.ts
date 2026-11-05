@@ -3,7 +3,8 @@ import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
 import { PrismaService } from '../prisma/index.js';
 import { LoginDto, RegisterDto } from './auth.dto.js';
-import { RequestPayload, TokenPayload } from './auth.types.js';
+import { RequestPayload, RoleNames, TokenPayload } from './auth.types.js';
+import { toUserView, userSelect } from '../users/user.view.js';
 
 @Injectable()
 export class AuthService {
@@ -17,7 +18,16 @@ export class AuthService {
 
     const passwordHash = await bcrypt.hash(data.password, 10);
 
-    return this.prisma.user.create({ data: { email: data.email, passwordHash } });
+    const user = await this.prisma.user.create({
+      data: {
+        email: data.email,
+        passwordHash,
+        profile: { create: { displayName: data.displayName } },
+        roles: { create: { role: { connect: { name: RoleNames.USER } } } },
+      },
+      select: userSelect,
+    });
+    return toUserView(user);
 
   }
 
