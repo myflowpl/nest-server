@@ -36,7 +36,7 @@ export class AuthService {
     // hasło jest domyślnie wycięte z odpowiedzi (patrz PrismaService), tu prosimy o nie wprost
     const user = await this.prisma.user.findUnique({
       where: { email: data.email },
-      omit: { passwordHash: false },
+      select: { ...userSelect, passwordHash: true },
     });
 
     const valid = user && (await bcrypt.compare(data.password, user.passwordHash));
@@ -44,9 +44,7 @@ export class AuthService {
       throw new UnauthorizedException('Credentials Invalid');
     }
 
-    // hash hasła zostaje tutaj - do odpowiedzi trafia tylko reszta pól
-    const { passwordHash: _passwordHash, ...safeUser } = user;
-    return { token: await this.signToken(user.id), user: safeUser };
+    return { token: await this.signToken(user.id), user: toUserView(user) };
   }
 
   /** Tworzy token JWT dla użytkownika o podanym id. */
@@ -66,11 +64,11 @@ export class AuthService {
     if (!payload) {
       return null;
     }
-    const user = await this.prisma.user.findUnique({ where: { id: payload.sub } });
+    const user = await this.prisma.user.findUnique({ where: { id: payload.sub }, select: userSelect });
     if (!user) {
       return null;
     }
-    // role pojawią się w lekcji D3
-    return { user: { id: user.id, email: user.email, roles: [] } };
+    const view = toUserView(user);
+    return { user: { id: view.id, email: view.email, roles: view.roles } };
   }
 }
