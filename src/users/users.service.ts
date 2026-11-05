@@ -113,4 +113,27 @@ export class UsersService {
       throw e;
     }
   }
+
+  /** Reguła biznesowa: w systemie musi zostać co najmniej jeden aktywny administrator. */
+  private async assertNotLastAdmin(tx: Prisma.TransactionClient, userId: number) {
+    const target = await tx.user.findUniqueOrThrow({
+      where: { id: userId },
+      select: { roles: { select: { role: { select: { name: true } } } } },
+    });
+    const isAdmin = target.roles.some((r) => r.role.name === RoleNames.ADMIN);
+    if (!isAdmin) {
+      return;
+    }
+
+    const otherAdmins = await tx.user.count({
+      where: {
+        id: { not: userId },
+        status: UserStatus.ACTIVE,
+        roles: { some: { role: { name: RoleNames.ADMIN } } },
+      },
+    });
+    if (otherAdmins === 0) {
+      throw new ConflictException('W systemie musi zostać co najmniej jeden aktywny administrator');
+    }
+  }
 }
