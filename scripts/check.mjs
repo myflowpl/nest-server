@@ -30,7 +30,31 @@ async function api(method, path, { token, body } = {}) {
 
 const unique = (prefix) => `${prefix}-${Date.now()}-${Math.floor(Math.random() * 1000)}@example.com`;
 const login = async (email, password) => (await api('POST', '/auth/login', { body: { email, password } })).json?.token;
-const adminToken = () => login('admin@example.com', 'admin123');
+// Wszystkie sprawdziany od D3 zaczynają się od logowania administratora z seeda. Gdy się nie uda,
+// dalsze wyniki nic nie mówią (same 401), więc wyjaśniamy przyczynę i kończymy.
+async function requireAdmin() {
+  const res = await api('POST', '/auth/login', { body: { email: 'admin@example.com', password: 'admin123' } });
+  if (res.json?.token) {
+    ok('administrator (seed) może się zalogować', true);
+    return res.json.token;
+  }
+  const [row] = await sql(`SELECT status FROM "User" WHERE email = 'admin@example.com'`);
+  if (row?.status === 'BLOCKED') {
+    ok('administrator (seed) może się zalogować', false, 'konto admin@example.com ma status BLOCKED (serwer odpowiada 403)');
+    console.log('\nNajczęstsza przyczyna: administrator zablokował sam siebie (PATCH /admin/users/{id}/status albo bulk-block z własnym id).');
+    console.log('Odblokuj go w Studio (npm run db:studio): tabela User, wiersz admin@example.com, status = ACTIVE, zapisz.');
+    console.log('Albo w terminalu (npm run db:psql): UPDATE "User" SET status = \'ACTIVE\' WHERE email = \'admin@example.com\';');
+    console.log('Uwaga: npm run db:seed tego nie naprawi, bo seed nie zmienia istniejących kont.');
+  } else if (!row) {
+    ok('administrator (seed) może się zalogować', false, 'w bazie nie ma admin@example.com');
+    console.log('\nUruchom seed: npm run db:seed');
+  } else {
+    ok('administrator (seed) może się zalogować', false, `logowanie zwraca status ${res.status}`);
+    console.log('\nKonto admin@example.com istnieje, ale hasło nie pasuje do admin123 (czy hasło było zmieniane w bazie lub przez API?). Przywróć admin123.');
+  }
+  console.log('\nBez administratora nie sprawdzę reszty. Po naprawie uruchom sprawdzian jeszcze raz.');
+  process.exit(1);
+}
 
 async function register(email, password = 'secret1', displayName = 'Tester') {
   return api('POST', '/auth/register', { body: { email, password, displayName } });
@@ -72,8 +96,7 @@ const checks = {
   },
 
   async d3() {
-    const admin = await adminToken();
-    ok('administrator (seed) może się zalogować', !!admin, 'uruchom: npm run db:seed');
+    const admin = await requireAdmin();
     const email = unique('bob');
     const reg = await register(email, 'secret1', 'Bob');
     ok('rejestracja zwraca 201 z profilem i rolą user', reg.status === 201 && reg.json?.displayName === 'Bob' && reg.json?.roles?.join() === 'user', JSON.stringify(reg.json));
@@ -86,8 +109,7 @@ const checks = {
   },
 
   async d4() {
-    const admin = await adminToken();
-    ok('administrator (seed) może się zalogować', !!admin, 'uruchom: npm run db:seed');
+    const admin = await requireAdmin();
     const list = await api('GET', '/admin/users', { token: admin });
     ok('lista: 10 rekordów na stronie, pageSize 10', list.json?.items?.length === 10 && list.json?.pageSize === 10, JSON.stringify(list.json)?.slice(0, 120));
     ok('lista: total >= 51 (admin + 50 z seeda)', list.json?.total >= 51, `total ${list.json?.total}`);
@@ -103,8 +125,7 @@ const checks = {
   },
 
   async d5() {
-    const admin = await adminToken();
-    ok('administrator (seed) może się zalogować', !!admin, 'uruchom: npm run db:seed');
+    const admin = await requireAdmin();
     const adminId = (await api('GET', '/auth/me', { token: admin })).json?.id;
     const email = unique('carl');
     const reg = await register(email, 'secret1', 'Carl');
@@ -131,8 +152,7 @@ const checks = {
   },
 
   async d6() {
-    const admin = await adminToken();
-    ok('administrator (seed) może się zalogować', !!admin, 'uruchom: npm run db:seed');
+    const admin = await requireAdmin();
     // porównanie robimy w SQL (Prisma zapisuje czas w UTC)
     const [row] = await sql(`SELECT "lastLoginAt" > (now() AT TIME ZONE 'UTC') - interval '1 minute' AS recent FROM "User" WHERE email = 'admin@example.com'`);
     ok('logowanie zapisuje lastLoginAt', row?.recent === true);
@@ -149,8 +169,7 @@ const checks = {
     ok('statystyki: byRole ma admin i user', s?.byRole && 'admin' in s.byRole && 'user' in s.byRole);
   },
   async d7() {
-    const admin = await adminToken();
-    ok('administrator (seed) może się zalogować', !!admin, 'uruchom: npm run db:seed');
+    const admin = await requireAdmin();
     const email = unique('dora');
     const reg = await register(email, 'secret1', 'Dora');
     const id = reg.json?.id;
