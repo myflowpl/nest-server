@@ -16,4 +16,6 @@ export class ConfigService {
   readonly PORT = parseInt(process.env.PORT ?? '3000', 10);
   readonly DATABASE_URL = required('DATABASE_URL');
   readonly JWT_SECRET = required('JWT_SECRET');
+  /** Katalog na wgrane pliki (avatary); na każdym serwerze może być gdzie indziej. */
+  readonly UPLOAD_DIR = process.env.UPLOAD_DIR || 'storage/uploads';
 }
