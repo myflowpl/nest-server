@@ -79,7 +79,8 @@ Wytyczne działają, jeśli: w diffach jest mniej zbędnych zmian, mniej przepis
 * Skryptów `db:playground` i `db:race` nie uruchamiaj bez prośby: zapisują do bazy deweloperskiej (tworzą użytkowników, `db:race` chwilowo zmienia role administratorów)
 * Nie czytaj i nie wypisuj `.env`; sekretów nie wpisuj do kodu ani do tego pliku
 * Nie dodawaj zależności do `package.json` bez wyraźnej prośby
-* Nie commituj i nie wypychaj zmian, jeśli nie zostałeś o to poproszony
+* Nie commituj i nie wypychaj zmian, jeśli nie zostałeś o to poproszony. Wyjątek: w skillu `task-implement` commity lokalne są dozwolone; push, PR i deploy zawsze dopiero na wyraźne polecenie
+* Nowe zadania prowadzimy w `tasks/<slug>/` skillami `task-brief` → `task-research` → `task-spec` → `task-implement` (pliki `1-wytyczne.md`, `2-research.md`, `3-specyfikacja.md`, `4-raport.md`)
 
 ## Zanim napiszesz, że gotowe
 
