@@ -1,6 +1,6 @@
 # Raport: User photo upload
 
-Status: lokalnie
+Status: lokalnie (zamknięte)
 
 ## Zmienione pliki
 * `prisma/schema.prisma`, `prisma/migrations/20261106100000_photo_avatar/migration.sql` - `Photo`, `Profile.avatarId`

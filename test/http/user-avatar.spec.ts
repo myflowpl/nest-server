@@ -1,4 +1,4 @@
-import { INestApplication } from '@nestjs/common';
+import { INestApplication, Logger } from '@nestjs/common';
 import { mkdtemp, readdir, rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
@@ -147,8 +147,13 @@ describe('avatar użytkownika', () => {
     it('gdy zapis w bazie się nie uda, plik nie zostaje na dysku', async () => {
       prisma.user.findUnique.mockResolvedValue(ala);
       prisma.profile.update.mockRejectedValue(new Error('baza padła'));
+      const logError = vi.spyOn(Logger.prototype, 'error').mockImplementation(() => {}); // Nest loguje oczekiwany błąd 500
 
-      await upload(2, 2, png, 500);
+      try {
+        await upload(2, 2, png, 500);
+      } finally {
+        logError.mockRestore();
+      }
 
       expect(await savedFiles()).toEqual([]);
     });
