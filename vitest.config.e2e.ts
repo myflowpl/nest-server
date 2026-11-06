@@ -11,5 +11,6 @@ export default defineConfig({
     globalSetup: ['./test/global-setup.ts'],
     fileParallelism: false, // jedna baza, więc pliki testów idą po kolei
     env: { DATABASE_URL: testDatabaseUrl(), JWT_SECRET: 'test-secret' },
+        coverage: { provider: 'v8', include: ['src/**/*.ts'], exclude: ['src/generated/**', 'src/main.ts', '**/*.spec.ts'] },
   },
 });
