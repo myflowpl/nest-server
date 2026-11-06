@@ -16,4 +16,8 @@ export class ConfigService {
   readonly PORT = parseInt(process.env.PORT ?? '3000', 10);
   readonly DATABASE_URL = required('DATABASE_URL');
   readonly JWT_SECRET = required('JWT_SECRET');
+  /** Redis dla mikroserwisu i kolejki (moduł Extra). */
+  readonly REDIS_URL = process.env.REDIS_URL ?? 'redis://localhost:6379';
+  /** Katalog na zdjęcia; API i worker muszą wskazywać ten sam. */
+  readonly STORAGE_DIR = process.env.STORAGE_DIR ?? 'storage';
 }

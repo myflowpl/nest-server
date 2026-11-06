@@ -1,0 +1,240 @@
+<!doctype html>
+<html lang="pl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Konsola WebSocket</title>
+  <style>
+    :root { --bg:#f6f7f9; --card:#fff; --line:#dfe3e8; --text:#1f2933; --mute:#6b7785; --accent:#5b4bdb; --ok:#1c8a4a; --bad:#c0392b; --warn:#b7791f; }
+    * { box-sizing: border-box; }
+    body { margin:0; font:14px/1.45 system-ui, sans-serif; background:var(--bg); color:var(--text); }
+    header { display:flex; align-items:center; gap:12px; padding:12px 20px; background:var(--card); border-bottom:1px solid var(--line); }
+    header h1 { font-size:16px; margin:0; }
+    .pill { padding:2px 10px; border-radius:99px; font-size:12px; font-weight:600; background:#e6e9ee; color:var(--mute); }
+    .pill.on { background:#dcf3e5; color:var(--ok); } .pill.err { background:#fbe3e0; color:var(--bad); }
+    main { display:grid; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); gap:16px; padding:16px 20px; }
+    section { background:var(--card); border:1px solid var(--line); border-radius:8px; padding:14px 16px; }
+    section h2 { font-size:13px; text-transform:uppercase; letter-spacing:.04em; color:var(--mute); margin:0 0 10px; }
+    .row { display:flex; flex-wrap:wrap; gap:8px; align-items:center; margin-bottom:8px; }
+    input, select, button { font:inherit; padding:6px 10px; border:1px solid var(--line); border-radius:6px; background:#fff; color:inherit; }
+    input[type=text], input[type=password], input[type=number] { min-width:0; flex:1; }
+    button { cursor:pointer; background:var(--accent); color:#fff; border-color:var(--accent); }
+    button.ghost { background:#fff; color:var(--accent); }
+    button:disabled { opacity:.45; cursor:not-allowed; }
+    .hint { color:var(--warn); font-size:12px; min-height:16px; }
+    .mute { color:var(--mute); font-size:12px; }
+    #log { grid-column: 1 / -1; }
+    #logbox { height:260px; overflow:auto; background:#10151c; color:#d6deea; border-radius:6px; padding:8px 10px; font:12px/1.5 ui-monospace, Menlo, monospace; }
+    #logbox div { white-space:pre-wrap; word-break:break-all; }
+    .in { color:#7fd6a0; } .out { color:#8ab4f8; } .sys { color:#c8a951; } .error { color:#ff8a80; }
+    ul.list { margin:0; padding-left:18px; } ul.list li { margin:2px 0; }
+    .badge { display:inline-block; padding:2px 10px; border-radius:99px; font-weight:600; font-size:12px; background:#e6e9ee; }
+    .badge.PENDING, .badge.PROCESSING { background:#fdf0d5; color:var(--warn); } .badge.READY { background:#dcf3e5; color:var(--ok); } .badge.FAILED { background:#fbe3e0; color:var(--bad); }
+    progress { width:100%; height:10px; } .thumbs { display:flex; gap:12px; align-items:flex-end; margin-top:8px; }
+    .thumbs img { border:1px solid var(--line); border-radius:6px; background:#eee; }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Konsola WebSocket</h1>
+    <span id="state" class="pill">rozłączony</span>
+    <span id="who" class="mute"></span>
+  </header>
+
+  <main>
+    <section id="conn">
+      <h2>1. Połączenie</h2>
+      <div class="row">
+        <input id="email" type="text" placeholder="email" value="admin@example.com" />
+        <input id="password" type="password" placeholder="hasło" value="admin123" />
+      </div>
+      <div class="row">
+        <button class="ghost" id="asAdmin">admin</button>
+        <button class="ghost" id="asUser">user01</button>
+        <button id="login">Zaloguj (pobierz token)</button>
+      </div>
+      <div class="row">
+        <select id="mode">
+          <option value="token">połącz z tokenem</option>
+          <option value="none">połącz bez tokenu</option>
+          <option value="bad">połącz z błędnym tokenem</option>
+        </select>
+        <button id="connect">Połącz</button>
+        <button class="ghost" id="disconnect" disabled>Rozłącz</button>
+      </div>
+      <div class="mute" id="tokenInfo">brak tokenu</div>
+    </section>
+
+    <section id="events">
+      <h2>2. Zdarzenia (E1-E2)</h2>
+      <div class="row"><button id="ping" disabled>ping</button><span class="mute">serwer odpowiada zdarzeniem <code>pong</code></span></div>
+      <div class="row">
+        <input id="echoText" type="text" value="cześć" />
+        <button id="echo" disabled>echo</button>
+        <button class="ghost" id="echoEmpty" disabled>echo z pustym tekstem</button>
+      </div>
+      <div class="row">
+        <input id="kickId" type="number" placeholder="id użytkownika" />
+        <button id="kick" disabled>kick (tylko admin)</button>
+      </div>
+      <div class="hint" id="evHint"></div>
+    </section>
+
+    <section id="presence">
+      <h2>3. Kto jest online (E2)</h2>
+      <ul class="list" id="presenceList"><li class="mute">brak danych (zdarzenie <code>presence</code> dostają administratorzy)</li></ul>
+    </section>
+
+    <section id="photo">
+      <h2>4. Zdjęcie profilowe (E3-E6)</h2>
+      <div class="row">
+        <input id="photoUser" type="number" placeholder="id użytkownika" />
+        <input id="photoFile" type="file" accept="image/*" />
+      </div>
+      <div class="row">
+        <button id="upload" disabled>Wgraj zdjęcie</button>
+        <button class="ghost" id="refresh" disabled>Pobierz stan</button>
+        <span class="badge" id="photoStatus">NONE</span>
+      </div>
+      <progress id="photoProgress" max="100" value="0"></progress>
+      <div class="thumbs" id="thumbs"></div>
+      <div class="hint" id="photoHint"></div>
+    </section>
+
+    <section id="log">
+      <h2>Dziennik zdarzeń <button class="ghost" id="clear" style="float:right;padding:2px 10px">wyczyść</button></h2>
+      <div id="logbox"></div>
+    </section>
+  </main>
+
+  <script src="/socket.io/socket.io.js"></script>
+  <script>
+    const $ = (s) => document.querySelector(s);
+    let socket = null, token = null, me = null;
+
+    function log(kind, text, data) {
+      const row = document.createElement('div');
+      row.className = kind;
+      const t = new Date().toLocaleTimeString('pl-PL');
+      row.textContent = `${t}  ${text}` + (data === undefined ? '' : '  ' + JSON.stringify(data));
+      const box = $('#logbox');
+      box.appendChild(row);
+      while (box.children.length > 300) box.removeChild(box.firstChild);
+      box.scrollTop = box.scrollHeight;
+    }
+
+    function setState(text, cls) { const s = $('#state'); s.textContent = text; s.className = 'pill ' + (cls || ''); }
+    function setConnected(on) {
+      for (const id of ['ping', 'echo', 'echoEmpty', 'kick', 'upload', 'refresh']) $('#' + id).disabled = !on;
+      $('#connect').disabled = on; $('#disconnect').disabled = !on;
+    }
+    // zdarzenie bez odpowiedzi w 2 s = serwer jeszcze tego nie obsługuje
+    function hint(el, text) { $(el).textContent = text; if (text) setTimeout(() => { if ($(el).textContent === text) $(el).textContent = ''; }, 6000); }
+
+    // --- logowanie (HTTP) ---
+    async function login() {
+      const res = await fetch('/auth/login', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ email: $('#email').value, password: $('#password').value }) });
+      const json = await res.json().catch(() => ({}));
+      if (!res.ok) { log('error', `POST /auth/login -> ${res.status}`, json.message); return; }
+      token = json.token; me = json.user;
+      $('#tokenInfo').textContent = `token dla ${me.email} (id ${me.id}, role: ${me.roles.join(', ')})`;
+      $('#photoUser').value = $('#photoUser').value || me.id;
+      log('sys', `zalogowano jako ${me.email}`);
+    }
+    $('#login').onclick = login;
+    $('#asAdmin').onclick = () => { $('#email').value = 'admin@example.com'; $('#password').value = 'admin123'; };
+    $('#asUser').onclick = () => { $('#email').value = 'user01@example.com'; $('#password').value = 'password123'; };
+
+    // --- połączenie (WebSocket) ---
+    function connect() {
+      if (typeof io === 'undefined') {
+        log('error', 'Brak klienta Socket.IO: serwer nie ma jeszcze bramki WebSocket (rozdział E1, kroki 1-2). Po jej dodaniu odśwież stronę.');
+        return;
+      }
+      const mode = $('#mode').value;
+      const auth = mode === 'token' ? { token } : mode === 'bad' ? { token: 'to-nie-jest-jwt' } : {};
+      if (mode === 'token' && !token) { log('error', 'najpierw kliknij „Zaloguj”, albo wybierz połączenie bez tokenu'); return; }
+      socket = io({ auth, reconnection: false });
+      setState('łączę...', '');
+      socket.on('connect', () => { setState('połączony ' + socket.id, 'on'); setConnected(true); log('sys', `połączono, id gniazda ${socket.id}`); });
+      socket.on('disconnect', (reason) => { setState('rozłączony', ''); setConnected(false); log('sys', `rozłączono: ${reason}`); });
+      socket.on('connect_error', (err) => { setState('odrzucony', 'err'); setConnected(false); log('error', `odrzucone połączenie: ${err.message}`); });
+      socket.onAny((event, ...args) => log('in', `← ${event}`, args.length === 1 ? args[0] : args));
+      socket.onAnyOutgoing((event, ...args) => log('out', `→ ${event}`, args.length === 1 ? args[0] : args.filter((a) => typeof a !== 'function')));
+      socket.on('welcome', (w) => { $('#who').textContent = `${w.user.email} (${w.user.roles.join(', ')})`; });
+      socket.on('presence', renderPresence);
+      socket.on('avatar.status', (p) => showStatus(p.userId, p.status));
+      socket.on('avatar.progress', (p) => { if (watching(p.userId)) $('#photoProgress').value = p.progress; });
+      socket.on('avatar.ready', (p) => { showStatus(p.userId, 'READY'); showThumbs(p); });
+      socket.on('avatar.failed', (p) => { showStatus(p.userId, 'FAILED'); hint('#photoHint', p.reason || 'przetwarzanie nie powiodło się'); });
+      socket.on('exception', (e) => log('error', 'wyjątek z serwera', e));
+      socket.on('kicked', () => log('sys', 'administrator rozłączył to połączenie'));
+    }
+    $('#connect').onclick = connect;
+    $('#disconnect').onclick = () => socket && socket.disconnect();
+    $('#clear').onclick = () => { $('#logbox').textContent = ''; };
+
+    // --- zdarzenia ---
+    $('#ping').onclick = () => {
+      let answered = false; socket.once('pong', () => { answered = true; });
+      socket.emit('ping');
+      setTimeout(() => { if (!answered) hint('#evHint', 'Brak odpowiedzi na ping. Serwer nie ma jeszcze bramki z krokami rozdziału E1.'); }, 2000);
+    };
+    function echo(text) {
+      socket.timeout(2000).emit('echo', { text }, (err, res) => {
+        if (err) { hint('#evHint', 'Brak potwierdzenia dla echo (rozdział E1, krok 3) albo serwer zgłosił wyjątek.'); return; }
+        log('sys', 'potwierdzenie echo', res);
+      });
+    }
+    $('#echo').onclick = () => echo($('#echoText').value);
+    $('#echoEmpty').onclick = () => echo('');
+    $('#kick').onclick = () => {
+      socket.timeout(2000).emit('kick', { userId: Number($('#kickId').value) }, (err, res) => {
+        if (err) hint('#evHint', 'Brak odpowiedzi na kick (rozdział E2, krok 6) albo brak uprawnień.'); else log('sys', 'kick', res);
+      });
+    };
+
+    // --- obecność ---
+    function renderPresence(list) {
+      const ul = $('#presenceList'); ul.textContent = '';
+      if (!list.length) { const li = document.createElement('li'); li.className = 'mute'; li.textContent = 'nikogo'; ul.appendChild(li); return; }
+      for (const p of list) { const li = document.createElement('li'); li.textContent = `${p.email} (id ${p.userId}), połączeń: ${p.connections}`; ul.appendChild(li); }
+    }
+
+    // --- zdjęcie ---
+    const watching = (id) => String(id) === String($('#photoUser').value);
+    function showStatus(userId, status) {
+      if (!watching(userId)) return;
+      const b = $('#photoStatus'); b.textContent = status; b.className = 'badge ' + status;
+      if (status === 'PENDING') { $('#photoProgress').value = 0; $('#thumbs').textContent = ''; }
+      if (status === 'READY') $('#photoProgress').value = 100;
+    }
+    function showThumbs(p) {
+      if (!watching(p.userId)) return;
+      const box = $('#thumbs'); box.textContent = '';
+      for (const [size, url] of Object.entries(p.urls)) {
+        const img = document.createElement('img'); img.src = url + '?t=' + Date.now(); img.width = Number(size); img.height = Number(size); img.title = size + ' px';
+        box.appendChild(img);
+      }
+    }
+    $('#upload').onclick = async () => {
+      const file = $('#photoFile').files[0];
+      if (!file) { hint('#photoHint', 'Wybierz plik ze zdjęciem.'); return; }
+      if (!token) { hint('#photoHint', 'Najpierw zaloguj się (sekcja 1).'); return; }
+      const body = new FormData(); body.append('file', file);
+      const res = await fetch(`/admin/users/${$('#photoUser').value}/avatar`, { method: 'POST', headers: { authorization: `Bearer ${token}` }, body });
+      const json = await res.json().catch(() => ({}));
+      log(res.ok ? 'sys' : 'error', `POST /admin/users/${$('#photoUser').value}/avatar -> ${res.status}`, json);
+      if (res.status === 404) hint('#photoHint', 'Ten endpoint powstaje w rozdziale E3.');
+      else if (!res.ok) hint('#photoHint', json.message || 'Serwer odrzucił plik.');
+    };
+    $('#refresh').onclick = async () => {
+      const res = await fetch(`/admin/users/${$('#photoUser').value}/avatar`, { headers: { authorization: `Bearer ${token}` } });
+      const json = await res.json().catch(() => ({}));
+      log(res.ok ? 'sys' : 'error', `GET /admin/users/${$('#photoUser').value}/avatar -> ${res.status}`, json);
+      if (res.ok) { showStatus($('#photoUser').value, json.status); if (json.urls) showThumbs({ userId: $('#photoUser').value, urls: json.urls }); }
+      else if (res.status === 404) hint('#photoHint', 'Ten endpoint powstaje w rozdziale E5.');
+    };
+  </script>
+</body>
+</html>
