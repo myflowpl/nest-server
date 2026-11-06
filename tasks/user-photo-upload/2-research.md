@@ -1,6 +1,6 @@
 # Research: User photo upload
 
-Status: do decyzji
+Status: research gotowy
 
 ## Założenia od użytkownika (odpowiedzi na pytania z wytycznych)
 * Pliki lokalnie w `storage/`, w podkatalogu na uploady; katalog konfigurowalny (różne serwery, różne miejsca)
@@ -82,4 +82,4 @@ Kody błędów dla złych żądań.
 * C. Użytkownik bez profilu: profil tworzony automatycznie przy pierwszym uploadzie - więcej logiki w tym zadaniu.
 
 ## Odpowiedzi
-(uzupełniane po odpowiedzi użytkownika)
+1A, 2A, 3A, 4A, 5A, 6A, 7A (wszystkie rekomendacje zatwierdzone)
