@@ -9,6 +9,7 @@ import { Prisma, UserStatus } from '../generated/prisma/client.js';
  * Szkielet serwisu: kontroler i trasy już działają, ale każda metoda zwraca 501.
  * Kolejne metody zaimplementujesz w lekcjach D3-D7.
  */
+
 @Injectable()
 export class UsersService {
 
@@ -19,10 +20,12 @@ export class UsersService {
 
   async list(query: ListUsersQueryDto): Promise<UsersPage> {
     
-    const { search, role, pageIndex, pageSize, sortBy, sortDir } = query;
+    const { search, status, role, pageIndex, pageSize, sortBy, sortDir } = query;
 
     // where budujemy z tego, co przyszło w zapytaniu
     const where: Prisma.UserWhereInput = {
+      
+      ...(status && { status }),
       ...(search && {
         OR: [
           { email: { contains: search, mode: 'insensitive' } },
@@ -77,10 +80,18 @@ export class UsersService {
     });
     return this.findOne(id);
   }
-
-  /** D5: blokowanie wielu użytkowników naraz. */
-  bulkBlock(_actor: AuthUser, _data: BulkBlockDto): Promise<unknown> {
-    throw new NotImplementedException('bulkBlock zaimplementujesz w lekcji D5');
+  /** Blokowanie wielu użytkowników naraz. Administratorów pomijamy. Transakcja tablicowa. */
+  async bulkBlock(actor: AuthUser, data: BulkBlockDto): Promise<{ blocked: number }> {
+    const [result] = await this.prisma.$transaction([
+      this.prisma.user.updateMany({
+        where: { id: { in: data.ids }, roles: { none: { role: { name: RoleNames.ADMIN } } } },
+        data: { status: UserStatus.BLOCKED },
+      }),
+      this.prisma.auditLog.create({
+        data: { actorId: actor.id, action: 'user.bulk-block', entity: 'User', payload: { ids: data.ids } },
+      }),
+    ]);
+    return { blocked: result.count };
   }
 
   /** D7: nadanie roli. */
