@@ -3,7 +3,7 @@ import { AuthUser, RoleNames } from '../auth/auth.types.js';
 import { BulkBlockDto, ListUsersQueryDto, UserStatusName } from './users.dto.js';
 import { PrismaService } from '../prisma/prisma.service.js';
 import { toUserView, userSelect, UsersPage, UserView } from './user.view.js';
-import { Prisma } from '../generated/prisma/client.js';
+import { Prisma, UserStatus } from '../generated/prisma/client.js';
 
 /**
  * Szkielet serwisu: kontroler i trasy już działają, ale każda metoda zwraca 501.
@@ -47,15 +47,35 @@ export class UsersService {
     return { items: users.map(toUserView), total, pageIndex, pageSize };
   }
 
-  /** D3: użytkownik z profilem i rolami. */
+  /** Użytkownik z profilem i rolami. Gdy go nie ma, Prisma rzuca P2025 (filtr zamienia to na 404). */
   async findOne(id: number): Promise<UserView> {
     const user = await this.prisma.user.findUniqueOrThrow({ where: { id }, select: userSelect });
     return toUserView(user);
   }
 
-  /** D5: blokowanie / odblokowanie. */
-  changeStatus(_actor: AuthUser, _id: number, _status: UserStatusName): Promise<unknown> {
-    throw new NotImplementedException('changeStatus zaimplementujesz w lekcji D5');
+    /**
+   * Zmiana statusu (blokowanie / odblokowanie) razem z wpisem w dzienniku - w jednej transakcji.
+   * Transakcja interaktywna: kolejne kroki zależą od poprzednich (najpierw czytamy, potem zapisujemy).
+   */
+  async changeStatus(actor: AuthUser, id: number, status: UserStatus): Promise<UserView> {
+
+    await this.prisma.$transaction(async (tx) => {
+
+      const user = await tx.user.findUniqueOrThrow({ where: { id }, select: { status: true } });
+      if (user.status === status) {
+        return; // nic się nie zmienia, więc nie ma czego zapisywać w dzienniku
+      }
+      await tx.user.update({ where: { id }, data: { status } });
+      await tx.auditLog.create({
+        data: {
+          actorId: actor.id,
+          action: status === UserStatus.BLOCKED ? 'user.block' : 'user.unblock',
+          entity: 'User',
+          entityId: id,
+        },
+      });
+    });
+    return this.findOne(id);
   }
 
   /** D5: blokowanie wielu użytkowników naraz. */

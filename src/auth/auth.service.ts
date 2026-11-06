@@ -69,7 +69,7 @@ export class AuthService {
     if (!payload) {
       return null;
     }
-    // zablokowany użytkownik traci dostęp od razu, nawet z ważnym tokenem
+        // zablokowany użytkownik traci dostęp od razu, nawet z ważnym tokenem
     const user = await this.prisma.user.findUnique({
       where: { id: payload.sub, status: UserStatus.ACTIVE },
       select: userSelect,
