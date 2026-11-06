@@ -1,8 +1,8 @@
-# nest-server (master-testy)
+# nest-server (master-ai)
 
-Projekt startowy do modułu **Testy** szkolenia *Tworzenie aplikacji w Node.js z wykorzystaniem NestJS i TypeScript*.
+Projekt startowy do modułu **Praca z AI** szkolenia *Tworzenie aplikacji w Node.js z wykorzystaniem NestJS i TypeScript*.
 
-To panel administracyjny użytkowników z modułu o bazie danych (stan po rozdziale D7: PostgreSQL, Prisma, JWT, role, lista, blokowanie, statystyki) oraz **infrastruktura testów**, ale bez testów poza przykładem z NestJS. Testy piszemy podczas rozdziałów T1-T3.
+To panel administracyjny użytkowników z modułów o bazie danych i testach (PostgreSQL, Prisma, JWT, role, lista, blokowanie, statystyki, testy jednostkowe, HTTP i z bazą) oraz **skrypty modułu o agentach AI**. Pliki dla agenta (`AGENTS.md`, `CLAUDE.md`, `.mcp.json`, `.claude/`, `tasks/`) tworzymy podczas rozdziałów A1-A5.
 
 Pełna instrukcja przygotowania komputera: https://get.myflow.pl/nest/instalki
 
@@ -11,26 +11,19 @@ Pełna instrukcja przygotowania komputera: https://get.myflow.pl/nest/instalki
 ```bash
 npm install
 cp .env.example .env     # Windows (PowerShell): Copy-Item .env.example .env
-npm run db:up            # PostgreSQL + Adminer w Dockerze (potrzebne do testów z bazą)
-npm test                 # testy jednostkowe i HTTP (bez bazy)
+npm run db:up            # PostgreSQL + Adminer w Dockerze
+npm run db:migrate       # schemat bazy
+npm run db:seed          # dane startowe
+npm test                 # testy jednostkowe i HTTP
 ```
 
-## Komendy testów
+## Skrypty modułu
 
-| Komenda | Co robi |
-|---|---|
-| `npm test` | testy jednostkowe i HTTP z atrapą bazy (`src/**/*.spec.ts`, `test/http`) |
-| `npm run test:e2e` | testy z prawdziwą bazą (`test/e2e`), baza testowa `<nazwa>_test` |
-| `npm run test:cov` | testy z raportem pokrycia kodu |
-| `npm run check:t1` ... `check:t3` | Kontrola lotu: uruchamia testy i psuje kod aplikacji, żeby sprawdzić, czy testy to wykrywają |
+| Komenda | Rozdział | Co robi |
+|---|---|---|
+| `npm run check:a1` ... `check:a5` | A1-A5 | Kontrola lotu: sprawdza **wynik pracy w repozytorium** (pliki, zachowanie aplikacji, uprawnienia bazy), bez względu na to, jakiego agenta użyłeś |
+| `npm run ai:db-role` | A3 | tworzy w bazie rolę `agent_ro` (tylko odczyt, bez `User.passwordHash`) według `scripts/ai-db-role.sql` |
+| `npm run ai:mcp-config` | A3 | generuje `dbhub.toml` (konfiguracja serwera MCP; zawiera hasło, jest w `.gitignore`) |
+| `npm run ai:pr-agenta` | A5 | dodaje „PR od agenta” (moduł `src/audit`) do przeglądu |
 
-## Co jest w projekcie
-
-| Plik / katalog | Do czego służy |
-|---|---|
-| `src/app.setup.ts` | `setupApp()`: wspólna konfiguracja aplikacji (walidacja) dla `main.ts` i testów |
-| `vitest.config.ts`, `vitest.config.e2e.ts` | konfiguracje testów (bez bazy i z bazą) |
-| `test/global-setup.ts` | przed testami z bazą: tworzy bazę testową, wykonuje migracje i seed |
-| `test/support/test-database.ts` | adres bazy testowej z `.env` |
-| `scripts/check-tests.mjs` | Kontrola lotu |
-| `src/`, `prisma/`, `scripts/check.mjs` | aplikacja i skrypty z modułu o bazie danych |
+`check:a2`, `check:a4` i `check:a5` potrzebują działającego serwera (`npm run start:dev`) i bazy.

@@ -42,7 +42,15 @@
     "postinstall": "prisma generate",
     "check:t1": "node --env-file=.env scripts/check-tests.mjs t1",
     "check:t2": "node --env-file=.env scripts/check-tests.mjs t2",
-    "check:t3": "node --env-file=.env scripts/check-tests.mjs t3"
+    "check:t3": "node --env-file=.env scripts/check-tests.mjs t3",
+    "ai:db-role": "node --env-file=.env scripts/ai-db-role.mjs",
+    "ai:mcp-config": "node --env-file=.env scripts/ai-mcp-config.mjs",
+    "ai:pr-agenta": "node scripts/ai-pr-agenta.mjs",
+    "check:a1": "node --env-file=.env scripts/check-ai.mjs a1",
+    "check:a2": "node --env-file=.env scripts/check-ai.mjs a2",
+    "check:a3": "node --env-file=.env scripts/check-ai.mjs a3",
+    "check:a4": "node --env-file=.env scripts/check-ai.mjs a4",
+    "check:a5": "node --env-file=.env scripts/check-ai.mjs a5"
   },
   "dependencies": {
     "@nestjs/common": "^12.0.1",

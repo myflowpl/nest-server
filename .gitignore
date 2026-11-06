@@ -58,3 +58,7 @@ lerna-debug.log*
 # Prisma Client - wygenerowany kod (npm run db:generate), nie wersjonujemy go
 /src/generated/prisma
 .vitest-check.json
+
+# Konfiguracja serwera MCP bazy (zawiera hasło roli agent_ro) - moduł AI
+dbhub.toml
+.coverage-check
