@@ -7,6 +7,7 @@ const view = (patch: Partial<UserView> = {}): UserView => ({
   id: 1,
   email: 'ala@example.com',
   displayName: 'Ala',
+  avatarUrl: null,
   roles: [RoleNames.USER],
   status: UserStatus.ACTIVE,
   createdAt: new Date('2026-01-01T10:00:00Z'),

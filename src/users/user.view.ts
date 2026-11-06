@@ -7,7 +7,7 @@ export const userSelect = {
   email: true,
   createdAt: true,
   status: true,
-  profile: { select: { displayName: true } },
+  profile: { select: { displayName: true, avatarId: true } },
   roles: { select: { role: { select: { name: true } } } },
 } satisfies Prisma.UserSelect;
 
@@ -18,6 +18,8 @@ export class UserView {
   id: number;
   email: string;
   displayName: string | null;
+  /** Adres avatara albo null, gdy użytkownik go nie wgrał */
+  avatarUrl: string | null;
   roles: RoleNames[];
   status: UserStatus;
   createdAt: Date;
@@ -28,6 +30,7 @@ export function toUserView(user: UserWithRelations): UserView {
     id: user.id,
     email: user.email,
     displayName: user.profile?.displayName ?? null,
+    avatarUrl: user.profile?.avatarId ? `/users/${user.id}/avatar` : null,
     roles: user.roles.map((userRole) => userRole.role.name as RoleNames),
     status: user.status,
     createdAt: user.createdAt,

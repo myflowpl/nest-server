@@ -10,7 +10,7 @@ describe('toUserView', () => {
     email: 'ala@example.com',
     createdAt,
     status: UserStatus.ACTIVE,
-    profile: { displayName: 'Ala' },
+    profile: { displayName: 'Ala', avatarId: null },
     roles: [{ role: { name: 'admin' } }, { role: { name: 'user' } }],
   };
 
@@ -19,10 +19,15 @@ describe('toUserView', () => {
       id: 1,
       email: 'ala@example.com',
       displayName: 'Ala',
+      avatarUrl: null,
       roles: ['admin', 'user'],
       status: 'ACTIVE',
       createdAt,
     });
+  });
+
+  it('avatarUrl wskazuje endpoint avatara, gdy profil ma avatar', () => {
+    expect(toUserView({ ...record, profile: { displayName: 'Ala', avatarId: 5 } }).avatarUrl).toBe('/users/1/avatar');
   });
 
   it('bez profilu displayName jest null', () => {
