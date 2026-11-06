@@ -2,7 +2,8 @@ import { ConflictException, Injectable } from '@nestjs/common';
 import { AuthUser, RoleNames } from '../auth/auth.types.js';
 import { Prisma, UserStatus } from '../generated/prisma/client.js';
 import { PrismaService } from '../prisma/index.js';
-import { BulkBlockDto, ListUsersQueryDto } from './users.dto.js';
+import { BulkBlockDto, ExportUsersQueryDto, ListUsersQueryDto } from './users.dto.js';
+import { usersToCsv } from './users-csv.js';
 import { toUserView, userSelect, UserView, UsersPage } from './user.view.js';
 
 /** Serwis użytkowników panelu administracyjnego: odczyt, lista, zmiana statusu, blokada zbiorcza i role. */
@@ -39,6 +40,17 @@ export class UsersService {
     ]);
 
     return { items: users.map(toUserView), total, pageIndex, pageSize };
+  }
+
+  /** Wszyscy użytkownicy (opcjonalnie z jednym statusem) jako CSV, bez stronicowania. */
+  async exportCsv(query: ExportUsersQueryDto): Promise<string> {
+    const { status } = query;
+    const users = await this.prisma.user.findMany({
+      where: { ...(status && { status }) },
+      orderBy: { id: 'asc' },
+      select: userSelect,
+    });
+    return usersToCsv(users.map(toUserView));
   }
 
   /** Użytkownik z profilem i rolami. Gdy go nie ma, Prisma rzuca P2025 (filtr zamienia to na 404). */

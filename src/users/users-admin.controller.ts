@@ -1,9 +1,9 @@
-import { Body, Controller, Delete, Get, Param, ParseEnumPipe, ParseIntPipe, Patch, Post, Query } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Header, Param, ParseEnumPipe, ParseIntPipe, Patch, Post, Query } from '@nestjs/common';
 import { ApiParam, ApiTags } from '@nestjs/swagger';
 import { AuthUser, RoleNames } from '../auth/auth.types.js';
 import { ApiAuth } from '../auth/decorators/api-auth.decorator.js';
 import { Auth } from '../auth/decorators/auth.decorator.js';
-import { BulkBlockDto, ChangeStatusDto, ListUsersQueryDto } from './users.dto.js';
+import { BulkBlockDto, ChangeStatusDto, ExportUsersQueryDto, ListUsersQueryDto } from './users.dto.js';
 import { UsersService } from './users.service.js';
 
 @Controller('admin/users')
@@ -15,6 +15,12 @@ export class UsersAdminController {
   @Get()
   list(@Query() query: ListUsersQueryDto) {
     return this.usersService.list(query);
+  }
+
+  @Get('export')
+  @Header('Content-Type', 'text/csv; charset=utf-8')
+  exportCsv(@Query() query: ExportUsersQueryDto) {
+    return this.usersService.exportCsv(query);
   }
 
   @Post('bulk-block')

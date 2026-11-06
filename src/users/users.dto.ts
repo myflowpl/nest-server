@@ -46,6 +46,13 @@ export class ListUsersQueryDto {
   sortDir?: 'asc' | 'desc' = 'desc';
 }
 
+export class ExportUsersQueryDto {
+  /** Tylko użytkownicy z tym statusem */
+  @IsOptional()
+  @IsIn(USER_STATUSES)
+  status?: UserStatusName;
+}
+
 export class ChangeStatusDto {
   @IsIn(USER_STATUSES)
   status: UserStatusName;
