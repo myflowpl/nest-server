@@ -1,12 +1,14 @@
 import { defineConfig } from 'vitest/config';
 
+// Testy jednostkowe i testy HTTP z atrapą bazy: szybkie, bez prawdziwej bazy danych.
 export default defineConfig({
-  // Resolves the path aliases declared in tsconfig.json, including the ones
-  // added by `nest g library`. Requires Vite 8, which ships this option.
   resolve: { tsconfigPaths: true },
   test: {
     globals: true,
     root: './',
-    include: ['**/*.spec.ts'],
+    include: ['src/**/*.spec.ts', 'test/http/**/*.spec.ts'],
+    // AppModule wymaga tych zmiennych, ale testy z atrapą nie łączą się z bazą
+    env: { DATABASE_URL: 'postgresql://nest:nest@localhost:5432/unused', JWT_SECRET: 'test-secret' },
+    coverage: { provider: 'v8', include: ['src/**/*.ts'], exclude: ['src/generated/**', 'src/main.ts', '**/*.spec.ts'] },
   },
 });

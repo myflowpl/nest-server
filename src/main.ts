@@ -1,15 +1,14 @@
-import { ValidationPipe } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { AppModule } from './app.module.js';
+import { setupApp } from './app.setup.js';
 import { ConfigService } from './config/index.js';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   const config = app.get(ConfigService);
 
-  // walidacja DTO w całej aplikacji
-  app.useGlobalPipes(new ValidationPipe({ transform: true, whitelist: true }));
+  setupApp(app);
 
   // SWAGGER SETUP
   const swaggerConfig = new DocumentBuilder()

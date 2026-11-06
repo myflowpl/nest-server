@@ -1,0 +1,71 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum UserStatus {
+  ACTIVE
+  BLOCKED
+}
+
+model User {
+  id           Int        @id @default(autoincrement())
+  email        String     @unique
+  passwordHash String
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+  status       UserStatus @default(ACTIVE)
+  lastLoginAt  DateTime? // ostatnie logowanie
+
+  profile   Profile?
+  roles     UserRole[]
+  auditLogs AuditLog[]
+
+  @@index([status]) // filtrowanie listy po statusie
+  @@index([createdAt]) // lista użytkowników z D4 jest domyślnie sortowana po dacie utworzenia
+}
+
+// relacja 1:1 - każdy użytkownik ma co najwyżej jeden profil
+model Profile {
+  id          Int     @id @default(autoincrement())
+  displayName String
+  bio         String?
+  userId      Int     @unique
+  user        User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Role {
+  id    Int        @id @default(autoincrement())
+  name  String     @unique
+  users UserRole[]
+}
+
+// relacja n:m z własnymi danymi (assignedAt) - dlatego jawna tabela łącząca
+model UserRole {
+  userId     Int
+  roleId     Int
+  assignedAt DateTime @default(now())
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  role       Role     @relation(fields: [roleId], references: [id])
+
+  @@id([userId, roleId])
+  @@index([roleId])
+}
+
+// dziennik zdarzeń: kto, co i na czym zrobił
+model AuditLog {
+  id        Int      @id @default(autoincrement())
+  action    String // np. user.block
+  entity    String // np. User
+  entityId  Int?
+  payload   Json? // dodatkowe dane zdarzenia
+  createdAt DateTime @default(now())
+  actorId   Int?
+  actor     User?    @relation(fields: [actorId], references: [id], onDelete: SetNull)
+
+  @@index([entity, entityId])
+}

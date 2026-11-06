@@ -38,7 +38,11 @@
     "check:d4": "node --env-file=.env scripts/check.mjs d4",
     "check:d5": "node --env-file=.env scripts/check.mjs d5",
     "check:d6": "node --env-file=.env scripts/check.mjs d6",
-    "check:d7": "node --env-file=.env scripts/check.mjs d7"
+    "check:d7": "node --env-file=.env scripts/check.mjs d7",
+    "postinstall": "prisma generate",
+    "check:t1": "node --env-file=.env scripts/check-tests.mjs t1",
+    "check:t2": "node --env-file=.env scripts/check-tests.mjs t2",
+    "check:t3": "node --env-file=.env scripts/check-tests.mjs t3"
   },
   "dependencies": {
     "@nestjs/common": "^12.0.1",
