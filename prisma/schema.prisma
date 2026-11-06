@@ -24,6 +24,7 @@ model User {
   profile   Profile?
   roles     UserRole[]
   auditLogs AuditLog[]
+  photos    Photo[]
 
   @@index([status]) // filtrowanie listy po statusie
   @@index([createdAt]) // lista użytkowników z D4 jest domyślnie sortowana po dacie utworzenia
@@ -36,6 +37,25 @@ model Profile {
   bio         String?
   userId      Int     @unique
   user        User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  avatarId    Int? // aktualny avatar (zdjęcie z tabeli Photo)
+  avatar      Photo?  @relation("ProfileAvatar", fields: [avatarId], references: [id], onDelete: SetNull)
+
+  @@index([avatarId])
+}
+
+// każde wgrane zdjęcie to osobny rekord; plik leży na dysku w UPLOAD_DIR pod nazwą fileName
+model Photo {
+  id           Int       @id @default(autoincrement())
+  userId       Int // kto wgrał
+  fileName     String    @unique
+  originalName String
+  mimeType     String
+  size         Int
+  createdAt    DateTime  @default(now())
+  user         User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  avatarOf     Profile[] @relation("ProfileAvatar")
+
+  @@index([userId])
 }
 
 model Role {
